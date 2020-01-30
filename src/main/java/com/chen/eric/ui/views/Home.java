@@ -16,7 +16,7 @@ import com.chen.eric.ui.util.css.FlexDirection;
 import com.chen.eric.ui.util.css.FlexWrap;
 
 @PageTitle("Welcome")
-@Route(value = "", layout = MainLayout.class)
+@Route(value = "Home", layout = MainLayout.class)
 public class Home extends ViewFrame {
 
 	public Home() {

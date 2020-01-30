@@ -4,7 +4,9 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.textfield.TextField;
 import com.chen.eric.ui.layout.size.Right;
 import com.chen.eric.ui.layout.size.Wide;
 import com.chen.eric.ui.util.FontSize;
@@ -41,6 +43,24 @@ public class ListItem extends FlexBoxLayout {
 		content.setClassName(CLASS_NAME + "__content");
 		content.setFlexDirection(FlexDirection.COLUMN);
 		add(content);
+	}
+	
+	public ListItem(Component prefix, Component primary, String secondary) {
+		addClassName(CLASS_NAME);
+
+		setAlignItems(FlexComponent.Alignment.CENTER);
+		setPadding(Wide.RESPONSIVE_L);
+		setSpacing(Right.L);
+
+		this.secondary = UIUtils.createLabel(FontSize.S, TextColor.SECONDARY,
+				secondary);
+
+		content = new FlexBoxLayout(primary, this.secondary);
+		content.setClassName(CLASS_NAME + "__content");
+		content.setFlexDirection(FlexDirection.COLUMN);
+		add(content);
+		
+		setPrefix(prefix);
 	}
 
 	public ListItem(String primary) {

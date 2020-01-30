@@ -31,25 +31,25 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		// Not using Spring CSRF here to be able to use plain HTML for the login page
 		http.csrf().disable()
 
-				// Register our CustomRequestCache, that saves unauthorized access attempts, so
-				// the user is redirected after login.
-				.requestCache().requestCache(new CustomRequestCache())
+		// Register our CustomRequestCache, that saves unauthorized access attempts, so
+		// the user is redirected after login.
+		.requestCache().requestCache(new CustomRequestCache())
 
-				// Restrict access to our application.
-				.and().authorizeRequests()
+		// Restrict access to our application.
+		.and().authorizeRequests()
 
-				// Allow all flow internal requests.
-				.requestMatchers(SecurityUtils::isFrameworkInternalRequest).permitAll()
+		// Allow all flow internal requests.
+		.requestMatchers(SecurityUtils::isFrameworkInternalRequest).permitAll()
 
-				// Allow all requests by logged in users.
-				.anyRequest().authenticated()
+		// Allow all requests by logged in users.
+		.anyRequest().authenticated()
 
-				// Configure the login page.
-				.and().formLogin().loginPage(LOGIN_URL).permitAll().loginProcessingUrl(LOGIN_PROCESSING_URL)
-				.failureUrl(LOGIN_FAILURE_URL)
+		// Configure the login page.
+		.and().formLogin().loginPage(LOGIN_URL).permitAll().loginProcessingUrl(LOGIN_PROCESSING_URL)
+		.failureUrl(LOGIN_FAILURE_URL)
 
-				// Configure logout
-				.and().logout().logoutSuccessUrl(LOGOUT_SUCCESS_URL);
+		// Configure logout
+		.and().logout().logoutSuccessUrl(LOGOUT_SUCCESS_URL);
 	}
 	
 	@Autowired
@@ -60,7 +60,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	    auth.jdbcAuthentication().dataSource(dataSource)
 	        .usersByUsernameQuery("SELECT Username, Password, Enable"
 	            + " FROM Login where Username=?")
-	        .authoritiesByUsernameQuery("select Username, Role From Employee Join Login On Login.ID = Employee.LoginID WHERE Username=?")
+	        .authoritiesByUsernameQuery(
+	        		"SELECT Username, LTRIM(RTRIM(Role)) AS Role "
+	        		+ "From Employee Join Login On Login.ID = Employee.LoginID "
+	        		+ "WHERE Username=?")
 	        .passwordEncoder(new BCryptPasswordEncoder());
 	}
 	

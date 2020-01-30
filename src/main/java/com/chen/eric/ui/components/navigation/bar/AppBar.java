@@ -3,6 +3,7 @@ package com.chen.eric.ui.components.navigation.bar;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
@@ -119,8 +120,7 @@ public class AppBar extends FlexBoxLayout {
 				e -> Notification.show("Not implemented yet.", 3000,
 						Notification.Position.BOTTOM_CENTER));
 		contextMenu.addItem("Log Out",
-				e -> Notification.show("Not implemented yet.", 3000,
-						Notification.Position.BOTTOM_CENTER));
+				e -> UI.getCurrent().getPage().executeJs("location.assign('logout')"));
 	}
 
 	private void initActionItems() {

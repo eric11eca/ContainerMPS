@@ -1,5 +1,28 @@
 package com.chen.eric.ui;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import com.chen.eric.Security.SecurityUtils;
+import com.chen.eric.backend.Role;
+import com.chen.eric.ui.components.FlexBoxLayout;
+import com.chen.eric.ui.components.navigation.bar.AppBar;
+import com.chen.eric.ui.components.navigation.bar.TabBar;
+import com.chen.eric.ui.components.navigation.drawer.NaviDrawer;
+import com.chen.eric.ui.components.navigation.drawer.NaviItem;
+import com.chen.eric.ui.components.navigation.drawer.NaviMenu;
+import com.chen.eric.ui.util.UIUtils;
+import com.chen.eric.ui.util.css.FlexDirection;
+import com.chen.eric.ui.util.css.Overflow;
+import com.chen.eric.ui.views.EmployeeView;
+import com.chen.eric.ui.views.Home;
+import com.chen.eric.ui.views.StorageBlock;
+import com.chen.eric.ui.views.VesselView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
@@ -13,30 +36,14 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLayout;
-import com.vaadin.flow.server.*;
+import com.vaadin.flow.server.ErrorHandler;
+import com.vaadin.flow.server.InitialPageSettings;
+import com.vaadin.flow.server.PWA;
+import com.vaadin.flow.server.PageConfigurator;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.Lumo;
-import com.chen.eric.ui.components.FlexBoxLayout;
-import com.chen.eric.ui.components.navigation.bar.AppBar;
-import com.chen.eric.ui.components.navigation.bar.TabBar;
-import com.chen.eric.ui.components.navigation.drawer.NaviDrawer;
-import com.chen.eric.ui.components.navigation.drawer.NaviItem;
-import com.chen.eric.ui.components.navigation.drawer.NaviMenu;
-import com.chen.eric.ui.util.UIUtils;
-import com.chen.eric.ui.util.css.FlexDirection;
-import com.chen.eric.ui.util.css.Overflow;
-import com.chen.eric.ui.views.Accounts;
-import com.chen.eric.ui.views.Home;
-import com.chen.eric.ui.views.Payments;
-import com.chen.eric.ui.views.Statistics;
-import com.chen.eric.ui.views.StorageBlock;
-import com.chen.eric.ui.views.VesselView;
-import com.chen.eric.ui.views.personnel.Accountants;
-import com.chen.eric.ui.views.personnel.Managers;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Route
-@SuppressWarnings("serial")
 @CssImport(value = "./styles/components/charts.css", themeFor = "vaadin-chart", include = "vaadin-chart-default-theme")
 @CssImport(value = "./styles/components/floating-action-button.css", themeFor = "vaadin-button")
 @CssImport(value = "./styles/components/grid.css", themeFor = "vaadin-grid")
@@ -127,13 +134,18 @@ public class MainLayout extends FlexBoxLayout
 		//menu.addNaviItem(VaadinIcon.INSTITUTION, "Accounts", Accounts.class);
 		menu.addNaviItem(VaadinIcon.ANCHOR, "Vessel", VesselView.class);
 		menu.addNaviItem(VaadinIcon.CUBES, "Storage", StorageBlock.class);
-		menu.addNaviItem(VaadinIcon.CREDIT_CARD, "Payments", Payments.class);
-		//menu.addNaviItem(VaadinIcon.CHART, "Statistics", Statistics.class);
-
-		NaviItem personnel = menu.addNaviItem(VaadinIcon.USERS, "Personnel",
-				null);
-		menu.addNaviItem(personnel, "Accountants", Accountants.class);
-		menu.addNaviItem(personnel, "Managers", Managers.class);
+		//menu.addNaviItem(VaadinIcon.CREDIT_CARD, "Payments", Payments.class);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Set<String> roles = authentication.getAuthorities().stream()
+			     .map(r -> r.getAuthority()).collect(Collectors.toSet());
+		if (roles.contains("System Admin") || roles.contains("Human Resources") ||
+				roles.contains("Super Manager")) {
+			menu.addNaviItem(VaadinIcon.USERS, "Employee", EmployeeView.class);
+		}
+		
+		//NaviItem personnel = menu.addNaviItem(VaadinIcon.USERS, "Personnel",null);
+		//menu.addNaviItem(personnel, "Accountants", Accountants.class);
+		//menu.addNaviItem(personnel, "Managers", Managers.class);
 	}
 
 	/**

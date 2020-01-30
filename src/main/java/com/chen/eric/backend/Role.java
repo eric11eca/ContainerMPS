@@ -1,16 +1,22 @@
 package com.chen.eric.backend;
 
-public enum Role {
-	SuperManager("Super Manager"),
-	HumanResource("Human Resource");
-	
-	private String role; 
-	  
-    public String getRole() { 
-        return this.role; 
-    } 
+import java.util.Arrays;
+import java.util.List;
 
-    private Role(String role) { 
-        this.role = role; 
-    } 
+public class Role {
+	public static final String SystemAdmin = "System Admin";
+	public static final String SuperManager = "Super Manager";
+	public static final String HumanResource = "Human Resource";
+    
+    public static final String PlanManager = "Plan Manager";
+	public static final String NO_ACCES = "no_acces";
+
+	private Role() {}
+	
+	public static final List<String> allowedUser = Arrays.asList(new String[] {
+			SystemAdmin, PlanManager, SuperManager, HumanResource});
+	
+	public static String[] getAllRoles() {
+		return new String[] {PlanManager, SuperManager};
+	}
 }

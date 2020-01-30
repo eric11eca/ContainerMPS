@@ -60,7 +60,7 @@ import com.vaadin.flow.router.Route;
 @SuppressWarnings("serial")
 @PageTitle("Vessel")
 @Route(value = "", layout = MainLayout.class)
-public class VesselView extends SplitViewFrame {
+public class ContainerView extends SplitViewFrame {
 
 	private Grid<Vessel> grid;
 	private ListDataProvider<Vessel> dataProvider;

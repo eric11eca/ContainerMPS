@@ -3,8 +3,8 @@ package com.chen.eric.backend;
 import java.sql.Date;
 
 public class Vessel {
-	private int vesselID;
-	private int capacity;
+	private Integer vesselID;
+	private Integer capacity;
 	private String departedFromCountry;
 	private String departedFromState;
 	private String departedFromCity;
@@ -14,7 +14,7 @@ public class Vessel {
 	private Date departDate;
 	private Date arivalDate;
 	
-	public Vessel(int vesselID, int capacity, String departedFromCountry,
+	public Vessel(Integer vesselID, Integer capacity, String departedFromCountry,
 			String departedFromState, String departedFromCity, 
 			String destinationCountry, String destinationState, 
 			String destinationCity, Date departDate, Date arivalDate) {
@@ -34,19 +34,19 @@ public class Vessel {
 		
 	}
 
-	public int getVesselID() {
+	public Integer getVesselID() {
 		return vesselID;
 	}
 	
-	public void setVesselID(int vesselID) {
+	public void setVesselID(Integer vesselID) {
 		this.vesselID = vesselID;
 	}
 	
-	public int getCapacity() {
+	public Integer getCapacity() {
 		return capacity;
 	}
 	
-	public void setCapacity(int capacity) {
+	public void setCapacity(Integer capacity) {
 		this.capacity = capacity;
 	}
 
