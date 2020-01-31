@@ -7,6 +7,8 @@ public class Employee {
 	private String role;
 	private String userName;
 	
+	public int key;
+	
 	public int getSSN() {
 		return SSN;
 	}

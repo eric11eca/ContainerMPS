@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.chen.eric.Security.SecurityUtils;
-import com.chen.eric.backend.Role;
 import com.chen.eric.ui.components.FlexBoxLayout;
 import com.chen.eric.ui.components.navigation.bar.AppBar;
 import com.chen.eric.ui.components.navigation.bar.TabBar;
@@ -19,6 +17,7 @@ import com.chen.eric.ui.components.navigation.drawer.NaviMenu;
 import com.chen.eric.ui.util.UIUtils;
 import com.chen.eric.ui.util.css.FlexDirection;
 import com.chen.eric.ui.util.css.Overflow;
+import com.chen.eric.ui.views.ContainerView;
 import com.chen.eric.ui.views.EmployeeView;
 import com.chen.eric.ui.views.Home;
 import com.chen.eric.ui.views.StorageBlock;
@@ -43,6 +42,8 @@ import com.vaadin.flow.server.PageConfigurator;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+@SuppressWarnings("serial")
+
 @Route
 @CssImport(value = "./styles/components/charts.css", themeFor = "vaadin-chart", include = "vaadin-chart-default-theme")
 @CssImport(value = "./styles/components/floating-action-button.css", themeFor = "vaadin-button")
@@ -57,7 +58,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 @CssImport("./styles/misc/box-shadow-borders.css")
 @CssImport(value = "./styles/styles.css", include = "lumo-badge")
 @JsModule("@vaadin/vaadin-lumo-styles/badge")
-@PWA(name = "ContainerYardPMS", shortName = "ContainerYardPMS", iconPath = "images/logo-18.png", backgroundColor = "#233348", themeColor = "#233348")
+@PWA(name = "ContainerYardPMS", shortName = "ContainerYardPMS", iconPath = "images/logo-10.png", backgroundColor = "#233348", themeColor = "#233348")
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
 public class MainLayout extends FlexBoxLayout
 		implements RouterLayout, PageConfigurator, AfterNavigationObserver {
@@ -132,9 +133,9 @@ public class MainLayout extends FlexBoxLayout
 		NaviMenu menu = naviDrawer.getMenu();
 		//menu.addNaviItem(VaadinIcon.HOME, "Home", Home.class);
 		//menu.addNaviItem(VaadinIcon.INSTITUTION, "Accounts", Accounts.class);
-		menu.addNaviItem(VaadinIcon.ANCHOR, "Vessel", VesselView.class);
+		menu.addNaviItem(VaadinIcon.BOAT, "Vessel", VesselView.class);
 		menu.addNaviItem(VaadinIcon.CUBES, "Storage", StorageBlock.class);
-		//menu.addNaviItem(VaadinIcon.CREDIT_CARD, "Payments", Payments.class);
+		menu.addNaviItem(VaadinIcon.PACKAGE, "Container", ContainerView.class);
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Set<String> roles = authentication.getAuthorities().stream()
 			     .map(r -> r.getAuthority()).collect(Collectors.toSet());
@@ -152,9 +153,9 @@ public class MainLayout extends FlexBoxLayout
 	 * Configure the app's inner and outer headers and footers.
 	 */
 	private void initHeadersAndFooters() {
-		// setAppHeaderOuter();
-		// setAppFooterInner();
-		// setAppFooterOuter();
+		 setAppHeaderOuter();
+		 setAppFooterInner();
+		 setAppFooterOuter();
 
 		appBar = new AppBar("");
 

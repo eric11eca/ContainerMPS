@@ -161,16 +161,16 @@ public class ContainerView extends SplitViewFrame {
 				.setSortable(true)
 				.setHeader("Fee Payed");
 		grid.addComponentColumn(this::create3DVolume)
-				.setAutoWidth(true)
+				.setWidth("360px")
 				.setFlexGrow(0)
 				.setSortable(true)
-				.setHeader("Size")
+				.setHeader("Length/Width/Height/Volume")
 				.setTextAlign(ColumnTextAlign.END);
 		grid.addColumn(this::createWeight)
 				.setAutoWidth(true)
 				.setFlexGrow(0)
 				.setSortable(true)
-				.setHeader("Size")
+				.setHeader("Weight")
 				.setTextAlign(ColumnTextAlign.END);
 		grid.addColumn(new ComponentRenderer<>(this::createRemoveButton))
 				.setFlexGrow(0).setWidth("130px")
@@ -287,7 +287,7 @@ public class ContainerView extends SplitViewFrame {
 		});
 		
 		Select<String> typePicker = new Select<>();
-		typePicker.setItems("Normal", "Reefer", "Hazard", "Illegal");
+		typePicker.setItems("Normal", "Reefer", "Hazard", "Illegal", "Livestock");
 		typePicker.setValue(container.getType());
 		typePicker.setWidth("30%");
 		typePicker.addValueChangeListener(
@@ -356,26 +356,26 @@ public class ContainerView extends SplitViewFrame {
 		feeLayer.setAlignItems(Alignment.BASELINE);
 		
 		ListItem status = new ListItem(
-				UIUtils.createTertiaryIcon(VaadinIcon.ANCHOR), updateID, "Vessel");
+				UIUtils.createTertiaryIcon(VaadinIcon.PACKAGE), updateID, "Container ID");
 		
 		status.getContent().setAlignItems(FlexComponent.Alignment.BASELINE);
 		status.getContent().setSpacing(Bottom.XS);
 		
 		ListItem from = new ListItem(
-				UIUtils.createTertiaryIcon(VaadinIcon.UPLOAD_ALT),
-				sizeLayer , "Departure");
+				UIUtils.createTertiaryIcon(VaadinIcon.GRID_BEVEL),
+				sizeLayer , "Size");
 		ListItem to = new ListItem(
-				UIUtils.createTertiaryIcon(VaadinIcon.DOWNLOAD_ALT),
-				feeLayer, "Destination");
+				UIUtils.createTertiaryIcon(VaadinIcon.DOLLAR),
+				feeLayer, "Fee");
 		ListItem amount = new ListItem(
-				UIUtils.createTertiaryIcon(VaadinIcon.SCALE),
-				updateOwner, "Capacity");
+				UIUtils.createTertiaryIcon(VaadinIcon.CLIPBOARD),
+				updateOwner, "Owner");
 		ListItem dateArival = new ListItem(
-				UIUtils.createTertiaryIcon(VaadinIcon.CALENDAR),
-				typePicker, "Arrival Date");
+				UIUtils.createTertiaryIcon(VaadinIcon.CUBE),
+				typePicker, "Type");
 		ListItem dateDeparture = new ListItem(
-				UIUtils.createTertiaryIcon(VaadinIcon.CALENDAR),
-				updateWeight, "Departure Date");
+				UIUtils.createTertiaryIcon(VaadinIcon.SCALE),
+				updateWeight, "Weight");
 
 		for (ListItem item : new ListItem[]{
 				status, from, to, amount, dateArival, dateDeparture}) {

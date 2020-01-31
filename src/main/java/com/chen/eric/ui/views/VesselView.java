@@ -34,6 +34,7 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -51,7 +52,6 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.DebouncePhase;
 import com.vaadin.flow.router.PageTitle;
@@ -70,6 +70,9 @@ public class VesselView extends SplitViewFrame {
 	private Vessel tempVessel;
 	private Integer vesselID;
 	
+	private DetailsDrawerHeader detailsDrawerHeader;
+	private DetailsDrawerFooter detailsDrawerFooter;
+		
 	private DataContainer dataContainer = DataContainer.getInstance();
 
 	@Override
@@ -102,8 +105,8 @@ public class VesselView extends SplitViewFrame {
         searchBar.setSuffixComponent(closeIcon);
         
         Select<String> searchFilter = new Select<>();
-        searchFilter.setItems("ID", "Capacity", "DepartureDate", 
-        		"ArrivalDate", "DepartureCountry", "DestinationCountry");
+        searchFilter.setItems("VesselID", "Capacity", "DepartureDate", 
+        		"ArrivalDate", "Destination_Country", "DepartedFrom_Country");
         searchFilter.setLabel("Search Filter");
         searchFilter.addValueChangeListener(e -> filter = e.getValue());
 
@@ -120,7 +123,13 @@ public class VesselView extends SplitViewFrame {
 	        grid.setDataProvider(dataProvider);
         }).debounce(300, DebouncePhase.TRAILING);
         
-        HorizontalLayout toolBar = new HorizontalLayout(uploadProducts(), searchFilter, searchBar);
+        Button addVessel = UIUtils.createPrimaryButton("Add Vessel");
+        addVessel.setWidthFull();
+        addVessel.addClickListener(e->{
+        	createAddPanel().open();
+        });
+        
+        HorizontalLayout toolBar = new HorizontalLayout(addVessel, searchFilter, searchBar);
         toolBar.setAlignItems(Alignment.BASELINE);
         toolBar.setSpacing(true);
         toolBar.setPadding(true);
@@ -148,14 +157,11 @@ public class VesselView extends SplitViewFrame {
 				.setSortable(true)
 				.setHeader("Capacity")
 				.setTextAlign(ColumnTextAlign.END);
-		grid.addColumn(TemplateRenderer.<Vessel>of("[[item.date]]")
-				.withProperty("date", vessel -> UIUtils.formatSqlDate(vessel.getDepartDate())))
+		grid.addColumn(vessel -> UIUtils.formatSqlDate(vessel.getDepartDate()))
 				.setAutoWidth(true)
-				.setComparator(Vessel::getDepartDate)
 				.setFlexGrow(0)
 				.setHeader("Depart Date");
-		grid.addColumn(TemplateRenderer.<Vessel>of("[[item.date]]")
-				.withProperty("date", vessel -> UIUtils.formatSqlDate(vessel.getArivalDate())))
+		grid.addColumn(vessel -> UIUtils.formatSqlDate(vessel.getArivalDate()))
 				.setAutoWidth(true)
 				.setComparator(Vessel::getArivalDate)
 				.setFlexGrow(0)
@@ -166,14 +172,14 @@ public class VesselView extends SplitViewFrame {
 				.setFlexGrow(0)
 				.setHeader("Departure Location");
 		grid.addColumn(this::createDestionation)
-			.setWidth("280px")
-			.setResizable(true)
-			.setFlexGrow(0)
-			.setHeader("Destination");
+				.setWidth("280px")
+				.setResizable(true)
+				.setFlexGrow(0)
+				.setHeader("Destination");
 		grid.addColumn(new ComponentRenderer<>(this::createRemoveButton))
-			.setFlexGrow(0).setWidth("130px")
-			.setResizable(true)
-			.setTextAlign(ColumnTextAlign.CENTER);
+				.setFlexGrow(0).setWidth("130px")
+				.setResizable(true)
+				.setTextAlign(ColumnTextAlign.CENTER);
 		return grid;
 	}
 
@@ -198,27 +204,156 @@ public class VesselView extends SplitViewFrame {
 	
 	private Button createRemoveButton(Vessel vessel) {
 		Button button = new Button(new Icon(VaadinIcon.TRASH), clickEvent -> {
-            dataContainer.deleteVesselRecords(vessel.getVesselID());
-            dataContainer.getVesselRecords();
-    		dataProvider = DataProvider.ofCollection(dataContainer.vesselRecords.values());
-    		grid.setDataProvider(dataProvider);
+            int code = dataContainer.deleteVesselRecords(vessel.getVesselID());
+            if (code == 0) {
+            	dataContainer.getVesselRecords();
+        		dataProvider = DataProvider.ofCollection(dataContainer.vesselRecords.values());
+        		grid.setDataProvider(dataProvider);
+        		Notification.show("Succefully Deleted the record!");
+            } else {
+            	Notification.show("EEROR: DELETION FAILED!");
+            }       
         });
         button.setClassName("delete-button");
         button.addThemeName("small");
         return button;
     }
+	
+	private Dialog createAddPanel() {
+		Vessel newVessel = new Vessel(null, 0, "", "", "", "", "", "",
+				Date.valueOf("1900-01-01"), Date.valueOf("1900-01-01"));
+		
+		TextField updateID = new TextField();
+		updateID.setLabel("Vessel ID");
+		updateID.setWidth("50%");
+		updateID.addValueChangeListener(e-> {
+			newVessel.setVesselID(Integer.valueOf(e.getValue()));
+		});
+		
+		
+		TextField updateCapacity = new TextField();
+		updateCapacity.setWidth("50%");
+		updateCapacity.setLabel("Capacity");
+		updateCapacity.addValueChangeListener(e-> {
+			newVessel.setCapacity(Integer.valueOf(e.getValue()));
+		});
+		
+		DatePicker departureDatePicker = new DatePicker();
+		departureDatePicker.setLabel("Departure Date");
+		departureDatePicker.setClearButtonVisible(true);
+		departureDatePicker.addValueChangeListener(e->{
+			LocalDate date = departureDatePicker.getValue();
+			newVessel.setDepartDate(Date.valueOf(date));
+		});
+		
+		DatePicker arrivalDatePicker = new DatePicker();
+		arrivalDatePicker.setLabel("Aarrival Date");
+		arrivalDatePicker.setClearButtonVisible(true);
+		arrivalDatePicker.addValueChangeListener(e->{
+			LocalDate date = arrivalDatePicker.getValue();
+			newVessel.setArivalDate(Date.valueOf(date));
+		});
+		
+		Select<String> destinationCountryPicker = new Select<>();
+		destinationCountryPicker.setItems("U.S.", "China", "Russia", "Japan", "Australia", 
+        		"Canada", "South Korea", "Tiland", "Indonesia", "Chili");
+		destinationCountryPicker.setLabel("Destination Country");
+		destinationCountryPicker.setWidth("50%");
+		destinationCountryPicker.addValueChangeListener(
+        		e -> newVessel.setDestinationCountry(e.getValue()));
+        
+        TextField updateDestinationState = new TextField();
+        updateDestinationState.setWidth("50%");
+        updateDestinationState.setLabel("Destination State");
+        updateDestinationState.addValueChangeListener(e-> {
+			newVessel.setDestinationState(e.getValue());
+		});
+		
+		TextField updateDestinationCity = new TextField();
+		updateDestinationCity.setWidth("30%");
+		updateDestinationCity.setLabel("Destination City");
+		updateDestinationCity.addValueChangeListener(e-> {
+			newVessel.setDestinationCity(e.getValue());
+		});
+        
+        Select<String> departCountryPicker = new Select<>();
+        departCountryPicker.setItems("U.S.", "China", "Russia", "Japan", "Australia", 
+        		"Canada", "South Korea", "Tiland", "Indonesia", "Chili");
+        departCountryPicker.setLabel("Departure Country");
+        departCountryPicker.setWidth("30%");
+        departCountryPicker.addValueChangeListener(
+        		e -> newVessel.setDepartedFromCountry(e.getValue()));
+        
+        TextField updateDepartState = new TextField();
+        updateDepartState.setWidth("30%");
+        updateDepartState.setLabel("Departure State");
+        updateDepartState.addValueChangeListener(e-> {
+			newVessel.setDepartedFromState(e.getValue());
+		});
+		
+		TextField updateDepartCity = new TextField();
+		updateDepartCity.setWidth("30%");
+		updateDepartCity.setLabel("Departure City");
+		updateDepartCity.addValueChangeListener(e-> {
+			newVessel.setDepartedFromCity(e.getValue());
+		});
+		
+		HorizontalLayout idLayer = new HorizontalLayout(
+				updateID, updateCapacity);
+		
+		HorizontalLayout datePicker = new HorizontalLayout(
+				departureDatePicker, arrivalDatePicker);
+		datePicker.setAlignItems(Alignment.BASELINE);
+		
+		HorizontalLayout departLocation = new HorizontalLayout(
+				departCountryPicker, updateDepartState, updateDepartCity);
+		departLocation.setAlignItems(Alignment.BASELINE);
+		
+		HorizontalLayout destination= new HorizontalLayout(
+				destinationCountryPicker, updateDestinationState, updateDestinationCity);
+		destination.setAlignItems(Alignment.BASELINE);
+		
+		Dialog panel = new Dialog();
+		
+		detailsDrawerFooter = new DetailsDrawerFooter();
+		detailsDrawerFooter.addSaveListener(e->{
+			if (newVessel.getVesselID() == null) {
+				Notification.show("Vessel ID cannot be empty!");
+			} else {
+				int code = dataContainer.insertVesselRecords(newVessel);
+				if (code == 0) {
+					Notification.show("Succesfully Inserted the Data!");
+					dataContainer.getVesselRecords();
+			        dataProvider = DataProvider.ofCollection(dataContainer.vesselRecords.values());
+			        grid.setDataProvider(dataProvider);
+					panel.close();
+				} else {
+					Notification.show("ERROR: Insertion FAILED!");
+				}
+			}
+		});
+		
+		detailsDrawerFooter.addCancelListener(e->{
+			panel.close();
+		});
+		
+		VerticalLayout content = new VerticalLayout(
+				idLayer, datePicker, departLocation, destination, detailsDrawerFooter);
+		panel.add(content);
+		return panel;
+	}
 
 	private DetailsDrawer createDetailsDrawer() {
 		detailsDrawer = new DetailsDrawer(DetailsDrawer.Position.RIGHT);
 
-		DetailsDrawerHeader detailsDrawerHeader = new DetailsDrawerHeader("Vessel Details");
+		detailsDrawerHeader = new DetailsDrawerHeader("Vessel Details");
 		detailsDrawerHeader.addCloseListener(buttonClickEvent -> detailsDrawer.hide());
 		
-		DetailsDrawerFooter detailsDrawerFooter = new DetailsDrawerFooter();
+		detailsDrawerFooter = new DetailsDrawerFooter();
 		detailsDrawerFooter.addSaveListener(e -> {
 			if (tempVessel != null && vesselID != null) {
 				int code = dataContainer.updateVesselRecords(tempVessel, vesselID);
-				if (code > 10) {
+				if (code == 0) {
 					dataContainer.getVesselRecords();
 					dataProvider = DataProvider.ofCollection(dataContainer.vesselRecords.values());
 					grid.setDataProvider(dataProvider);

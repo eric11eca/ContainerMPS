@@ -49,6 +49,7 @@ public class LoginView extends HorizontalLayout {
             login.setAction("login");
             login.setOpened(true); 
             login.setTitle("ContainerMPS");
+            login.setDescription("Login with valid username and password");
             login.setOpened(false);
             getElement().appendChild(login.getElement());
             

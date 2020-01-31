@@ -114,7 +114,7 @@ public class VesselService implements EntityService<Vessel>{
 	public int updateRecords(Vessel vessel, int key) {
 		dbService.connect();
 		try {
-			String query = "{? = CALL dbo.Update_Vessel(?,?,?,?,?,?,?)}";
+			String query = "{? = CALL dbo.Update_Vessel(?,?,?,?,?,?,?,?,?,?,?)}";
 			CallableStatement stmt =  dbService.getConnection().prepareCall(query);
 			
 			stmt.registerOutParameter(1, Types.INTEGER);
@@ -150,10 +150,34 @@ public class VesselService implements EntityService<Vessel>{
 				stmt.setString(7, null);
 			}
 			
-			if (vessel.getDestinationCountry() != null) {
-				stmt.setString(8, vessel.getDestinationCountry());
+			if (vessel.getDepartedFromState() != null) {
+				stmt.setString(8, vessel.getDepartedFromState());
 			} else {
 				stmt.setString(8, null);
+			}
+			
+			if (vessel.getDepartedFromCity() != null) {
+				stmt.setString(9, vessel.getDepartedFromCity());
+			} else {
+				stmt.setString(9, null);
+			}
+			
+			if (vessel.getDestinationCountry() != null) {
+				stmt.setString(10, vessel.getDestinationCountry());
+			} else {
+				stmt.setString(10, null);
+			}
+			
+			if (vessel.getDestinationState() != null) {
+				stmt.setString(11, vessel.getDestinationState());
+			} else {
+				stmt.setString(11, null);
+			}
+			
+			if (vessel.getDestinationCity() != null) {
+				stmt.setString(12, vessel.getDestinationCity());
+			} else {
+				stmt.setString(12, null);
 			}
 
 			stmt.execute();
@@ -170,7 +194,7 @@ public class VesselService implements EntityService<Vessel>{
 	public int deleteRecords(int VesselID) {
 		try {
 			dbService.connect();
-			String query = "{? = call dbo.Delete_Vessel(?)";
+			String query = "{? = call dbo.Delete_Vessel(?)}";
 			
 			CallableStatement stmt =  dbService.getConnection().prepareCall(query);	
 			stmt.registerOutParameter(1, Types.INTEGER);
@@ -189,21 +213,22 @@ public class VesselService implements EntityService<Vessel>{
 	public int insertRecords(Vessel vessel) {
 		try {
 			dbService.connect();
-			String query = "INSERT INTO Vessel Values(?,?,?,?,?,?,?,?,?,?)";
+			String query = "{? = call Insert_Vessel(?,?,?,?,?,?,?,?,?,?)}";
 			
-			PreparedStatement stmt =  dbService.getConnection().prepareStatement(query);	
-			stmt.setInt(1, vessel.getVesselID());
-			stmt.setInt(2, vessel.getCapacity());
-			stmt.setDate(3, vessel.getArivalDate());
+			CallableStatement stmt =  dbService.getConnection().prepareCall(query);	
+			stmt.registerOutParameter(1, Types.INTEGER);
+			stmt.setInt(2, vessel.getVesselID());
+			stmt.setInt(3, vessel.getCapacity());
 			stmt.setDate(4, vessel.getDepartDate());
-			stmt.setString(5, vessel.getDestinationCountry());
-			stmt.setString(6, vessel.getDestinationState());
-			stmt.setString(7, vessel.getDestinationCity());
-			stmt.setString(8, vessel.getDepartedFromCountry());
-			stmt.setString(9, vessel.getDepartedFromState());
-			stmt.setString(10, vessel.getDepartedFromCity());
-			stmt.executeQuery();
-			return 0;
+			stmt.setDate(5, vessel.getArivalDate());
+			stmt.setString(6, vessel.getDestinationCountry());
+			stmt.setString(7, vessel.getDestinationState());
+			stmt.setString(8, vessel.getDestinationCity());
+			stmt.setString(9, vessel.getDepartedFromCountry());
+			stmt.setString(10, vessel.getDepartedFromState());
+			stmt.setString(11, vessel.getDepartedFromCity());
+			stmt.execute();
+			return stmt.getInt(1);
 		}
 		catch (SQLException ex) {
 			ex.printStackTrace();

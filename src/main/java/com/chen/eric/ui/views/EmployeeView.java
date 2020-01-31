@@ -242,17 +242,20 @@ public class EmployeeView extends SplitViewFrame {
 				Employee tmp = new Employee();
 				tmp.setSSN(employee.getSSN());
 				tmp.setRole(e.getValue()); 
-				int code = dataContainer.updateEmployeeRecords(tmp, 3);
-				if (code == 0) {
-					dataContainer.getEmployeeRecords();
-		    		dataProvider = DataProvider.ofCollection(dataContainer.employeeRecords.values());
-		    		grid.setDataProvider(dataProvider);
-				} else if (code == 1) {
-					Notification.show("This employee does not exist!");
-				} else if (code == 2) {
-					Notification.show("This employee is not activated!");
-				} else {
-					Notification.show("ERROR: UPDATE FAILED!");
+				if (!e.getValue().isEmpty()) {
+					int code = dataContainer.updateEmployeeRecords(tmp, 3);
+					if (code == 0) {
+						Notification.show("Succesfully Updated the Data!");
+						dataContainer.getEmployeeRecords();
+			    		dataProvider = DataProvider.ofCollection(dataContainer.employeeRecords.values());
+			    		grid.setDataProvider(dataProvider);
+					} else if (code == 1) {
+						Notification.show("This employee does not exist!");
+					} else if (code == 2) {
+						Notification.show("This employee is not activated!");
+					} else {
+						Notification.show("ERROR: UPDATE FAILED!");
+					}
 				}
 				rolePicker.setValue("");
 		});
@@ -321,7 +324,7 @@ public class EmployeeView extends SplitViewFrame {
 		
 		Select<String> rolePicker = new Select<>();
 		rolePicker.setItems(
-			"Import Plan Manager", "Export Plan Manager", 
+			"System Admin", "Import Plan Manager", "Export Plan Manager", 
 			"Storage Area Maintainer", "Container Infomation Recorder",
 			"Vessel Dispatcher", "Container Distributor",
 			"Human Resource", "Customer Communicator", 
