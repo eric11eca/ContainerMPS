@@ -17,7 +17,7 @@ public class Vessel {
 	public Vessel(Integer vesselID, Integer capacity, String departedFromCountry,
 			String departedFromState, String departedFromCity, 
 			String destinationCountry, String destinationState, 
-			String destinationCity, Date departDate, Date arivalDate) {
+			String destinationCity, Date departDate, Date arrivalDate) {
 		this.vesselID = vesselID;
 		this.capacity = capacity;
 		this.departedFromCountry = departedFromCountry;
@@ -27,7 +27,7 @@ public class Vessel {
 		this.destinationState = destinationState;
 		this.destinationCity = destinationCity;
 		this.departDate = departDate;
-		this.arivalDate = arivalDate;
+		this.arivalDate = arrivalDate;
 	}
 
 	public Vessel() {

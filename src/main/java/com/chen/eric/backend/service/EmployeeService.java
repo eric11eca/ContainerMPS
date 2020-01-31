@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.chen.eric.backend.Employee;
-import com.chen.eric.backend.Vessel;
 
 public class EmployeeService implements EntityService<Employee>{
 	private DBConnectionService dbService;
@@ -71,7 +70,7 @@ public class EmployeeService implements EntityService<Employee>{
 	}
 
 	@Override
-	public Map<String, Vessel> retriveRecordsByParameters(String filter, String value) {
+	public Map<String, Employee> retriveRecordsByParameters(String filter, String value) {
 		return null;
 	}
 

@@ -8,9 +8,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.sql.Date;
-import java.time.LocalDate;
 import java.util.List;
 
+import com.chen.eric.backend.Container;
 import com.chen.eric.backend.Vessel;
 import com.chen.eric.backend.service.DataContainer;
 import com.chen.eric.ui.MainLayout;
@@ -33,7 +33,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -45,30 +44,30 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Receiver;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.DebouncePhase;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 @SuppressWarnings("serial")
-@PageTitle("Vessel")
-@Route(value = "", layout = MainLayout.class)
+@PageTitle("Container")
+@Route(value = "container", layout = MainLayout.class)
 public class ContainerView extends SplitViewFrame {
 
-	private Grid<Vessel> grid;
-	private ListDataProvider<Vessel> dataProvider;
+	private Grid<Container> grid;
+	private ListDataProvider<Container> dataProvider;
 	private DetailsDrawer detailsDrawer;
 	private File tempFile;
 	private String filter = "";
-	private Vessel tempVessel;
-	private Integer vesselID;
+	private Container tempContainer;
+	private Integer containerID;
 	
 	private DataContainer dataContainer = DataContainer.getInstance();
 
@@ -102,8 +101,7 @@ public class ContainerView extends SplitViewFrame {
         searchBar.setSuffixComponent(closeIcon);
         
         Select<String> searchFilter = new Select<>();
-        searchFilter.setItems("ID", "Capacity", "DepartureDate", 
-        		"ArrivalDate", "DepartureCountry", "DestinationCountry");
+        searchFilter.setItems("ID", "isPayed", "Owner", "weight", "volume", "type");
         searchFilter.setLabel("Search Filter");
         searchFilter.addValueChangeListener(e -> filter = e.getValue());
 
@@ -111,12 +109,12 @@ public class ContainerView extends SplitViewFrame {
             closeIcon.setVisible(!searchBar.getValue().isEmpty());  
             
             if (filter.isEmpty() || searchBar.getValue().isEmpty()) {
-            	dataContainer.getVesselRecords();
+            	dataContainer.getContainerRecords();
             } else {
-            	dataContainer.getVesselRecordsByParams(filter, searchBar.getValue());
+            	dataContainer.getContainerRecordsByParams(filter, searchBar.getValue());
             }
             
-	        dataProvider = DataProvider.ofCollection(dataContainer.vesselRecords.values());
+	        dataProvider = DataProvider.ofCollection(dataContainer.containerRecords.values());
 	        grid.setDataProvider(dataProvider);
         }).debounce(300, DebouncePhase.TRAILING);
         
@@ -128,79 +126,108 @@ public class ContainerView extends SplitViewFrame {
         return toolBar;
 	}
 
-	private Grid<Vessel> createGrid() {
-		dataContainer.getVesselRecords();
-		dataProvider = DataProvider.ofCollection(dataContainer.vesselRecords.values());
+	private Grid<Container> createGrid() {
+		dataContainer.getContainerRecords();
+		dataProvider = DataProvider.ofCollection(dataContainer.containerRecords.values());
 		grid = new Grid<>();
 		grid.addSelectionListener(event -> event.getFirstSelectedItem().ifPresent(this::showDetails));
 		grid.setDataProvider(dataProvider);
 		grid.setHeightByRows(true);
 		grid.setWidthFull();
 		
-		grid.addColumn(Vessel::getVesselID)
+		grid.addColumn(Container::getContainerID)
 				.setAutoWidth(true)
 				.setFlexGrow(0)
 				.setSortable(true)
-				.setHeader("Vessel ID");
-		grid.addColumn(new ComponentRenderer<>(this::createCapacity))
+				.setHeader("Container ID");
+		grid.addColumn(Container::getType)
 				.setAutoWidth(true)
 				.setFlexGrow(0)
 				.setSortable(true)
-				.setHeader("Capacity")
+				.setHeader("Type");
+		grid.addColumn(Container::getOwner)
+				.setAutoWidth(true)
+				.setFlexGrow(0)
+				.setSortable(true)
+				.setHeader("Owner");
+		grid.addColumn(this::createFee)
+				.setAutoWidth(true)
+				.setFlexGrow(0)
+				.setSortable(true)
+				.setHeader("Service Fee");
+		grid.addComponentColumn(this::createActive)
+				.setAutoWidth(true)
+				.setFlexGrow(0)
+				.setSortable(true)
+				.setHeader("Fee Payed");
+		grid.addComponentColumn(this::create3DVolume)
+				.setAutoWidth(true)
+				.setFlexGrow(0)
+				.setSortable(true)
+				.setHeader("Size")
 				.setTextAlign(ColumnTextAlign.END);
-		grid.addColumn(TemplateRenderer.<Vessel>of("[[item.date]]")
-				.withProperty("date", vessel -> UIUtils.formatSqlDate(vessel.getDepartDate())))
+		grid.addColumn(this::createWeight)
 				.setAutoWidth(true)
-				.setComparator(Vessel::getDepartDate)
 				.setFlexGrow(0)
-				.setHeader("Depart Date");
-		grid.addColumn(TemplateRenderer.<Vessel>of("[[item.date]]")
-				.withProperty("date", vessel -> UIUtils.formatSqlDate(vessel.getArivalDate())))
-				.setAutoWidth(true)
-				.setComparator(Vessel::getArivalDate)
-				.setFlexGrow(0)
-				.setHeader("Arrival Date");
-		grid.addColumn(this::createDepartureLocation)
-				.setWidth("280px")
-				.setResizable(true)
-				.setFlexGrow(0)
-				.setHeader("Departure Location");
-		grid.addColumn(this::createDestionation)
-			.setWidth("280px")
-			.setResizable(true)
-			.setFlexGrow(0)
-			.setHeader("Destination");
+				.setSortable(true)
+				.setHeader("Size")
+				.setTextAlign(ColumnTextAlign.END);
 		grid.addColumn(new ComponentRenderer<>(this::createRemoveButton))
-			.setFlexGrow(0).setWidth("130px")
-			.setResizable(true)
-			.setTextAlign(ColumnTextAlign.CENTER);
+				.setFlexGrow(0).setWidth("130px")
+				.setResizable(true)
+				.setTextAlign(ColumnTextAlign.CENTER);
 		return grid;
 	}
-
-	private String createDepartureLocation(Vessel vessel) {
-		return UIUtils.formatWorldAddress(
-				vessel.getDepartedFromCountry(),
-				vessel.getDepartedFromState(),
-				vessel.getDepartedFromCity());
+	
+	private Component createActive(Container container) {
+		Icon icon;
+		if (container.isPayed()) {
+			icon = UIUtils.createPrimaryIcon(VaadinIcon.CHECK);
+		} else {
+			icon = UIUtils.createDisabledIcon(VaadinIcon.CLOSE);
+		}
+		return icon;
 	}
 
-	private String createDestionation(Vessel vessel) {
-		return UIUtils.formatWorldAddress(
-					vessel.getDestinationCountry(),
-					vessel.getDestinationState(),
-					vessel.getDestinationCity());
+	private String createFee(Container container) {
+		return UIUtils.formatAmount(container.getFee());
 	}
 
-	private Component createCapacity(Vessel vessel) {
-		Integer capacity = vessel.getCapacity();
-		return UIUtils.createAmountLabel(capacity);
+	private String createWeight(Container container) {
+		return UIUtils.formatAmount(container.getWeight());
+	}
+
+	private Component create3DVolume(Container container) {
+		NumberField updateLength = new NumberField();
+        updateLength.setWidth("20%");
+        updateLength.setValue(container.getLength());
+
+        NumberField updateWidth = new NumberField();
+        updateWidth.setWidth("20%");
+        updateWidth.setValue(container.getWidth());
+
+        NumberField updateHeight = new NumberField();
+        updateHeight.setWidth("20%");
+        updateHeight.setValue(container.getHeight());
+
+        NumberField showVolume = new NumberField();
+        showVolume.setWidth("20%");
+        showVolume.setValue(
+        		container.getLength() * 
+        		container.getWidth() * 
+        		container.getHeight());
+
+		HorizontalLayout sizeLayer = new HorizontalLayout(
+				updateLength, updateWidth, updateHeight, showVolume);
+		sizeLayer.setAlignItems(Alignment.BASELINE);
+		return sizeLayer;
 	}
 	
-	private Button createRemoveButton(Vessel vessel) {
+	private Button createRemoveButton(Container contianer) {
 		Button button = new Button(new Icon(VaadinIcon.TRASH), clickEvent -> {
-            dataContainer.deleteVesselRecords(vessel.getVesselID());
+            dataContainer.deleteVesselRecords(contianer.getContainerID());
             dataContainer.getVesselRecords();
-    		dataProvider = DataProvider.ofCollection(dataContainer.vesselRecords.values());
+    		dataProvider = DataProvider.ofCollection(dataContainer.containerRecords.values());
     		grid.setDataProvider(dataProvider);
         });
         button.setClassName("delete-button");
@@ -216,11 +243,11 @@ public class ContainerView extends SplitViewFrame {
 		
 		DetailsDrawerFooter detailsDrawerFooter = new DetailsDrawerFooter();
 		detailsDrawerFooter.addSaveListener(e -> {
-			if (tempVessel != null && vesselID != null) {
-				int code = dataContainer.updateVesselRecords(tempVessel, vesselID);
+			if (tempContainer != null && containerID != null) {
+				int code = dataContainer.updateContainerRecords(tempContainer, containerID);
 				if (code > 10) {
-					dataContainer.getVesselRecords();
-					dataProvider = DataProvider.ofCollection(dataContainer.vesselRecords.values());
+					dataContainer.getContainerRecords();
+					dataProvider = DataProvider.ofCollection(dataContainer.containerRecords.values());
 					grid.setDataProvider(dataProvider);
 					Notification.show("Succesfully Updated the Data! WITH CODE: " + code, 4000, Notification.Position.BOTTOM_CENTER);
 				} else if (code == 1) {
@@ -237,96 +264,96 @@ public class ContainerView extends SplitViewFrame {
 		return detailsDrawer;
 	}
 
-	private void showDetails(Vessel vessel) {
-		tempVessel = new Vessel();
-		vesselID = vessel.getVesselID();
-		detailsDrawer.setContent(createDetails(vessel));
+	private void showDetails(Container container) {
+		tempContainer = new Container();
+		containerID = container.getContainerID();
+		detailsDrawer.setContent(createDetails(container));
 		detailsDrawer.show();
 	}
 
-	private Component createDetails(Vessel vessel) {
+	private Component createDetails(Container container) {
 		TextField updateID = new TextField();
-		updateID.setValue(String.valueOf(vessel.getVesselID()));
+		updateID.setValue(String.valueOf(container.getContainerID()));
 		updateID.setWidth("50%");
 		updateID.addValueChangeListener(e-> {
-			tempVessel.setVesselID(Integer.valueOf(e.getValue()));
+			tempContainer.setContainerID(Integer.valueOf(e.getValue()));
 		});
 		
-		
-		TextField updateCapacity = new TextField();
-		updateCapacity.setWidth("50%");
-		updateCapacity.setValue(String.valueOf(vessel.getCapacity()));
-		updateCapacity.addValueChangeListener(e-> {
-			tempVessel.setCapacity(Integer.valueOf(e.getValue()));
+		TextField updateOwner = new TextField();
+		updateOwner.setWidth("50%");
+		updateOwner.setValue(String.valueOf(container.getOwner()));
+		updateOwner.addValueChangeListener(e-> {
+			tempContainer.setOwner(e.getValue());
 		});
 		
-		DatePicker departureDatePicker = new DatePicker();
-		departureDatePicker.setValue(vessel.getDepartDate().toLocalDate());
-		departureDatePicker.setClearButtonVisible(true);
-		departureDatePicker.addValueChangeListener(e->{
-			LocalDate date = departureDatePicker.getValue();
-			tempVessel.setDepartDate(Date.valueOf(date));
-		});
-		
-		DatePicker arrivalDatePicker = new DatePicker();
-		arrivalDatePicker.setValue(vessel.getArivalDate().toLocalDate());
-		arrivalDatePicker.setClearButtonVisible(true);
-		arrivalDatePicker.addValueChangeListener(e->{
-			LocalDate date = arrivalDatePicker.getValue();
-			tempVessel.setArivalDate(Date.valueOf(date));
-		});
-		
-		Select<String> destinationCountryPicker = new Select<>();
-		destinationCountryPicker.setItems("U.S.", "China", "Russia", "Japan", "Australia", 
-        		"Canada", "South Korea", "Tiland", "Indonesia", "Chili");
-		destinationCountryPicker.setValue(vessel.getDestinationCountry());
-		destinationCountryPicker.setWidth("30%");
-		destinationCountryPicker.addValueChangeListener(
-        		e -> tempVessel.setDestinationCountry(e.getValue()));
+		Select<String> typePicker = new Select<>();
+		typePicker.setItems("Normal", "Reefer", "Hazard", "Illegal");
+		typePicker.setValue(container.getType());
+		typePicker.setWidth("30%");
+		typePicker.addValueChangeListener(
+        		e -> tempContainer.setType(e.getValue()));
         
-        TextField updateDestinationState = new TextField();
-        updateDestinationState.setWidth("30%");
-        updateDestinationState.setValue(vessel.getDestinationState());
-        updateDestinationState.addValueChangeListener(e-> {
-			tempVessel.setDestinationState(e.getValue());
+		NumberField updateWeight = new NumberField();
+        updateWeight.setWidth("50%");
+        updateWeight.setValue(container.getWeight());
+        updateWeight.addValueChangeListener(e-> {
+        	tempContainer.setWeight(e.getValue());
 		});
 		
-		TextField updateDestinationCity = new TextField();
-		updateDestinationCity.setWidth("30%");
-		updateDestinationCity.setValue(vessel.getDestinationCity());
-		updateDestinationCity.addValueChangeListener(e-> {
-			tempVessel.setDestinationCity(e.getValue());
+		NumberField updateFee = new NumberField();
+		updateFee.setWidth("30%");
+		updateFee.setValue(container.getFee());
+		updateFee.addValueChangeListener(e-> {
+			tempContainer.setFee(e.getValue());
 		});
         
-        Select<String> departCountryPicker = new Select<>();
-        departCountryPicker.setItems("U.S.", "China", "Russia", "Japan", "Australia", 
-        		"Canada", "South Korea", "Tiland", "Indonesia", "Chili");
-        departCountryPicker.setValue(vessel.getDepartedFromCountry());
-        departCountryPicker.setWidth("30%");
-        departCountryPicker.addValueChangeListener(
-        		e -> tempVessel.setDepartedFromCountry(e.getValue()));
+        Select<String> payedPicker = new Select<>();
+        payedPicker.setItems("Payed", "Not Payed");
+        if (container.isPayed()) {
+        	payedPicker.setValue("Payed");
+        } else {
+        	payedPicker.setValue("Not Payed");
+        }
+        payedPicker.setWidth("30%");
+        payedPicker.addValueChangeListener(e ->{
+        	if (e.getValue().equals("Payed")) {
+        		tempContainer.setPayed(true);
+        	} else {
+        		tempContainer.setPayed(false);
+        	}
+        });
         
-        TextField updateDepartState = new TextField();
-        updateDepartState.setWidth("30%");
-        updateDepartState.setValue(vessel.getDepartedFromState());
-        updateDepartState.addValueChangeListener(e-> {
-			tempVessel.setDepartedFromState(e.getValue());
+        NumberField updateLength = new NumberField();
+        updateLength.setWidth("20%");
+        updateLength.setValue(container.getLength());
+        updateLength.addValueChangeListener(e-> {
+        	tempContainer.setLength(e.getValue());
 		});
-		
-		TextField updateDepartCity = new TextField();
-		updateDepartCity.setWidth("30%");
-		updateDepartCity.setValue(vessel.getDepartedFromCity());
-		updateDepartCity.addValueChangeListener(e-> {
-			tempVessel.setDepartedFromCity(e.getValue());
+        NumberField updateWidth = new NumberField();
+        updateWidth.setWidth("20%");
+        updateWidth.setValue(container.getWidth());
+        updateWidth.addValueChangeListener(e-> {
+        	tempContainer.setWidth(e.getValue());
 		});
+        NumberField updateHeight = new NumberField();
+        updateHeight.setWidth("20%");
+        updateHeight.setValue(container.getHeight());
+        updateHeight.addValueChangeListener(e-> {
+        	tempContainer.setHeight(e.getValue());
+		});
+        NumberField showVolume = new NumberField();
+        showVolume.setWidth("20%");
+        showVolume.setValue(
+        		container.getLength() * 
+        		container.getWidth() * 
+        		container.getHeight());
+
+		HorizontalLayout sizeLayer = new HorizontalLayout(
+				updateLength, updateWidth, updateHeight, showVolume);
+		sizeLayer.setAlignItems(Alignment.BASELINE);
 		
-		HorizontalLayout departLocation = new HorizontalLayout(
-				departCountryPicker, updateDepartState, updateDepartCity);
-		departLocation.setAlignItems(Alignment.BASELINE);
-		
-		HorizontalLayout destination= new HorizontalLayout(
-				destinationCountryPicker, updateDestinationState, updateDestinationCity);
-		destination.setAlignItems(Alignment.BASELINE);
+		HorizontalLayout feeLayer= new HorizontalLayout(updateFee, payedPicker);
+		feeLayer.setAlignItems(Alignment.BASELINE);
 		
 		ListItem status = new ListItem(
 				UIUtils.createTertiaryIcon(VaadinIcon.ANCHOR), updateID, "Vessel");
@@ -336,19 +363,19 @@ public class ContainerView extends SplitViewFrame {
 		
 		ListItem from = new ListItem(
 				UIUtils.createTertiaryIcon(VaadinIcon.UPLOAD_ALT),
-				departLocation , "Departure");
+				sizeLayer , "Departure");
 		ListItem to = new ListItem(
 				UIUtils.createTertiaryIcon(VaadinIcon.DOWNLOAD_ALT),
-				destination, "Destination");
+				feeLayer, "Destination");
 		ListItem amount = new ListItem(
 				UIUtils.createTertiaryIcon(VaadinIcon.SCALE),
-				updateCapacity, "Capacity");
+				updateOwner, "Capacity");
 		ListItem dateArival = new ListItem(
 				UIUtils.createTertiaryIcon(VaadinIcon.CALENDAR),
-				arrivalDatePicker, "Arrival Date");
+				typePicker, "Arrival Date");
 		ListItem dateDeparture = new ListItem(
 				UIUtils.createTertiaryIcon(VaadinIcon.CALENDAR),
-				departureDatePicker, "Departure Date");
+				updateWeight, "Departure Date");
 
 		for (ListItem item : new ListItem[]{
 				status, from, to, amount, dateArival, dateDeparture}) {
@@ -408,7 +435,7 @@ public class ContainerView extends SplitViewFrame {
 				dataContainer.insertVesselRecords(v);
 			}
 			dataContainer.getVesselRecords();
-			dataProvider = DataProvider.ofCollection(dataContainer.vesselRecords.values());
+			dataProvider = DataProvider.ofCollection(dataContainer.containerRecords.values());
 			grid.setDataProvider(dataProvider);
 		} catch (IOException e) {
 			e.printStackTrace();
