@@ -71,20 +71,21 @@ public class ContainerService implements EntityService<Container>{
 	public int insertRecords(Container t) {
 		try {
 			dbService.connect();
-			String query = "INSERT INTO Container Values(?,?,?,?,?,?,?,?,?,?)";
+			String query = "? = CALL dbo.Insert_Container(?,?,?,?,?,?,?,?,?)";
 			
-			PreparedStatement stmt =  dbService.getConnection().prepareStatement(query);	
-			stmt.setInt(1, t.getContainerID());
-			stmt.setString(2, t.getType());
-			stmt.setDouble(3, t.getLength());
-			stmt.setDouble(4, t.getWidth());
-			stmt.setDouble(5, t.getHeight());
-			stmt.setDouble(6, t.getWeight());
-			stmt.setString(7, t.getOwner());
-			stmt.setBoolean(8, t.isPayed());
-			stmt.setDouble(9, t.getFee());
+			CallableStatement stmt =  dbService.getConnection().prepareCall(query);
+			stmt.registerOutParameter(1, Types.INTEGER);
+			stmt.setInt(2, t.getContainerID());
+			stmt.setString(3, t.getType());
+			stmt.setDouble(4, t.getLength());
+			stmt.setDouble(5, t.getWidth());
+			stmt.setDouble(6, t.getHeight());
+			stmt.setDouble(7, t.getWeight());
+			stmt.setString(8, t.getOwner());
+			stmt.setBoolean(9, t.isPayed());
+			stmt.setDouble(10, t.getFee());
 			stmt.executeQuery();
-			return 0;
+			return stmt.getInt(1);
 		}
 		catch (SQLException ex) {
 			ex.printStackTrace();
