@@ -71,7 +71,7 @@ public class ContainerService implements EntityService<Container>{
 	public int insertRecords(Container t) {
 		try {
 			dbService.connect();
-			String query = "? = CALL dbo.Insert_Container(?,?,?,?,?,?,?,?,?)";
+			String query = "{? = CALL dbo.Insert_Container(?,?,?,?,?,?,?,?,?)}";
 			
 			CallableStatement stmt =  dbService.getConnection().prepareCall(query);
 			stmt.registerOutParameter(1, Types.INTEGER);
@@ -85,6 +85,11 @@ public class ContainerService implements EntityService<Container>{
 			stmt.setBoolean(9, t.isPayed());
 			stmt.setDouble(10, t.getFee());
 			stmt.executeQuery();
+			
+			System.out.println();
+			System.out.println(stmt.getInt(1));
+			System.out.println();
+			
 			return stmt.getInt(1);
 		}
 		catch (SQLException ex) {

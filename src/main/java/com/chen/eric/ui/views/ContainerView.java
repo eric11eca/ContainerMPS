@@ -61,7 +61,6 @@ import com.vaadin.flow.router.Route;
 @PageTitle("Container")
 @Route(value = "container", layout = MainLayout.class)
 public class ContainerView extends SplitViewFrame {
-
 	private Grid<Container> grid;
 	private ListDataProvider<Container> dataProvider;
 	private DetailsDrawer detailsDrawer;
@@ -119,7 +118,7 @@ public class ContainerView extends SplitViewFrame {
 	        grid.setDataProvider(dataProvider);
         }).debounce(300, DebouncePhase.TRAILING);
         
-        Button addContainer = UIUtils.createPrimaryButton("Add Vessel");
+        Button addContainer = UIUtils.createPrimaryButton("Add Container");
         addContainer.setWidthFull();
         addContainer.addClickListener(e-> {
         	createAddContainer().open();
@@ -248,50 +247,58 @@ public class ContainerView extends SplitViewFrame {
 		
 		TextField updateID = new TextField();
 		updateID.setWidth("50%");
+		updateID.setLabel("Container ID");
 		updateID.addValueChangeListener(e-> {
-			tempContainer.setContainerID(Integer.valueOf(e.getValue()));
+			newContainer.setContainerID(Integer.valueOf(e.getValue()));
 		});
 		
 		TextField updateOwner = new TextField();
 		updateOwner.setWidth("50%");
+		updateOwner.setLabel("Owner");
 		updateOwner.addValueChangeListener(e-> {
-			tempContainer.setOwner(e.getValue());
+			newContainer.setOwner(e.getValue());
 		});
 		
 		Select<String> typePicker = new Select<>();
+		typePicker.setLabel("Type");
 		typePicker.setItems("Normal", "Reefer", "Hazard", "Illegal", "Livestock");
 		typePicker.setWidth("30%");
 		typePicker.addValueChangeListener(
-        		e -> tempContainer.setType(e.getValue()));
+        		e -> newContainer.setType(e.getValue()));
         
 		NumberField updateWeight = new NumberField();
         updateWeight.setWidth("50%");
+        updateWeight.setLabel("Weight");
         updateWeight.addValueChangeListener(e-> {
-        	tempContainer.setWeight(e.getValue());
+        	newContainer.setWeight(e.getValue());
 		});
 		
 		NumberField updateFee = new NumberField();
 		updateFee.setWidth("30%");
+		updateFee.setLabel("Fee");
 		updateFee.addValueChangeListener(e-> {
-			tempContainer.setFee(e.getValue());
+			newContainer.setFee(e.getValue());
 		});
         
         NumberField updateLength = new NumberField();
         updateLength.setWidth("20%");
+        updateLength.setLabel("Length");
         updateLength.addValueChangeListener(e-> {
-        	tempContainer.setLength(e.getValue());
+        	newContainer.setLength(e.getValue());
 		});
         
         NumberField updateWidth = new NumberField();
         updateWidth.setWidth("20%");
+        updateWidth.setLabel("Width");
         updateWidth.addValueChangeListener(e-> {
-        	tempContainer.setWidth(e.getValue());
+        	newContainer.setWidth(e.getValue());
 		});
         
         NumberField updateHeight = new NumberField();
         updateHeight.setWidth("20%");
+        updateHeight.setLabel("Height");
         updateHeight.addValueChangeListener(e-> {
-        	tempContainer.setHeight(e.getValue());
+        	newContainer.setHeight(e.getValue());
 		});
         
         HorizontalLayout idLayer = new HorizontalLayout(updateID, typePicker);
@@ -310,12 +317,17 @@ public class ContainerView extends SplitViewFrame {
 				Notification.show("Container ID cannot be empty!");
 			} else {
 				int code = dataContainer.insertContainerRecords(newContainer);
+				
 				if (code == 0) {
 					Notification.show("Succesfully Inserted the Container!", 4000, Notification.Position.BOTTOM_CENTER);
 					dataContainer.getVesselRecords();
 			        dataProvider = DataProvider.ofCollection(dataContainer.containerRecords.values());
 			        grid.setDataProvider(dataProvider);
 			        addPanel.close();
+				} else if (code == 1) {
+					Notification.show("The given containerID already exits!", 4000, Notification.Position.BOTTOM_CENTER);
+				} else if (code == 2) {
+					Notification.show("The given owner dose not exist!", 4000, Notification.Position.BOTTOM_CENTER);
 				} else {
 					Notification.show("ERROR: Insertion FAILED!", 4000, Notification.Position.BOTTOM_CENTER);
 				}

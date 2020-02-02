@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.security.core.Authentication;
 
 import com.chen.eric.backend.Container;
+import com.chen.eric.backend.Customer;
 import com.chen.eric.backend.Employee;
 import com.chen.eric.backend.Vessel;
 
@@ -78,6 +79,7 @@ public class DataContainer {
 	private EntityService<Container> containerService = new ContainerService(dbService);
 	public Map<String, Container> containerRecords = new HashMap<>();
 	
+	
 	public void getContainerRecords() {
 		containerRecords = containerService.retriveRecords();
 		dbService.closeConnection();
@@ -105,4 +107,22 @@ public class DataContainer {
 		dbService.closeConnection();
 		return code;
 	}
+	
+	public Map<String, Customer> customerRecords;
+
+	public int insertCustomerRecords(Customer newCustomer) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public void getCustomerRecords() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public int updateCustomerRecords(Customer tempContainer, Integer customerID) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
 }
