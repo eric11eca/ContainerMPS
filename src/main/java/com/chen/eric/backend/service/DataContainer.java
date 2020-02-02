@@ -109,20 +109,34 @@ public class DataContainer {
 	}
 	
 	public Map<String, Customer> customerRecords;
+	private EntityService<Customer>customerService = new CustomerService(dbService);
 
-	public int insertCustomerRecords(Customer newCustomer) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int insertCustomerRecords(Customer customer) {
+		int code = customerService.insertRecords(customer);
+		dbService.closeConnection();
+		return code;
 	}
 
 	public void getCustomerRecords() {
-		// TODO Auto-generated method stub
-		
+		customerRecords = customerService.retriveRecords();
+		dbService.closeConnection();
+	}
+	
+	public void getCustomerRecordsByParams(String filter, String value) {
+		customerRecords = customerService.retriveRecordsByParameters(filter, value);
+		dbService.closeConnection();
 	}
 
-	public int updateCustomerRecords(Customer tempContainer, Integer customerID) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int updateCustomerRecords(Customer cutomer, Integer customerID) {
+		int code = customerService.updateRecords(cutomer, customerID);
+		dbService.closeConnection();
+		return code;
+	}
+	
+	public int deleteCustomerRecords(Integer ID) {
+		int code = customerService.deleteRecords(ID);
+		dbService.closeConnection();
+		return code;
 	}
 	
 }

@@ -231,10 +231,15 @@ public class ContainerView extends SplitViewFrame {
 	
 	private Button createRemoveButton(Container contianer) {
 		Button button = new Button(new Icon(VaadinIcon.TRASH), clickEvent -> {
-            dataContainer.deleteVesselRecords(contianer.getContainerID());
-            dataContainer.getVesselRecords();
-    		dataProvider = DataProvider.ofCollection(dataContainer.containerRecords.values());
-    		grid.setDataProvider(dataProvider);
+            int code = dataContainer.deleteVesselRecords(contianer.getContainerID());
+            if (code == 0) {
+            	dataContainer.getVesselRecords();
+            	dataProvider = DataProvider.ofCollection(dataContainer.containerRecords.values());
+        		grid.setDataProvider(dataProvider);
+        		Notification.show("Succesfully deleted the customer" ,4000, Notification.Position.BOTTOM_CENTER);
+            } else {
+            	Notification.show("ERROR: DELETION FALIED" ,4000, Notification.Position.BOTTOM_CENTER);
+            }
         });
         button.setClassName("delete-button");
         button.addThemeName("small");
@@ -243,7 +248,7 @@ public class ContainerView extends SplitViewFrame {
 	
 	private Dialog createAddContainer() {
 		Dialog addPanel = new Dialog();
-		Container newContainer = new Container();
+		Container newContainer = new Container(0,"Normal",0.0,0.0,0.0,0.0,"",false,0.0);
 		
 		TextField updateID = new TextField();
 		updateID.setWidth("50%");
@@ -314,7 +319,7 @@ public class ContainerView extends SplitViewFrame {
 		DetailsDrawerFooter detailsDrawerFooter = new DetailsDrawerFooter();
 		detailsDrawerFooter.addSaveListener(e->{
 			if (newContainer.getContainerID() == null) {
-				Notification.show("Container ID cannot be empty!");
+				Notification.show("Container ID cannot be empty!", 4000, Notification.Position.BOTTOM_CENTER);
 			} else {
 				int code = dataContainer.insertContainerRecords(newContainer);
 				
@@ -354,7 +359,7 @@ public class ContainerView extends SplitViewFrame {
 		detailsDrawerFooter.addSaveListener(e -> {
 			if (tempContainer != null && containerID != null) {
 				int code = dataContainer.updateContainerRecords(tempContainer, containerID);
-				if (code > 10) {
+				if (code == 10) {
 					dataContainer.getContainerRecords();
 					dataProvider = DataProvider.ofCollection(dataContainer.containerRecords.values());
 					grid.setDataProvider(dataProvider);

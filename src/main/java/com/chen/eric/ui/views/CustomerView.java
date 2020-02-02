@@ -94,9 +94,9 @@ public class CustomerView extends SplitViewFrame {
             closeIcon.setVisible(!searchBar.getValue().isEmpty());  
             
             if (filter.isEmpty() || searchBar.getValue().isEmpty()) {
-            	dataContainer.getContainerRecords();
+            	dataContainer.getCustomerRecords();
             } else {
-            	dataContainer.getContainerRecordsByParams(filter, searchBar.getValue());
+            	dataContainer.getCustomerRecordsByParams(filter, searchBar.getValue());
             }
             
 	        dataProvider = DataProvider.ofCollection(dataContainer.customerRecords.values());
@@ -118,7 +118,7 @@ public class CustomerView extends SplitViewFrame {
 	}
 
 	private Grid<Customer> createGrid() {
-		dataContainer.getContainerRecords();
+		dataContainer.getCustomerRecords();
 		dataProvider = DataProvider.ofCollection(dataContainer.customerRecords.values());
 		grid = new Grid<>();
 		grid.addSelectionListener(event -> event.getFirstSelectedItem().ifPresent(this::showDetails));
@@ -160,8 +160,8 @@ public class CustomerView extends SplitViewFrame {
 	
 	private Button createRemoveButton(Customer customer) {
 		Button button = new Button(new Icon(VaadinIcon.TRASH), clickEvent -> {
-            dataContainer.deleteVesselRecords(customer.getCustomerID());
-            dataContainer.getVesselRecords();
+            dataContainer.deleteCustomerRecords(customer.getCustomerID());
+            dataContainer.getCustomerRecords();
     		dataProvider = DataProvider.ofCollection(dataContainer.customerRecords.values());
     		grid.setDataProvider(dataProvider);
         });
@@ -172,7 +172,7 @@ public class CustomerView extends SplitViewFrame {
 	
 	private Dialog createAddCustomer() {
 		Dialog addPanel = new Dialog();
-		Customer newCustomer = new Customer();
+		Customer newCustomer = new Customer(0,"","","","");
 		
 		TextField updateID = new TextField();
 		updateID.setWidth("50%");
@@ -259,7 +259,7 @@ public class CustomerView extends SplitViewFrame {
 		detailsDrawerFooter.addSaveListener(e -> {
 			if (tempCustomer != null && customerID != null) {
 				int code = dataContainer.updateCustomerRecords(tempCustomer, customerID);
-				if (code > 10) {
+				if (code == 0) {
 					dataContainer.getContainerRecords();
 					dataProvider = DataProvider.ofCollection(dataContainer.customerRecords.values());
 					grid.setDataProvider(dataProvider);

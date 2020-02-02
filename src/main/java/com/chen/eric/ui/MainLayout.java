@@ -18,6 +18,7 @@ import com.chen.eric.ui.util.UIUtils;
 import com.chen.eric.ui.util.css.FlexDirection;
 import com.chen.eric.ui.util.css.Overflow;
 import com.chen.eric.ui.views.ContainerView;
+import com.chen.eric.ui.views.CustomerView;
 import com.chen.eric.ui.views.EmployeeView;
 import com.chen.eric.ui.views.Home;
 import com.chen.eric.ui.views.StorageBlock;
@@ -136,6 +137,7 @@ public class MainLayout extends FlexBoxLayout
 		menu.addNaviItem(VaadinIcon.BOAT, "Vessel", VesselView.class);
 		menu.addNaviItem(VaadinIcon.CUBES, "Storage", StorageBlock.class);
 		menu.addNaviItem(VaadinIcon.PACKAGE, "Container", ContainerView.class);
+		menu.addNaviItem(VaadinIcon.COMMENTS, "Customer", CustomerView.class);
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Set<String> roles = authentication.getAuthorities().stream()
 			     .map(r -> r.getAuthority()).collect(Collectors.toSet());

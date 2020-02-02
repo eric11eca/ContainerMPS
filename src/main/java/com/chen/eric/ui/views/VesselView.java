@@ -209,7 +209,7 @@ public class VesselView extends SplitViewFrame {
             	dataContainer.getVesselRecords();
         		dataProvider = DataProvider.ofCollection(dataContainer.vesselRecords.values());
         		grid.setDataProvider(dataProvider);
-        		Notification.show("Succefully Deleted the record!", 4000, Notification.Position.BOTTOM_CENTER);
+        		Notification.show("Succefully Deleted the vessel!", 4000, Notification.Position.BOTTOM_CENTER);
             } else {
             	Notification.show("EEROR: DELETION FAILED!");
             }       

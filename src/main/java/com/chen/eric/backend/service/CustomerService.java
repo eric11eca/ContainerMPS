@@ -60,7 +60,7 @@ public class CustomerService implements EntityService<Customer>{
 	public int insertRecords(Customer t) {
 		try {
 			dbService.connect();
-			String query = "? = CALL dbo.Insert_Customer(?,?,?,?,?)";
+			String query = "{? = CALL dbo.Insert_Customer(?,?,?,?,?)}";
 			
 			CallableStatement stmt =  dbService.getConnection().prepareCall(query);
 			stmt.registerOutParameter(1, Types.INTEGER);
@@ -69,7 +69,7 @@ public class CustomerService implements EntityService<Customer>{
 			stmt.setString(4, t.getContactEmail());
 			stmt.setString(5, t.getCountry());
 			stmt.setString(6, t.getState());
-			stmt.executeQuery();
+			stmt.execute();
 			return stmt.getInt(1);
 		}
 		catch (SQLException ex) {
@@ -86,7 +86,7 @@ public class CustomerService implements EntityService<Customer>{
 		
 		try {
 			dbService.connect();
-			String query = "{? = CALL dbo.Search_Customer(?,?,?,?,?)}";
+			String query = "{? = CALL dbo.Search_Customer(?,?,?,?)}";
 			
 			CallableStatement stmt =  dbService.getConnection().prepareCall(query);
 			
@@ -114,12 +114,6 @@ public class CustomerService implements EntityService<Customer>{
 				stmt.setString(5, value);
 			} else {
 				stmt.setString(5, null);
-			}
-			
-			if (filter.equals("State")) {
-				stmt.setString(6, value);
-			} else {
-				stmt.setString(6, null);
 			}
 
 			boolean hasRs = stmt.execute();
@@ -201,7 +195,7 @@ public class CustomerService implements EntityService<Customer>{
 	public int deleteRecords(int ID) {
 		try {
 			dbService.connect();
-			String query = "{? = call dbo.Delete_Customer(?)";
+			String query = "{? = call dbo.Delete_Customer(?)}";
 			
 			CallableStatement stmt =  dbService.getConnection().prepareCall(query);	
 			stmt.registerOutParameter(1, Types.INTEGER);
@@ -209,8 +203,7 @@ public class CustomerService implements EntityService<Customer>{
 			stmt.execute();
 			
 			return stmt.getInt(1);
-		}
-		catch (SQLException ex) {
+		} catch (SQLException ex) {
 			ex.printStackTrace();
 			return -1;
 		}
