@@ -9,7 +9,6 @@ import com.chen.eric.ui.MainLayout;
 import com.chen.eric.ui.components.FlexBoxLayout;
 import com.chen.eric.ui.components.ListItem;
 import com.chen.eric.ui.components.detailsdrawer.DetailsDrawer;
-import com.chen.eric.ui.components.detailsdrawer.DetailsDrawerFooter;
 import com.chen.eric.ui.components.detailsdrawer.DetailsDrawerHeader;
 import com.chen.eric.ui.layout.size.Bottom;
 import com.chen.eric.ui.layout.size.Horizontal;
@@ -51,8 +50,6 @@ public class EmployeeView extends SplitViewFrame {
 	private ListDataProvider<Employee> dataProvider;
 	private DetailsDrawer detailsDrawer;
 	private String filter = "";
-	private Employee tempEmployee;
-	private Integer SSN;
 	
 	private DataContainer dataContainer = DataContainer.getInstance();
 
@@ -61,7 +58,6 @@ public class EmployeeView extends SplitViewFrame {
 		super.onAttach(attachEvent);
 		setViewContent(createContent());
 		setViewDetails(createDetailsDrawer());
-		setViewDetailsPosition(Position.BOTTOM);
 	}
 	
 	private Component createContent() {
@@ -117,8 +113,8 @@ public class EmployeeView extends SplitViewFrame {
 		dataProvider = DataProvider.ofCollection(dataContainer.employeeRecords.values());
 
 		grid = new Grid<>();
-		//grid.addSelectionListener(event -> 
-			//event.getFirstSelectedItem().ifPresent(this::showDetails));
+		grid.addSelectionListener(event -> 
+			event.getFirstSelectedItem().ifPresent(this::showDetails));
 		grid.setDataProvider(dataProvider);
 		grid.setHeightByRows(true);
 		grid.setWidthFull();
@@ -158,7 +154,7 @@ public class EmployeeView extends SplitViewFrame {
 	private Component createActive(Employee employee) {
 		Icon icon;
 		if (employee.isEnabled()) {
-			icon = UIUtils.createPrimaryIcon(VaadinIcon.CHECK);
+			icon = UIUtils.createSecondaryIcon(VaadinIcon.CHECK);
 		} else {
 			icon = UIUtils.createDisabledIcon(VaadinIcon.CLOSE);
 		}
@@ -184,6 +180,7 @@ public class EmployeeView extends SplitViewFrame {
 				dataContainer.getEmployeeRecords();
 	    		dataProvider = DataProvider.ofCollection(dataContainer.employeeRecords.values());
 	    		grid.setDataProvider(dataProvider);
+	    		Notification.show("Succesfully Enabled this user!", 4000, Notification.Position.BOTTOM_CENTER);
 			} else if (code == 1) {
 				Notification.show("This employee does not exist!");
 			} else {
@@ -204,10 +201,11 @@ public class EmployeeView extends SplitViewFrame {
 				dataContainer.getEmployeeRecords();
 	    		dataProvider = DataProvider.ofCollection(dataContainer.employeeRecords.values());
 	    		grid.setDataProvider(dataProvider);
+	    		Notification.show("Succesfully Disabled this user!", 4000, Notification.Position.BOTTOM_CENTER);
 			} else if (code == 1) {
-				Notification.show("This employee does not exist!");
+				Notification.show("This employee does not exist!", 4000, Notification.Position.BOTTOM_CENTER);
 			} else {
-				Notification.show("ERROR: DEACTIVATION FAILED!");
+				Notification.show("ERROR: DEACTIVATION FAILED!", 4000, Notification.Position.BOTTOM_CENTER);
 			}
         });
 		if (!employee.isEnabled()) {
@@ -245,16 +243,20 @@ public class EmployeeView extends SplitViewFrame {
 				if (!e.getValue().isEmpty()) {
 					int code = dataContainer.updateEmployeeRecords(tmp, 3);
 					if (code == 0) {
-						Notification.show("Succesfully Updated the Data!");
+						Notification.show("Succesfully Updated this user's role!", 
+								4000, Notification.Position.BOTTOM_CENTER);
 						dataContainer.getEmployeeRecords();
 			    		dataProvider = DataProvider.ofCollection(dataContainer.employeeRecords.values());
 			    		grid.setDataProvider(dataProvider);
 					} else if (code == 1) {
-						Notification.show("This employee does not exist!");
+						Notification.show("This employee does not exist!",
+								4000, Notification.Position.BOTTOM_CENTER);
 					} else if (code == 2) {
-						Notification.show("This employee is not activated!");
+						Notification.show("This employee is not activated!",
+								4000, Notification.Position.BOTTOM_CENTER);
 					} else {
-						Notification.show("ERROR: UPDATE FAILED!");
+						Notification.show("ERROR: UPDATE FAILED!",
+								4000, Notification.Position.BOTTOM_CENTER);
 					}
 				}
 				rolePicker.setValue("");
@@ -269,10 +271,14 @@ public class EmployeeView extends SplitViewFrame {
 				dataContainer.getEmployeeRecords();
 	    		dataProvider = DataProvider.ofCollection(dataContainer.employeeRecords.values());
 	    		grid.setDataProvider(dataProvider);
+	    		Notification.show("Succesfully deleted this user!", 
+						4000, Notification.Position.BOTTOM_CENTER);
 			} else if (code == 1) {
-				Notification.show("This employee does not exist!");
+				Notification.show("This employee does not exist!",
+						4000, Notification.Position.BOTTOM_CENTER);
 			} else {
-				Notification.show("ERROR: DELETION FAILED!");
+				Notification.show("ERROR: DELETION FAILED!", 
+						4000, Notification.Position.BOTTOM_CENTER);
 			}
         });
         button.setClassName("delete-button");
@@ -281,76 +287,41 @@ public class EmployeeView extends SplitViewFrame {
     } 
 
 	private DetailsDrawer createDetailsDrawer() {
-		detailsDrawer = new DetailsDrawer(DetailsDrawer.Position.BOTTOM);
-
+		detailsDrawer = new DetailsDrawer(DetailsDrawer.Position.RIGHT);
 		DetailsDrawerHeader detailsDrawerHeader = new DetailsDrawerHeader("Employee Details");
 		detailsDrawerHeader.addCloseListener(buttonClickEvent -> detailsDrawer.hide());
-		
-		DetailsDrawerFooter detailsDrawerFooter = new DetailsDrawerFooter();
-		detailsDrawerFooter.addSaveListener(e -> {
-			if (tempEmployee != null && SSN != null) {
-				dataContainer.updateEmployeeRecords(tempEmployee, SSN);
-			}
-			Notification.show("ERROR: Update Failed!");
-		});
-			
 		detailsDrawer.setHeader(detailsDrawerHeader);
-		detailsDrawer.setFooter(detailsDrawerFooter);
-
 		return detailsDrawer;
 	}
 
 	private void showDetails(Employee employee) {
-		tempEmployee = new Employee();
-		SSN = employee.getSSN();
 		detailsDrawer.setContent(createDetails(employee));
 		detailsDrawer.show();
 	}
 
 	private Component createDetails(Employee employee) {
-		TextField updateSSN = new TextField();
-		updateSSN.setWidth("50%");
-		updateSSN.setValue(String.valueOf(employee.getSSN()));
-		updateSSN.addValueChangeListener(e-> {
-			tempEmployee.setSSN(Integer.valueOf(e.getValue()));
-		});
-		
-		TextField updateName = new TextField();
-		updateName.setWidth("50%");
-		updateName.setValue(String.valueOf(employee.getName()));
-		updateName.addValueChangeListener(e-> {
-			tempEmployee.setName(e.getValue());
-		});
-		
-		Select<String> rolePicker = new Select<>();
-		rolePicker.setItems(
-			"System Admin", "Import Plan Manager", "Export Plan Manager", 
-			"Storage Area Maintainer", "Container Infomation Recorder",
-			"Vessel Dispatcher", "Container Distributor",
-			"Human Resource", "Customer Communicator", 
-			"Customer Financial Manager");
-		rolePicker.setValue(employee.getRole());
-		rolePicker.setWidth("30%");
-		rolePicker.addValueChangeListener(
-        		e -> tempEmployee.setRole(e.getValue()));
-		
-		ListItem status = new ListItem(
-				UIUtils.createTertiaryIcon(VaadinIcon.USER), updateSSN, "Employee SSN");
-		
+		ListItem status = new ListItem(UIUtils.createTertiaryIcon(VaadinIcon.USER),
+				employee.getUserName(), "UserName");
+
 		status.getContent().setAlignItems(FlexComponent.Alignment.BASELINE);
 		status.getContent().setSpacing(Bottom.XS);
-		
-		ListItem name = new ListItem(
-				UIUtils.createTertiaryIcon(VaadinIcon.LOCK), updateName , "Name");
-		ListItem role = new ListItem(
-				UIUtils.createTertiaryIcon(VaadinIcon.WORKPLACE), rolePicker, "Role");
 
-		for (ListItem item : new ListItem[]{status, name, role}) {
+		ListItem ssn = new ListItem(
+				UIUtils.createTertiaryIcon(VaadinIcon.LOCK), 
+				String.valueOf(employee.getSSN()), "SSN");
+		ListItem role = new ListItem(
+				UIUtils.createTertiaryIcon(VaadinIcon.USERS), 
+				employee.getRole(), "Role");
+		ListItem name = new ListItem(
+				UIUtils.createTertiaryIcon(VaadinIcon.MALE),
+				employee.getName(), "Name");
+
+		for (ListItem item : new ListItem[]{status, ssn, role, name}) {
 			item.setReverse(true);
 			item.setWhiteSpace(WhiteSpace.PRE_LINE);
 		}
 
-		Div details = new Div(status, name, role);
+		Div details = new Div(status, ssn, role, name);
 		details.addClassName(LumoStyles.Padding.Vertical.S);
 		return details;
 	}

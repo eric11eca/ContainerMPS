@@ -19,12 +19,18 @@ public class ContainerService implements EntityService<Container>{
 	public Map<String, Container> retriveRecords() {
 		try {
 			dbService.connect();
-			String query = "SELECT Top(10) * FROM Container";
+			String query = "{call dbo.View_Container()}";
 			
-			PreparedStatement stmt =  dbService.getConnection().prepareStatement(query);			
-			ResultSet rs = stmt.executeQuery();
+			CallableStatement stmt =  dbService.getConnection().prepareCall(query);						
+			boolean hasRs = stmt.execute();
 			
-			return parseResults(rs);
+			Map<String, Container> containerTable = new HashMap<>();
+	        if (hasRs) {
+	           try (ResultSet rs = stmt.getResultSet()) {     	
+	        	   containerTable =  parseResults(rs);
+	           }
+	        }	
+	        return containerTable;
 		}
 		catch (SQLException ex) {
 			ex.printStackTrace();
@@ -42,7 +48,7 @@ public class ContainerService implements EntityService<Container>{
 			int Width = rs.findColumn("Width");
 			int Height = rs.findColumn("Height");
 			int Weight = rs.findColumn("Weight");
-			int Owner = rs.findColumn("Owner");
+			int Owner = rs.findColumn("CompanyName");
 			int Payed = rs.findColumn("Payed");
 			int Fee = rs.findColumn("Fee");
 			while (rs.next()) {
@@ -97,7 +103,6 @@ public class ContainerService implements EntityService<Container>{
 			String query = "{? = CALL dbo.Search_Container(?,?,?,?,?,?)}";
 			
 			CallableStatement stmt =  dbService.getConnection().prepareCall(query);
-			
 			stmt.registerOutParameter(1, Types.INTEGER);
 			
 			if (filter.equals("ContainerID")) {
@@ -148,23 +153,15 @@ public class ContainerService implements EntityService<Container>{
 
 			boolean hasRs = stmt.execute();
 			
-			Map<String, Container> ContainerTable = new HashMap<>();
+			Map<String, Container> containerTable = new HashMap<>();
 	        if (hasRs) {
 	           try (ResultSet rs = stmt.getResultSet()) {     	
-	        	   while (rs.next()) {
-	        		   ContainerTable.put(rs.getString("VesselID"), new Container(
-	        				   rs.getInt("ContainerID"), rs.getString("Type"),
-	    					   rs.getDouble("Length"),rs.getDouble("Width"), 
-	    					   rs.getDouble("Height"), rs.getDouble("Weight"),
-	    					   rs.getString("Owner"),rs.getBoolean("isPayed"),
-	    					   rs.getDouble ("Fee")));
-	    			}
-	            }
-	         }
+	        	   containerTable = parseResults(rs);
+	           }
+	        }
 			
 			System.out.println("Return Value: " + stmt.getInt(1));
-
-			return ContainerTable;
+			return containerTable;
 		}
 		catch (SQLException ex) {
 			ex.printStackTrace();

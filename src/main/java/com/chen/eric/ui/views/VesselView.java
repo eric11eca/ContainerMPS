@@ -209,7 +209,7 @@ public class VesselView extends SplitViewFrame {
             	dataContainer.getVesselRecords();
         		dataProvider = DataProvider.ofCollection(dataContainer.vesselRecords.values());
         		grid.setDataProvider(dataProvider);
-        		Notification.show("Succefully Deleted the record!");
+        		Notification.show("Succefully Deleted the record!", 4000, Notification.Position.BOTTOM_CENTER);
             } else {
             	Notification.show("EEROR: DELETION FAILED!");
             }       
@@ -322,13 +322,13 @@ public class VesselView extends SplitViewFrame {
 			} else {
 				int code = dataContainer.insertVesselRecords(newVessel);
 				if (code == 0) {
-					Notification.show("Succesfully Inserted the Data!");
+					Notification.show("Succesfully Inserted the Data!", 4000, Notification.Position.BOTTOM_CENTER);
 					dataContainer.getVesselRecords();
 			        dataProvider = DataProvider.ofCollection(dataContainer.vesselRecords.values());
 			        grid.setDataProvider(dataProvider);
 					panel.close();
 				} else {
-					Notification.show("ERROR: Insertion FAILED!");
+					Notification.show("ERROR: Insertion FAILED!", 4000, Notification.Position.BOTTOM_CENTER);
 				}
 			}
 		});
@@ -357,11 +357,11 @@ public class VesselView extends SplitViewFrame {
 					dataContainer.getVesselRecords();
 					dataProvider = DataProvider.ofCollection(dataContainer.vesselRecords.values());
 					grid.setDataProvider(dataProvider);
-					Notification.show("Succesfully Updated the Data! WITH CODE: " + code, 4000, Notification.Position.BOTTOM_CENTER);
+					Notification.show("Succesfully Updated the Data!", 4000, Notification.Position.BOTTOM_CENTER);
 				} else if (code == 1) {
-					Notification.show("This Vessel Does Not Exist");
+					Notification.show("This Vessel Does Not Exist", 4000, Notification.Position.BOTTOM_CENTER);
 				} else {
-					Notification.show("ERROR: UPDATE FAILED!");
+					Notification.show("ERROR: UPDATE FAILED!", 4000, Notification.Position.BOTTOM_CENTER);
 				}
 			}
 		});
@@ -496,7 +496,7 @@ public class VesselView extends SplitViewFrame {
 		return details;
 	}	
 	
-	private Component uploadProducts() {
+	public Component uploadProducts() {
     	Upload upload = new Upload(new Receiver() {
 			@Override
     	      public OutputStream receiveUpload(String filename, String mimeType) {

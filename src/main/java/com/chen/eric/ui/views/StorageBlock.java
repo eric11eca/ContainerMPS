@@ -17,6 +17,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -31,6 +32,8 @@ public class StorageBlock extends SplitViewFrame{
 	}
 
 	private Component createContent() {
+		SplitLayout storageContent = new SplitLayout();
+		
 		HorizontalLayout slotLayer1 = new HorizontalLayout();
 		HorizontalLayout slotLayer2 = new HorizontalLayout();
 		
@@ -43,7 +46,16 @@ public class StorageBlock extends SplitViewFrame{
 		
 		B11.addClickListener(
 			    e -> this.setViewContent(blockContent("B11")));
-		
+		B12.addClickListener(
+			    e -> this.setViewContent(blockContent("B12")));
+		B13.addClickListener(
+			    e -> this.setViewContent(blockContent("B13")));
+		B11.addClickListener(
+			    e -> this.setViewContent(blockContent("B21")));
+		B11.addClickListener(
+			    e -> this.setViewContent(blockContent("B22")));
+		B11.addClickListener(
+			    e -> this.setViewContent(blockContent("B23")));
 		slotLayer1.add(B11, B12, B13);
 		slotLayer2.add(B21, B22, B23);
 		

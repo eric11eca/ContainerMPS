@@ -33,6 +33,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -118,7 +119,13 @@ public class ContainerView extends SplitViewFrame {
 	        grid.setDataProvider(dataProvider);
         }).debounce(300, DebouncePhase.TRAILING);
         
-        HorizontalLayout toolBar = new HorizontalLayout(uploadProducts(), searchFilter, searchBar);
+        Button addContainer = UIUtils.createPrimaryButton("Add Vessel");
+        addContainer.setWidthFull();
+        addContainer.addClickListener(e-> {
+        	createAddContainer().open();
+        });
+        
+        HorizontalLayout toolBar = new HorizontalLayout(searchFilter, searchBar);
         toolBar.setAlignItems(Alignment.BASELINE);
         toolBar.setSpacing(true);
         toolBar.setPadding(true);
@@ -234,6 +241,96 @@ public class ContainerView extends SplitViewFrame {
         button.addThemeName("small");
         return button;
     }
+	
+	private Dialog createAddContainer() {
+		Dialog addPanel = new Dialog();
+		Container newContainer = new Container();
+		
+		TextField updateID = new TextField();
+		updateID.setWidth("50%");
+		updateID.addValueChangeListener(e-> {
+			tempContainer.setContainerID(Integer.valueOf(e.getValue()));
+		});
+		
+		TextField updateOwner = new TextField();
+		updateOwner.setWidth("50%");
+		updateOwner.addValueChangeListener(e-> {
+			tempContainer.setOwner(e.getValue());
+		});
+		
+		Select<String> typePicker = new Select<>();
+		typePicker.setItems("Normal", "Reefer", "Hazard", "Illegal", "Livestock");
+		typePicker.setWidth("30%");
+		typePicker.addValueChangeListener(
+        		e -> tempContainer.setType(e.getValue()));
+        
+		NumberField updateWeight = new NumberField();
+        updateWeight.setWidth("50%");
+        updateWeight.addValueChangeListener(e-> {
+        	tempContainer.setWeight(e.getValue());
+		});
+		
+		NumberField updateFee = new NumberField();
+		updateFee.setWidth("30%");
+		updateFee.addValueChangeListener(e-> {
+			tempContainer.setFee(e.getValue());
+		});
+        
+        NumberField updateLength = new NumberField();
+        updateLength.setWidth("20%");
+        updateLength.addValueChangeListener(e-> {
+        	tempContainer.setLength(e.getValue());
+		});
+        
+        NumberField updateWidth = new NumberField();
+        updateWidth.setWidth("20%");
+        updateWidth.addValueChangeListener(e-> {
+        	tempContainer.setWidth(e.getValue());
+		});
+        
+        NumberField updateHeight = new NumberField();
+        updateHeight.setWidth("20%");
+        updateHeight.addValueChangeListener(e-> {
+        	tempContainer.setHeight(e.getValue());
+		});
+        
+        HorizontalLayout idLayer = new HorizontalLayout(updateID, typePicker);
+        idLayer.setAlignItems(Alignment.BASELINE);
+
+		HorizontalLayout sizeLayer = new HorizontalLayout(
+				updateLength, updateWidth, updateHeight, updateWeight);
+		sizeLayer.setAlignItems(Alignment.BASELINE);
+		
+		HorizontalLayout feeLayer = new HorizontalLayout(updateOwner, updateFee);
+		feeLayer.setAlignItems(Alignment.BASELINE);
+		
+		DetailsDrawerFooter detailsDrawerFooter = new DetailsDrawerFooter();
+		detailsDrawerFooter.addSaveListener(e->{
+			if (newContainer.getContainerID() == null) {
+				Notification.show("Container ID cannot be empty!");
+			} else {
+				int code = dataContainer.insertContainerRecords(newContainer);
+				if (code == 0) {
+					Notification.show("Succesfully Inserted the Container!", 4000, Notification.Position.BOTTOM_CENTER);
+					dataContainer.getVesselRecords();
+			        dataProvider = DataProvider.ofCollection(dataContainer.containerRecords.values());
+			        grid.setDataProvider(dataProvider);
+			        addPanel.close();
+				} else {
+					Notification.show("ERROR: Insertion FAILED!", 4000, Notification.Position.BOTTOM_CENTER);
+				}
+			}
+		});
+		
+		detailsDrawerFooter.addCancelListener(e->{
+			addPanel.close();
+		});
+		
+		VerticalLayout content = new VerticalLayout(
+				idLayer, sizeLayer, feeLayer, detailsDrawerFooter);
+		addPanel.add(content);
+		return addPanel;
+	}
 
 	private DetailsDrawer createDetailsDrawer() {
 		detailsDrawer = new DetailsDrawer(DetailsDrawer.Position.RIGHT);
@@ -260,7 +357,6 @@ public class ContainerView extends SplitViewFrame {
 			
 		detailsDrawer.setHeader(detailsDrawerHeader);
 		detailsDrawer.setFooter(detailsDrawerFooter);
-
 		return detailsDrawer;
 	}
 
@@ -388,7 +484,7 @@ public class ContainerView extends SplitViewFrame {
 		return details;
 	}	
 	
-	private Component uploadProducts() {
+	public Component uploadProducts() {
     	Upload upload = new Upload(new Receiver() {
 			@Override
     	      public OutputStream receiveUpload(String filename, String mimeType) {

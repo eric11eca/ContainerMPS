@@ -96,9 +96,6 @@ public class EmployeeService implements EntityService<Employee>{
 				stmt.setString(3, e.getRole());
 			}
 			stmt.registerOutParameter(1, Types.INTEGER);
-			System.out.println();
-			System.out.println(stmt.toString());
-			System.out.println();
 			stmt.execute();
 			return stmt.getInt(1);
 			
