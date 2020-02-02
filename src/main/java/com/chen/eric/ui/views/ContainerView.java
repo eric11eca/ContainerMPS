@@ -102,7 +102,7 @@ public class ContainerView extends SplitViewFrame {
         searchBar.setSuffixComponent(closeIcon);
         
         Select<String> searchFilter = new Select<>();
-        searchFilter.setItems("ID", "isPayed", "Owner", "weight", "volume", "type");
+        searchFilter.setItems("ContainerID", "isPayed", "Owner", "Weight", "Volume", "Type");
         searchFilter.setLabel("Search Filter");
         searchFilter.addValueChangeListener(e -> filter = e.getValue());
 
@@ -125,7 +125,7 @@ public class ContainerView extends SplitViewFrame {
         	createAddContainer().open();
         });
         
-        HorizontalLayout toolBar = new HorizontalLayout(searchFilter, searchBar);
+        HorizontalLayout toolBar = new HorizontalLayout(addContainer, searchFilter, searchBar);
         toolBar.setAlignItems(Alignment.BASELINE);
         toolBar.setSpacing(true);
         toolBar.setPadding(true);

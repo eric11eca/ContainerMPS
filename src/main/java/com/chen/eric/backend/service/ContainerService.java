@@ -112,44 +112,33 @@ public class ContainerService implements EntityService<Container>{
 				stmt.setString(2, null);
 			}
 			
-			if (filter.equals("type")) {
+			if (filter.equals("Type")) {
 				stmt.setString(3, value);
 			} else {
 				stmt.setString(3, null);
 			}
 			
-			if (filter.equals("Length")) {
+			if (filter.equals("Weight")) {
 				stmt.setString(4, value);
 			} else {
 				stmt.setString(4, null);
 			}
 			
-			if (filter.equals("Width")) {
+			if (filter.equals("Owner")) {
 				stmt.setString(5, value);
 			} else {
 				stmt.setString(5, null);
 			}
 			
-			if (filter.equals("Height")) {
+			if (filter.equals("isPayed")) {
 				stmt.setString(6, value);
 			} else {
 				stmt.setString(6, null);
 			}
-			
-			if (filter.equals("Weight")) {
+			if (filter.equals("Fee")) {
 				stmt.setString(7, value);
 			} else {
 				stmt.setString(7, null);
-			}
-			if (filter.equals("isPayed")) {
-				stmt.setString(8, value);
-			} else {
-				stmt.setString(8, null);
-			}
-			if (filter.equals("Fee")) {
-				stmt.setString(9, value);
-			} else {
-				stmt.setString(9, null);
 			}
 
 			boolean hasRs = stmt.execute();
