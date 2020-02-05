@@ -8,6 +8,8 @@ import org.springframework.security.core.Authentication;
 import com.chen.eric.backend.Container;
 import com.chen.eric.backend.Customer;
 import com.chen.eric.backend.Employee;
+import com.chen.eric.backend.Location;
+import com.chen.eric.backend.StorageArea;
 import com.chen.eric.backend.Vessel;
 
 public class DataContainer {
@@ -139,4 +141,73 @@ public class DataContainer {
 		return code;
 	}
 	
+	public Map<String, StorageArea> storageAreaRecords;
+	private EntityService<StorageArea>storageService = new StorageAreaService(dbService);
+	
+	public int insertStorageAreaRecords(StorageArea storageArea) {
+		int code = storageService.insertRecords(storageArea);
+		dbService.closeConnection();
+		return code;
+	}
+
+	public void getStorageAreaRecords() {
+		storageAreaRecords = storageService.retriveRecords();
+		dbService.closeConnection();
+	}
+	
+	public void getStorageAreaRecordsByParams(String filter, String value) {
+		storageAreaRecords = storageService.retriveRecordsByParameters(filter, value);
+		dbService.closeConnection();
+	}
+
+	public int updateStorageAreaRecords(StorageArea storageArea, Integer customerID) {
+		int code = storageService.updateRecords(storageArea, customerID);
+		dbService.closeConnection();
+		return code;
+	}
+	
+	public int deleteStorageAreaRecords(Integer ID) {
+		int code = storageService.deleteRecords(ID);
+		dbService.closeConnection();
+		return code;
+	}
+	
+	public Map<String, Location> locationRecords;
+	private EntityService<Location>locationService = new LocationService(dbService);
+	
+	public int insertLocationRecords(Location location) {
+		int code = locationService.insertRecords(location);
+		dbService.closeConnection();
+		return code;
+	}
+
+	public void getLocationRecords() {
+		locationRecords = locationService.retriveRecords();
+		dbService.closeConnection();
+	}
+	
+	public void getLocationRecordsByParams(String filter, String value) {
+		locationRecords = locationService.retriveRecordsByParameters(filter, value);
+		dbService.closeConnection();
+	}
+
+	public int updateLocationRecords(Location location, Integer containerID, Integer storageID) {
+		int code = locationService.updateTwoKeyRecords(location, containerID, storageID);
+		dbService.closeConnection();
+		return code;
+	}
+	
+	public int deleteLocationRecords(Integer ID) {
+		int code = locationService.deleteRecords(ID);
+		dbService.closeConnection();
+		return code;
+	}
+	
+	private StorageLayoutFactory storageAreaFactory = new StorageLayoutFactory(dbService);
+	
+	public void initStorageAreas() {
+		for (StorageArea area : storageAreaRecords.values()) {
+			storageAreaFactory.generateStorageArea(area);
+		}
+	}
 }

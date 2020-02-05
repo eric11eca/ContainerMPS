@@ -1,7 +1,6 @@
 package com.chen.eric.backend.service;
 
 import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -250,6 +249,10 @@ public class ContainerService implements EntityService<Container>{
 			ex.printStackTrace();
 			return -1;
 		}
+	}
+	@Override
+	public int updateTwoKeyRecords(Container t, int primary, int secondary) {
+		return 0;
 	}
 
 }

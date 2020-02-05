@@ -122,4 +122,9 @@ public class EmployeeService implements EntityService<Employee>{
 		}
 	}
 
+	@Override
+	public int updateTwoKeyRecords(Employee t, int primary, int secondary) {
+		return 0;
+	}
+
 }

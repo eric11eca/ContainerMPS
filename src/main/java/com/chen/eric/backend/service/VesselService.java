@@ -265,4 +265,9 @@ public class VesselService implements EntityService<Vessel>{
 			return new HashMap<>();
 		}
 	}
+
+	@Override
+	public int updateTwoKeyRecords(Vessel t, int primary, int secondary) {
+		return 0;
+	}
 }

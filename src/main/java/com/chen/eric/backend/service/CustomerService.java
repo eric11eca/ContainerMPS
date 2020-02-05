@@ -208,5 +208,9 @@ public class CustomerService implements EntityService<Customer>{
 			return -1;
 		}
 	}
+	@Override
+	public int updateTwoKeyRecords(Customer t, int primary, int secondary) {
+		return 0;
+	}
 
 }
