@@ -94,7 +94,7 @@ public class Location {
 		this.bayIndex = loc.bayIndex;
 		this.blockIndex = loc.blockIndex;
 		this.storageID = loc.storageID;
-		this.tireIndex = loc.tireIndex;
+		this.tierIndex = loc.tierIndex;
 		this.rowIndex = loc.rowIndex;
 	}
 }

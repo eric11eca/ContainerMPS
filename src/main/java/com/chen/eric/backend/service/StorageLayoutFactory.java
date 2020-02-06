@@ -81,7 +81,7 @@ public class StorageLayoutFactory {
 	
 	public void updateStorageSlot(StorageArea area, Location loc, boolean add) {
 		int blockIndex = loc.getBlockIndex();
-		int tireIndex = loc.getTireIndex();
+		int tireIndex = loc.getTierIndex();
 		int bayIndex = loc.getBayIndex();
 		int rowIndex = loc.getRowIndex();
 		

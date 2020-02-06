@@ -168,7 +168,7 @@ public class ContainerLocationView extends SplitViewFrame{
 	private Component createLocation(Location location) {
 		Label blockIndex = UIUtils.createAmountLabel(location.getBlockIndex());
         Label bayIndex = UIUtils.createAmountLabel(location.getBayIndex());
-        Label tierIndex = UIUtils.createAmountLabel(location.getTireIndex());
+        Label tierIndex = UIUtils.createAmountLabel(location.getTierIndex());
         Label slotIndex = UIUtils.createAmountLabel(location.getRowIndex()); 
 
 		HorizontalLayout locationLayer = new HorizontalLayout(
