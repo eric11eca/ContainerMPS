@@ -5,22 +5,22 @@ import java.sql.Date;
 public class Location {
 	private Integer containerID;
 	private Integer storageID;
-	private int blockIndex;
-	private int bayIndex;
-	private int tireIndex;
-	private int rowIndex;
+	private Integer blockIndex;
+	private Integer bayIndex;
+	private Integer tierIndex;
+	private Integer rowIndex;
 	private Date startDate;
 	private Date endDate;
 	
 	public Location() {}
 	
-	public Location(Integer containerID, Integer storageID, int blockIndex, 
-				int bayIndex, int tireIndex, int rowIndex, Date startDate, Date endDate) {
+	public Location(Integer containerID, Integer storageID, Integer blockIndex, 
+				Integer bayIndex, Integer tierIndex, Integer rowIndex, Date startDate, Date endDate) {
 		this.containerID = containerID;
 		this.storageID = storageID;
 		this.blockIndex = blockIndex;
 		this.bayIndex = bayIndex;
-		this.tireIndex = tireIndex;
+		this.tierIndex = tierIndex;
 		this.rowIndex = rowIndex;
 		this.startDate = startDate;
 		this.endDate = endDate;
@@ -42,7 +42,7 @@ public class Location {
 		this.storageID = storageID;
 	}
 
-	public int getBlockIndex() {
+	public Integer getBlockIndex() {
 		return blockIndex;
 	}
 
@@ -50,7 +50,7 @@ public class Location {
 		this.blockIndex = blockIndex;
 	}
 
-	public int getBayIndex() {
+	public Integer getBayIndex() {
 		return bayIndex;
 	}
 
@@ -58,15 +58,15 @@ public class Location {
 		this.bayIndex = bayIndex;
 	}
 
-	public int getTireIndex() {
-		return tireIndex;
+	public Integer getTierIndex() {
+		return tierIndex;
 	}
 
-	public void setTierIndex(int tireIndex) {
-		this.tireIndex = tireIndex;
+	public void setTierIndex(int tierIndex) {
+		this.tierIndex = tierIndex;
 	}
 
-	public int getRowIndex() {
+	public Integer getRowIndex() {
 		return rowIndex;
 	}
 

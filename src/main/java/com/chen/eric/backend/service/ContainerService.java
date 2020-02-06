@@ -83,7 +83,7 @@ public class ContainerService implements EntityService<Container>{
 			stmt.setString(8, t.getOwner());
 			stmt.setBoolean(9, t.isPayed());
 			stmt.setDouble(10, t.getFee());
-			stmt.executeQuery();
+			stmt.execute();
 			
 			System.out.println();
 			System.out.println(stmt.getInt(1));
