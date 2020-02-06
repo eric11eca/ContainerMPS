@@ -11,7 +11,7 @@ public class Block extends ArrayList<Tier>{
 		this.add(tire);
 	}
 	
-	public Tier getTirey(int index) {
+	public Tier getTier(int index) {
 		return this.get(index);
 	}
 }

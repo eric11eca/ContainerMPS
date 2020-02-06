@@ -47,26 +47,29 @@ public class StorageLayoutFactory {
 		}
 	}
 	
-	private Tier generateTire() {
+	private Tier generateTire(int storageID, int blockID, int tierID) {
 		Tier tire = new Tier();
 		for (int i = 0; i < 6; i++) {
 			Bay bay = new Bay();
+			for (int j = 0; j < 5; j++) {
+				bay.add(j, new Location(null, storageID, blockID, tierID, i,j,null,null));
+			}
 			tire.addBay(bay);
 		}
 		return tire;
 	}
 	
-	private Block generateBlock() {
+	private Block generateBlock(int storageID, int blockID) {
 		Block block = new Block();
 		for (int i = 0; i < 3; i++) {
-			block.addTire(generateTire());
+			block.addTire(generateTire(storageID, blockID, i));
 		}
 		return block;
 	}
 	
 	public void generateStorageArea(StorageArea storageArea) {
 		for (int i = 0; i < 2; i++) {
-			storageArea.addBlock(i, generateBlock());
+			storageArea.addBlock(i, generateBlock(storageArea.getStorageID(), i));
 		}
 		
 		retriveLocationByArea(storageArea.getStorageID());
@@ -82,7 +85,7 @@ public class StorageLayoutFactory {
 		int bayIndex = loc.getBayIndex();
 		int rowIndex = loc.getRowIndex();
 		
-		Bay bay = area.getBlock(blockIndex).getTirey(tireIndex).getBay(bayIndex);
+		Bay bay = area.getBlock(blockIndex).getTier(tireIndex).getBay(bayIndex);
 		if (add) {
 			bay.addContainer(rowIndex, loc);
 		} else {

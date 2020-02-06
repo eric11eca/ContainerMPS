@@ -21,7 +21,7 @@ import com.chen.eric.ui.views.ContainerView;
 import com.chen.eric.ui.views.CustomerView;
 import com.chen.eric.ui.views.EmployeeView;
 import com.chen.eric.ui.views.Home;
-import com.chen.eric.ui.views.ContainerLocationView;
+import com.chen.eric.ui.views.StorageAreaView;
 import com.chen.eric.ui.views.VesselView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
@@ -135,7 +135,7 @@ public class MainLayout extends FlexBoxLayout
 		//menu.addNaviItem(VaadinIcon.HOME, "Home", Home.class);
 		//menu.addNaviItem(VaadinIcon.INSTITUTION, "Accounts", Accounts.class);
 		menu.addNaviItem(VaadinIcon.BOAT, "Vessel", VesselView.class);
-		menu.addNaviItem(VaadinIcon.CUBES, "Container Location", ContainerLocationView.class);
+		menu.addNaviItem(VaadinIcon.CUBES, "Container Location", StorageAreaView.class);
 		menu.addNaviItem(VaadinIcon.PACKAGE, "Container", ContainerView.class);
 		menu.addNaviItem(VaadinIcon.COMMENTS, "Customer", CustomerView.class);
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

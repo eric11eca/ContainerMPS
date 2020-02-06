@@ -89,4 +89,12 @@ public class Location {
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
+	
+	public void copyIndices(Location loc) {
+		this.bayIndex = loc.bayIndex;
+		this.blockIndex = loc.blockIndex;
+		this.storageID = loc.storageID;
+		this.tireIndex = loc.tireIndex;
+		this.rowIndex = loc.rowIndex;
+	}
 }

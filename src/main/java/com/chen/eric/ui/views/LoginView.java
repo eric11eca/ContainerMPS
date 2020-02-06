@@ -163,7 +163,7 @@ public class LoginView extends HorizontalLayout {
     			signupDialog.close();
     		});
     		
-    		Button cancle = UIUtils.createTertiaryButton("Cancle");
+    		Button cancle = UIUtils.createTertiaryButton("Cancel");
     		cancle.addClickListener(e->{
     			signupDialog.close();
     		});

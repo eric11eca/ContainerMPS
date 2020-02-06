@@ -191,8 +191,8 @@ public class DataContainer {
 		dbService.closeConnection();
 	}
 
-	public int updateLocationRecords(Location location, Integer containerID, Integer storageID) {
-		int code = locationService.updateTwoKeyRecords(location, containerID, storageID);
+	public int updateLocationRecords(Location location, Integer containerID) {
+		int code = locationService.updateRecords(location, containerID);
 		dbService.closeConnection();
 		return code;
 	}

@@ -4,11 +4,7 @@ import java.util.ArrayList;
 
 @SuppressWarnings("serial")
 public class Bay extends ArrayList<Location>{	
-	public Bay() {
-		for (int i = 0; i < 5; i++) {
-			add(new Location());
-		}
-	}
+	public Bay() {}
 	
 	public void addContainer(int index, Location location) {
 		this.set(index, location);
