@@ -359,7 +359,7 @@ public class ContainerView extends SplitViewFrame {
 		detailsDrawerFooter.addSaveListener(e -> {
 			if (tempContainer != null && containerID != null) {
 				int code = dataContainer.updateContainerRecords(tempContainer, containerID);
-				if (code == 10) {
+				if (code == 0) {
 					dataContainer.getContainerRecords();
 					dataProvider = DataProvider.ofCollection(dataContainer.containerRecords.values());
 					grid.setDataProvider(dataProvider);

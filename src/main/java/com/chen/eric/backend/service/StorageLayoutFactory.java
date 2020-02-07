@@ -3,6 +3,7 @@ package com.chen.eric.backend.service;
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.chen.eric.backend.Bay;
@@ -12,7 +13,7 @@ import com.chen.eric.backend.StorageArea;
 import com.chen.eric.backend.Tier;
 
 public class StorageLayoutFactory {
-	private Set<Location> locations;
+	private Set<Location> locations = new HashSet<>();
 	private DBConnectionService dbService;
 	
 	public StorageLayoutFactory(DBConnectionService dbService) {
@@ -67,7 +68,7 @@ public class StorageLayoutFactory {
 		return block;
 	}
 	
-	public void generateStorageArea(StorageArea storageArea) {
+	public StorageArea generateStorageArea(StorageArea storageArea) {
 		for (int i = 0; i < 2; i++) {
 			storageArea.addBlock(i, generateBlock(storageArea.getStorageID(), i));
 		}
@@ -77,6 +78,8 @@ public class StorageLayoutFactory {
 		for (Location loc : locations) {
 			updateStorageSlot(storageArea, loc, true);
 		}
+		
+		return storageArea;
 	}
 	
 	public void updateStorageSlot(StorageArea area, Location loc, boolean add) {

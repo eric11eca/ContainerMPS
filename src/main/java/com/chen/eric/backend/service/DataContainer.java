@@ -207,7 +207,9 @@ public class DataContainer {
 	
 	public void initStorageAreas() {
 		for (StorageArea area : storageAreaRecords.values()) {
-			storageAreaFactory.generateStorageArea(area);
+			StorageArea newArea = storageAreaFactory.generateStorageArea(area);
+			storageAreaRecords.put(
+					String.valueOf(newArea.getStorageID()), newArea);
 		}
 	}
 }

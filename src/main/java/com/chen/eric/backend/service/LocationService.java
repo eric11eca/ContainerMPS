@@ -7,9 +7,7 @@ import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.chen.eric.backend.Container;
 import com.chen.eric.backend.Location;
-import com.chen.eric.backend.StorageArea;
 
 public class LocationService implements EntityService<Location> {
 
