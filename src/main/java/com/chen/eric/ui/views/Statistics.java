@@ -26,6 +26,7 @@ import com.chen.eric.ui.util.*;
 import com.chen.eric.ui.util.css.Position;
 import com.chen.eric.ui.util.css.*;
 
+@SuppressWarnings("serial")
 @CssImport("./styles/views/statistics.css")
 @PageTitle("Statistics")
 @Route(value = "statistics", layout = MainLayout.class)

@@ -22,7 +22,6 @@ import com.chen.eric.ui.views.ContainerView;
 import com.chen.eric.ui.views.CustomerView;
 import com.chen.eric.ui.views.EmployeeView;
 import com.chen.eric.ui.views.Home;
-import com.chen.eric.ui.views.StorageAreaView;
 import com.chen.eric.ui.views.VesselView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;

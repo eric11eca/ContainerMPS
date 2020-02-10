@@ -205,11 +205,9 @@ public class DataContainer {
 	
 	private StorageLayoutFactory storageAreaFactory = new StorageLayoutFactory(dbService);
 	
-	public void initStorageAreas() {
-		for (StorageArea area : storageAreaRecords.values()) {
-			StorageArea newArea = storageAreaFactory.generateStorageArea(area);
-			storageAreaRecords.put(
-					String.valueOf(newArea.getStorageID()), newArea);
-		}
+	public void initStorageArea(String storageID) {
+		StorageArea area = storageAreaRecords.get(storageID);
+		StorageArea newArea = storageAreaFactory.generateStorageArea(area);
+		storageAreaRecords.put(storageID, newArea);
 	}
 }

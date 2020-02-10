@@ -98,13 +98,13 @@ public class CustomerService implements EntityService<Customer>{
 				stmt.setString(2, null);
 			}
 			
-			if (filter.equals("CompanyName")) {
+			if (filter.equals("Company Name")) {
 				stmt.setString(3, value);
 			} else {
 				stmt.setString(3, null);
 			}
 			
-			if (filter.equals("ContactEmail")) {
+			if (filter.equals("Contact Email")) {
 				stmt.setString(4, value);
 			} else {
 				stmt.setString(4, null);
@@ -125,7 +125,7 @@ public class CustomerService implements EntityService<Customer>{
 	        		   CustomerTable.put(rs.getString("CustomerID"), new Customer(
 	        				   rs.getInt("CustomerID"), rs.getString("CompanyName"),
 	    					   rs.getString("ContactEmail"),rs.getString("Country"), 
-	    					   rs.getString("City")));
+	    					   rs.getString("State")));
 	    			}
 	            }
 	         }

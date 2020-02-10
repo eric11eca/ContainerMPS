@@ -43,7 +43,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
-import com.vaadin.flow.component.splitlayout.SplitLayout.Orientation;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -60,23 +59,25 @@ import com.vaadin.flow.router.Route;
 @Route(value = "stored-at", layout = MainLayout.class)
 @SuppressWarnings("serial")
 public class ContainerLocationView extends SplitViewFrame{
-	private Grid<Location> grid;
-	private ListDataProvider<Location> dataProvider;
-	
-	private HorizontalLayout storageAreaDetail;
-	private StorageArea areaToBeDisplayed;
-	
+	private Grid<Location> containerLocationGrid;
 	private Grid<StorageArea> storageGrid;
+	private ListDataProvider<Location> dataProvider;
 	private ListDataProvider<StorageArea> storageDataProvider;
+	
+	private Tabs blockTabs;
+	private VerticalLayout storageAreaOverView;
+	private VerticalLayout storageAreaDetail;
+	private StorageArea areaToBeDisplayed ;
+	private VerticalLayout blockContent;
+	
+	private SplitLayout content;
+	
 	private StorageArea tempStorageArea;
 	private Integer storageID;
-	private String selectedStorageType = "Normal";
-	
+	private Integer selectedStorage = 100;
+
 	private DataContainer dataContainer = DataContainer.getInstance();
-	private static Map<String, String> areaMap = new HashMap<>();
-	
-	SplitLayout storageContent;
-	VerticalLayout mainContent;
+	private static Map<Integer, String[]> areaMap = new HashMap<>();
 
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
@@ -85,81 +86,58 @@ public class ContainerLocationView extends SplitViewFrame{
 		setViewContent(createContent());
 	}
 	
+	private void initialContent() {
+		dataContainer.getStorageAreaRecords();
+		areaToBeDisplayed = dataContainer.storageAreaRecords.get("100");
+		dataContainer.initStorageArea("100");
+	}
+	
 	private Component createContent() {
-		storageContent = new SplitLayout();
-		storageContent.addToPrimary(createAreaOverview());
-		storageContent.addToSecondary(storageAreaDetail());
-		storageContent.setSplitterPosition(48);
-		mainContent = new VerticalLayout(createToolBar(), createGrid());
-		
-		SplitLayout content = new SplitLayout(storageContent, mainContent);
-		content.setOrientation(Orientation.VERTICAL);
-		content.setSplitterPosition(10);
+		initialContent();
+		content = new SplitLayout();
+		content.setSplitterPosition(42);
+		createAreaOverview();
+		content.addToPrimary(storageAreaOverView);
+		createStorageDetail();
+		content.addToSecondary(storageAreaDetail);
 		return content;
 	}
 	
 	private static void initAreaMap() {
-		areaMap.put("Normal1", "100");
-		areaMap.put("Normal2", "101");
-		areaMap.put("Normal3", "102");
-		areaMap.put("Hazard", "103");
-		areaMap.put("Reefer", "104");
-		areaMap.put("Illegal", "105");
+		areaMap.put(100, new String[]{"Normal1", "blue"});
+		areaMap.put(101, new String[]{"Normal2", "cyan"});
+		areaMap.put(102, new String[]{"Normal3", "cornflowerblue"});
+		areaMap.put(103, new String[]{"Hazard", "orange"});
+		areaMap.put(104, new String[]{"Reefer", "black"});
+		areaMap.put(105, new String[]{"Illegal", "red"});
 	}
 	
-	private VerticalLayout createAreaOverview() {
+	private Button areaButtonFactory(int areaID) {
+		Button areaButton = UIUtils.createPrimaryButton(areaMap.get(areaID)[0]);
+		areaButton.getStyle().set("backgroundColor", areaMap.get(areaID)[1]);
+		areaButton.addClickListener(e -> {
+			selectedStorage = areaID;
+			String storageID = String.valueOf(areaID);
+			dataContainer.getLocationRecordsByParams("StorageID", storageID);
+			areaToBeDisplayed = dataContainer.storageAreaRecords.get(storageID);
+			
+			createStorageDetail();
+			content.addToSecondary(storageAreaDetail);
+			content.setSplitterPosition(40);
+		});
+		return areaButton;
+	}
+	
+	private void createAreaOverview() {
 		HorizontalLayout zone1 = new HorizontalLayout();
 		HorizontalLayout zone2 = new HorizontalLayout();
 		
-		Button B11 = UIUtils.createPrimaryButton("Normal1");
-		Button B12 = UIUtils.createPrimaryButton("Normal2");
-		Button B13 = UIUtils.createPrimaryButton("Normal3");
-		Button B21 = UIUtils.createPrimaryButton("Hazard");
-		Button B22 = UIUtils.createPrimaryButton("Refeer");
-		Button B23 = UIUtils.createPrimaryButton("Illegal");
-		
-		B21.getStyle().set("backgroundColor", "orange");
-		B22.getStyle().set("backgroundColor", "black");
-		B23.getStyle().set("backgroundColor", "red");
-		
-		B11.addClickListener(e-> {
-			String storageID = areaMap.get(B11.getText());
-			dataContainer.getLocationRecordsByParams("StorageID", storageID);
-			areaToBeDisplayed = dataContainer.storageAreaRecords.get(storageID);
-		});
-		
-		B12.addClickListener(e-> {
-			String storageID = areaMap.get(B12.getText());
-			dataContainer.getLocationRecordsByParams("StorageID", storageID);
-			areaToBeDisplayed = dataContainer.storageAreaRecords.get(storageID);
-		});
-		
-		B13.addClickListener(e-> {
-			String storageID = areaMap.get(B13.getText());
-			dataContainer.getLocationRecordsByParams("StorageID", storageID);
-			areaToBeDisplayed = dataContainer.storageAreaRecords.get(storageID);
-		});
-		
-		B21.addClickListener(e-> {
-			String storageID = areaMap.get(B21.getText());
-			dataContainer.getLocationRecordsByParams("StorageID", storageID);
-			areaToBeDisplayed = dataContainer.storageAreaRecords.get(storageID);
-			selectedStorageType = "Hazard";
-		});
-		
-		B22.addClickListener(e-> {
-			String storageID = areaMap.get(B22.getText());
-			dataContainer.getLocationRecordsByParams("StorageID", storageID);
-			areaToBeDisplayed = dataContainer.storageAreaRecords.get(storageID);
-			selectedStorageType = "Reefer";
-		});
-		
-		B23.addClickListener(e-> {
-			String storageID = areaMap.get(B23.getText());
-			dataContainer.getLocationRecordsByParams("StorageID", storageID);
-			areaToBeDisplayed = dataContainer.storageAreaRecords.get(storageID);
-			selectedStorageType = "Illegal";
-		});
+		Button B11 = areaButtonFactory(100);
+		Button B12 = areaButtonFactory(101);
+		Button B13 = areaButtonFactory(102);
+		Button B21 = areaButtonFactory(103);
+		Button B22 = areaButtonFactory(104);
+		Button B23 = areaButtonFactory(105);
 		
 		zone1.add(B11, B12, B13);
 		zone2.add(B21, B22, B23);
@@ -177,51 +155,50 @@ public class ContainerLocationView extends SplitViewFrame{
 		block.setWidth("400px");
 		block.add(zone1, zone2);
 		
-		VerticalLayout overView = new VerticalLayout(block, createStorageContent());
-		return overView;
+		storageAreaOverView = new VerticalLayout(block, createStorageContent(), 
+				createToolBar(), createContainerLocationGrid());
 	}
 	
-	private Component storageAreaDetail() {
-		dataContainer.initStorageAreas();
+	private void createStorageDetail() {
+		dataContainer.initStorageArea(
+			String.valueOf(areaToBeDisplayed.getStorageID()));
 		
-		Tab block1Tab = new Tab("Tab one");
-		Tab block2Tab = new Tab("Tab two");
+		storageAreaDetail = new VerticalLayout();
+		storageAreaDetail.setAlignItems(Alignment.START);
+		
+		createBlockTabs();
+		createBlockContent(areaToBeDisplayed, 0);
+		
+		storageAreaDetail.add(blockTabs);
+		storageAreaDetail.add(blockContent);
+	}
+	
+	private void createBlockTabs() {
+		Tab block1Tab = new Tab("Block One");
+		Tab block2Tab = new Tab("Block Two");
 
 		Map<Tab, Integer> tabsToBlock = new HashMap<>();
 		tabsToBlock.put(block1Tab, 0);
 		tabsToBlock.put(block2Tab, 1);
 
-		Tabs blockTabs = new Tabs(block1Tab, block2Tab);
-
-		blockTabs.addSelectedChangeListener(event -> {
+		blockTabs = new Tabs(block1Tab, block2Tab);
+		blockTabs.addSelectedChangeListener(e -> {
 		    int blockIndex = tabsToBlock.get(blockTabs.getSelectedTab());
-		    createStorageDetial(areaToBeDisplayed, blockIndex);
+		    storageAreaDetail.remove(blockContent);
+		    createBlockContent(areaToBeDisplayed, blockIndex);
+		    storageAreaDetail.add(blockContent);
 		});
-		
-		areaToBeDisplayed = dataContainer.storageAreaRecords.get("100");
-		createStorageDetial(areaToBeDisplayed, 0);
-		return new VerticalLayout(blockTabs, storageAreaDetail);
 	}
 	
-	private void createStorageDetial(StorageArea area, int blockIndex) {
-		storageAreaDetail = new HorizontalLayout();
+	private void createBlockContent(StorageArea area, int blockIndex) {
 		Block block = area.getBlock(blockIndex);
-		storageAreaDetail.add(blockContent(block));
-		storageAreaDetail.setAlignItems(Alignment.BASELINE);
-		storageAreaDetail.setSpacing(true);
-	}
-	
-	private Component blockContent(Block block) {
-		HorizontalLayout blockcontent = new HorizontalLayout();
+		blockContent = new VerticalLayout();
 		String[] tireName = new String[] {"Tier1", "Tier2", "Tier3"};
 		for (int i = 0; i < 3; i++) {
 			Grid<Bay> blockLayer = createTireGrid(tireName[i], block.getTier(i));
-			blockcontent.add(blockLayer);
+			blockContent.add(blockLayer);
 		}
-		
-		blockcontent.setAlignItems(Alignment.CENTER);
-		blockcontent.setSpacing(true);	
-		return blockcontent;
+		blockContent.setSpacing(true);	
 	}
 
 	private Grid<Bay> createTireGrid(String layerName, Tier tier) {
@@ -229,34 +206,26 @@ public class ContainerLocationView extends SplitViewFrame{
 		blockTire.setDataProvider(DataProvider.ofCollection(tier));
 		
 		blockTire.addComponentColumn(c-> drawSlot(c,0))
-			.setWidth("80px").setHeader(new Badge(layerName, BadgeColor.SUCCESS));
-		blockTire.addComponentColumn(c-> drawSlot(c,1)).setWidth("80px");
-		blockTire.addComponentColumn(c-> drawSlot(c,2)).setWidth("80px");
-		blockTire.addComponentColumn(c-> drawSlot(c,3)).setWidth("80px");
-		blockTire.addComponentColumn(c-> drawSlot(c,4)).setWidth("80px");
+			.setAutoWidth(true).setHeader(new Badge(layerName, BadgeColor.SUCCESS));
+		blockTire.addComponentColumn(c-> drawSlot(c,1)).setAutoWidth(true);
+		blockTire.addComponentColumn(c-> drawSlot(c,2)).setAutoWidth(true);
+		blockTire.addComponentColumn(c-> drawSlot(c,3)).setAutoWidth(true);
+		blockTire.addComponentColumn(c-> drawSlot(c,4)).setAutoWidth(true);
 		
 		blockTire.setHeightByRows(true);
-		blockTire.setWidth("640px");
+		blockTire.setWidth("680px");
 		return blockTire;
 	}
 	
 	private Component drawSlot(Bay bay, int rowIndex) {
-		Location loc = bay.getContainer(rowIndex);
+		Location loc = bay.getContainer(rowIndex);	
+		Button slot = UIUtils.createPrimaryButton("Empty");
+		slot.getStyle().set("width", "100px");
+		slot.getStyle().set("backgroundColor", areaMap.get(selectedStorage)[1]);
 		
-		Button slot = UIUtils.createPrimaryButton(
-				String.valueOf(loc.getContainerID()));
-		
-		if (selectedStorageType.equals("Hazard")) {
-			slot.getStyle().set("backgroundColor", "orange");
-		} else if (selectedStorageType.equals("Reefer")) {
-			slot.getStyle().set("backgroundColor", "black");
-		} else if (selectedStorageType.equals("Illegal")) {
-			slot.getStyle().set("backgroundColor", "red");
-		}
-		
-		slot.setWidth("10px");
 		if (loc.getContainerID() != null) {
-			slot.getStyle().set("backgroundColor", "yellow");
+			slot.getStyle().set("backgroundColor", "darkslateblue");
+			slot.setText(String.valueOf(loc.getContainerID()));
 		}
 		
 		slot.addClickListener(e->{
@@ -294,8 +263,9 @@ public class ContainerLocationView extends SplitViewFrame{
 				Notification.show("Succesfully Placed Container!", 4000, Notification.Position.BOTTOM_CENTER);
 				dataContainer.getLocationRecords();
 		        dataProvider = DataProvider.ofCollection(dataContainer.locationRecords.values());
-		        grid.setDataProvider(dataProvider);
-		        storageContent.addToSecondary(storageAreaDetail());
+		        containerLocationGrid.setDataProvider(dataProvider);
+		        createStorageDetail();
+		        content.addToSecondary(storageAreaDetail);
 		        dialog.close();
 			} else if (code == 1) {
 				Notification.show("The given containerID already exits!", 4000, Notification.Position.BOTTOM_CENTER);
@@ -313,10 +283,10 @@ public class ContainerLocationView extends SplitViewFrame{
 				Notification.show("Succesfully Update the Loacation!", 4000, Notification.Position.BOTTOM_CENTER);
 				dataContainer.getLocationRecords();
 		        dataProvider = DataProvider.ofCollection(dataContainer.locationRecords.values());
-		        grid.setDataProvider(dataProvider);
-		        
-		        storageContent.addToSecondary(storageAreaDetail());
-		        slot.getStyle().set("backgroundColor", "yellow");
+		        containerLocationGrid.setDataProvider(dataProvider);
+		        createStorageDetail();
+		        content.addToSecondary(storageAreaDetail);
+		        slot.getStyle().set("backgroundColor", "cyan");
 		        dialog.close();
 			} else if (code == 1) {
 				Notification.show("The given containerID already exits!", 4000, Notification.Position.BOTTOM_CENTER);
@@ -372,45 +342,52 @@ public class ContainerLocationView extends SplitViewFrame{
         return toolBar;
 	}
 
-	private Grid<Location> createGrid() {
+	private Grid<Location> createContainerLocationGrid() {
 		dataContainer.getLocationRecords();
 		dataProvider = DataProvider.ofCollection(dataContainer.locationRecords.values());
 		
-		grid = new Grid<>();
-		grid.setDataProvider(dataProvider);
-		grid.setHeightByRows(true);
-		grid.setWidthFull();
+		containerLocationGrid = new Grid<>();
+		containerLocationGrid.setDataProvider(dataProvider);
+		containerLocationGrid.setHeightByRows(true);
+		containerLocationGrid.setWidthFull();
 		
-		grid.addColumn(Location::getContainerID)
+		containerLocationGrid.addColumn(Location::getContainerID)
 				.setAutoWidth(true)
+				.setResizable(true)
 				.setFlexGrow(0)
 				.setSortable(true)
 				.setHeader("Container ID");
-		grid.addColumn(Location::getStorageID)
+		containerLocationGrid.addColumn(Location::getStorageID)
 				.setAutoWidth(true)
+				.setResizable(true)
 				.setFlexGrow(0)
 				.setSortable(true)
 				.setHeader("Type");
-		grid.addComponentColumn(this::createLocation)
-				.setWidth("360px")
+		containerLocationGrid.addComponentColumn(this::createLocation)
+				.setAutoWidth(true)
+				.setResizable(true)
 				.setFlexGrow(0)
 				.setSortable(true)
 				.setHeader("Detailed Location");
-		grid.addColumn(vessel -> UIUtils.formatSqlDate(vessel.getStartDate()))
+		containerLocationGrid.addColumn(vessel -> UIUtils.formatSqlDate(vessel.getStartDate()))
 				.setAutoWidth(true)
+				.setResizable(true)
 				.setFlexGrow(0)
 				.setComparator(Location::getStartDate)
 				.setHeader("Start Date");
-		grid.addColumn(vessel -> UIUtils.formatSqlDate(vessel.getEndDate()))
+		containerLocationGrid.addColumn(vessel -> UIUtils.formatSqlDate(vessel.getEndDate()))
 				.setAutoWidth(true)
+				.setResizable(true)
 				.setComparator(Location::getEndDate)
 				.setFlexGrow(0)
 				.setHeader("End Date");
-		grid.addColumn(new ComponentRenderer<>(this::createRemoveButton))
-				.setFlexGrow(0).setWidth("130px")
+		containerLocationGrid.addColumn(new ComponentRenderer<>(this::createRemoveButton))
+				.setFlexGrow(0)
+				.setWidth("130px")
+				.setResizable(true)
 				.setResizable(true)
 				.setTextAlign(ColumnTextAlign.CENTER);
-		return grid;
+		return containerLocationGrid;
 	}
 
 	private Component createLocation(Location location) {
@@ -431,12 +408,12 @@ public class ContainerLocationView extends SplitViewFrame{
 	
 	private Button createRemoveButton(Location location) {
 		Button button = new Button(new Icon(VaadinIcon.TRASH), clickEvent -> {
-            int code = dataContainer.deleteVesselRecords(location.getContainerID());
+            int code = dataContainer.deleteLocationRecords(location.getContainerID());
             if (code == 0) {
             	dataContainer.getLocationRecords();
             	dataProvider = DataProvider.ofCollection(dataContainer.locationRecords.values());
-        		grid.setDataProvider(dataProvider);
-        		Notification.show("Succesfully deleted the customer" ,4000, Notification.Position.BOTTOM_CENTER);
+        		containerLocationGrid.setDataProvider(dataProvider);
+        		Notification.show("Succesfully deleted the storage area" ,4000, Notification.Position.BOTTOM_CENTER);
             } else {
             	Notification.show("ERROR: DELETION FALIED" ,4000, Notification.Position.BOTTOM_CENTER);
             }
@@ -503,7 +480,7 @@ public class ContainerLocationView extends SplitViewFrame{
 	
 	private Button createStorageRemoveButton(StorageArea storageArea) {
 		Button button = new Button(new Icon(VaadinIcon.TRASH), clickEvent -> {
-           int code = dataContainer.deleteVesselRecords(storageArea.getStorageID());
+           int code = dataContainer.deleteStorageAreaRecords(storageArea.getStorageID());
            if (code == 0) {
            	dataContainer.getStorageAreaRecords();
            	storageDataProvider = DataProvider.ofCollection(dataContainer.storageAreaRecords.values());
@@ -604,7 +581,7 @@ public class ContainerLocationView extends SplitViewFrame{
 		updateID.setLabel("StorageArea ID");
 		updateID.setPlaceholder(String.valueOf(storageArea.getStorageID()));
 		updateID.addValueChangeListener(e-> {
-			storageArea.setStorageID(Integer.valueOf(e.getValue()));
+			tempStorageArea.setStorageID(Integer.valueOf(e.getValue()));
 		});
 		
 		NumberField updateCapacity = new NumberField();
@@ -612,7 +589,7 @@ public class ContainerLocationView extends SplitViewFrame{
 		updateCapacity.setLabel("Capacity");
 		updateCapacity.setPlaceholder(String.valueOf(storageArea.getCapacity()));
 		updateCapacity.addValueChangeListener(e-> {
-			storageArea.setCapacity(e.getValue().intValue());
+			tempStorageArea.setCapacity(e.getValue().intValue());
 		});
 		
 		Select<String> typePicker = new Select<>();
@@ -621,14 +598,14 @@ public class ContainerLocationView extends SplitViewFrame{
 		typePicker.setItems("Normal", "Reefer", "Hazard", "Illegal", "Livestock");
 		typePicker.setWidth("100%");
 		typePicker.addValueChangeListener(
-       		e -> storageArea.setType(e.getValue()));
+       		e -> tempStorageArea.setType(e.getValue()));
        
 		NumberField updatePrice = new NumberField();
        updatePrice.setWidth("100%");
        updatePrice.setLabel("Storage Price");
        updatePrice.setPlaceholder(String.valueOf(storageArea.getStoragePrice()));
        updatePrice.addValueChangeListener(e-> {
-       	storageArea.setStoragePrice(e.getValue());
+    	   tempStorageArea.setStoragePrice(e.getValue());
 		});
 		
 		ListItem status = new ListItem(

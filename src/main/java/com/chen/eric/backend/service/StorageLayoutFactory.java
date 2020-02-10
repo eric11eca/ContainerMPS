@@ -13,7 +13,7 @@ import com.chen.eric.backend.StorageArea;
 import com.chen.eric.backend.Tier;
 
 public class StorageLayoutFactory {
-	private Set<Location> locations = new HashSet<>();
+	private Set<Location> locations;
 	private DBConnectionService dbService;
 	
 	public StorageLayoutFactory(DBConnectionService dbService) {
@@ -29,7 +29,10 @@ public class StorageLayoutFactory {
 			stmt.setInt(1, storageID);
 			boolean hasRs = stmt.execute();
 			
+			locations = new HashSet<>();
+			
 	        if (hasRs) {
+	        	
 	           try (ResultSet rs = stmt.getResultSet()) {     	
 	        	   while (rs.next()) {
 	        		   locations.add(
@@ -43,6 +46,8 @@ public class StorageLayoutFactory {
 	        	   }
 	           }
 	        }	
+	        
+	        System.out.println("Current Capacity at Area " + storageID + ": " + locations.size());
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		}

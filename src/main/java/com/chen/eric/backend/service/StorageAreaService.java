@@ -18,7 +18,6 @@ public class StorageAreaService implements EntityService<StorageArea> {
 
 	@Override
 	public Map<String, StorageArea> retriveRecords() {
-		// TODO Auto-generated method stub
 		try {
 			dbService.connect();
 			String query = "{call dbo.View_Storage()}";
@@ -66,7 +65,7 @@ public class StorageAreaService implements EntityService<StorageArea> {
 	public int insertRecords(StorageArea t) {
 		try {
 			dbService.connect();
-			String query = "{? = CALL dbo.Insert_Storage(?,?,?,?)}";
+			String query = "{? = CALL dbo.Insert_StorageArea(?,?,?,?)}";
 			
 			CallableStatement stmt =  dbService.getConnection().prepareCall(query);
 			stmt.registerOutParameter(1, Types.INTEGER);
@@ -129,7 +128,7 @@ public class StorageAreaService implements EntityService<StorageArea> {
 	           }
 	        }
 			
-			System.out.println("Return Value: " + stmt.getInt(1));
+			//System.out.println("Return Value: " + stmt.getInt(1));
 			return StorageAreaTable;
 		}
 		catch (SQLException ex) {
@@ -186,7 +185,7 @@ public class StorageAreaService implements EntityService<StorageArea> {
 	public int deleteRecords(int ID) {
 		try {
 			dbService.connect();
-			String query = "{? = call dbo.Delete_StorageArea(?)";
+			String query = "{? = call dbo.Delete_StorageArea(?)}";
 			
 			CallableStatement stmt =  dbService.getConnection().prepareCall(query);	
 			stmt.registerOutParameter(1, Types.INTEGER);

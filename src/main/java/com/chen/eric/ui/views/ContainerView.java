@@ -231,9 +231,9 @@ public class ContainerView extends SplitViewFrame {
 	
 	private Button createRemoveButton(Container contianer) {
 		Button button = new Button(new Icon(VaadinIcon.TRASH), clickEvent -> {
-            int code = dataContainer.deleteVesselRecords(contianer.getContainerID());
+            int code = dataContainer.deleteContainerRecords(contianer.getContainerID());
             if (code == 0) {
-            	dataContainer.getVesselRecords();
+            	dataContainer.getContainerRecords();
             	dataProvider = DataProvider.ofCollection(dataContainer.containerRecords.values());
         		grid.setDataProvider(dataProvider);
         		Notification.show("Succesfully deleted the customer" ,4000, Notification.Position.BOTTOM_CENTER);

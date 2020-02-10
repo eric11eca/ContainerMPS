@@ -33,6 +33,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
@@ -188,7 +189,7 @@ public class CustomerView extends SplitViewFrame {
 			newCustomer.setCompanyName(e.getValue());
 		});
         
-		TextField updateEmail = new TextField();
+		EmailField updateEmail = new EmailField();
 		updateEmail.setWidth("50%");
 		updateEmail.setLabel("Contact Email");
 		updateEmail.addValueChangeListener(e-> {
@@ -260,7 +261,7 @@ public class CustomerView extends SplitViewFrame {
 			if (tempCustomer != null && customerID != null) {
 				int code = dataContainer.updateCustomerRecords(tempCustomer, customerID);
 				if (code == 0) {
-					dataContainer.getContainerRecords();
+					dataContainer.getCustomerRecords();
 					dataProvider = DataProvider.ofCollection(dataContainer.customerRecords.values());
 					grid.setDataProvider(dataProvider);
 					Notification.show("Succesfully Updated the Data! WITH CODE: " + code, 4000, Notification.Position.BOTTOM_CENTER);
@@ -299,7 +300,7 @@ public class CustomerView extends SplitViewFrame {
 			tempCustomer.setCompanyName(e.getValue());
 		});
         
-		TextField updateEmail = new TextField();
+		EmailField updateEmail = new EmailField();
         updateEmail.setWidth("50%");
         updateEmail.setValue(customer.getContactEmail());
         updateEmail.addValueChangeListener(e-> {

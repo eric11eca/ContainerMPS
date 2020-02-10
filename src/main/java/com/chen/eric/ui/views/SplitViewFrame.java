@@ -20,6 +20,7 @@ import com.chen.eric.ui.util.css.FlexDirection;
  * <li>Bottom {@link #setViewFooter(Component...) footer}</li>
  * </ul>
  */
+@SuppressWarnings("serial")
 @CssImport("./styles/components/view-frame.css")
 public class SplitViewFrame extends Composite<Div> implements HasStyle {
 
