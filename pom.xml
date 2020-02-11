@@ -2,9 +2,9 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.chen.eric</groupId>
     <artifactId>ContainerMPS</artifactId>
-    <name>springapp</name>
-    <version>2.0</version>
-    <packaging>jar</packaging>
+    <name>containerMPS</name>
+    <version>1.0</version>
+    <packaging>war</packaging>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -161,7 +161,22 @@
 		    <groupId>org.springframework.security</groupId>
 		    <artifactId>spring-security-config</artifactId>
 		</dependency>
+		
+		<dependency>
+		    <groupId>com.credibledoc</groupId>
+		    <artifactId>plantuml-core</artifactId>
+		    <version>1.0.13</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>guru.nidi</groupId>
+		    <artifactId>graphviz-java</artifactId>
+		    <version>0.14.1</version>
+		</dependency>
+		
     </dependencies>
+    
+    
 
     <build>
         <defaultGoal>spring-boot:run</defaultGoal>
@@ -194,6 +209,16 @@
                     </execution>
                 </executions>
             </plugin>
+            
+             <plugin>
+		        <groupId>com.google.cloud.tools</groupId>
+		        <artifactId>appengine-maven-plugin</artifactId>
+		        <version>2.1.0</version>
+		        <configuration>
+		          <version>1</version>
+		          <projectId>GCLOUD_CONFIG</projectId>
+		        </configuration>
+		      </plugin>
         </plugins>
     </build>
 
@@ -234,6 +259,11 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <plugin>
+					   <groupId>com.google.appengine</groupId>
+					   <artifactId>appengine-maven-plugin</artifactId>
+					   <version>1.9.78</version>
+					</plugin>
                 </plugins>
             </build>
         </profile>
@@ -261,8 +291,8 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>
-
+                    </plugin>     
+              
                     <!-- Runs the integration tests (*IT) after the server is started -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>

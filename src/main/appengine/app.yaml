@@ -1,0 +1,6 @@
+runtime: java11
+instance_class: F4
+env_variables: 
+  SPRING_PROFILES_ACTIVE: "prod"
+  PORT: "8080"
+entrypoint: java -noverify -jar ContainerMPS-1.0.war
