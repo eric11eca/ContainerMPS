@@ -225,17 +225,16 @@
     <profiles>
         <profile>
             <!-- Production mode is activated using -Pproduction -->
-            <id>Pproduction</id>
-            <properties>
-                <vaadin.productionMode>true</vaadin.productionMode>
-            </properties>
-
-            <dependencies>
-                <dependency>
-                    <groupId>com.vaadin</groupId>
-                    <artifactId>flow-server-production-mode</artifactId>
-                </dependency>
-            </dependencies>
+            <id>production</id>
+	        <properties>
+	            <vaadin.productionMode>true</vaadin.productionMode>
+	        </properties>
+	        <dependencies>
+	            <dependency>
+	                <groupId>com.vaadin</groupId>
+	                <artifactId>flow-server-production-mode</artifactId>
+	            </dependency>
+	        </dependencies>
 
             <build>
                 <plugins>
@@ -253,7 +252,8 @@
                         <executions>
                             <execution>
                                 <goals>
-                                    <goal>build-frontend</goal>
+                                    <goal>prepare-frontend</goal>
+                                	<goal>build-frontend</goal>
                                 </goals>
                                 <phase>compile</phase>
                             </execution>
