@@ -8,8 +8,11 @@ import org.springframework.security.core.Authentication;
 import com.chen.eric.backend.Container;
 import com.chen.eric.backend.Customer;
 import com.chen.eric.backend.Employee;
+import com.chen.eric.backend.ExportPlan;
+import com.chen.eric.backend.ImportPlan;
 import com.chen.eric.backend.Location;
 import com.chen.eric.backend.StorageArea;
+import com.chen.eric.backend.TransPlan;
 import com.chen.eric.backend.Vessel;
 
 public class DataContainer {
@@ -210,4 +213,8 @@ public class DataContainer {
 		StorageArea newArea = storageAreaFactory.generateStorageArea(area);
 		storageAreaRecords.put(storageID, newArea);
 	}
+	
+	public Map<String, TransPlan> transPlanRecords = new HashMap<>();
+	public Map<String, ImportPlan> importPlanRecords = new HashMap<>();
+	public Map<String, ExportPlan> exportPlanRecords = new HashMap<>();
 }

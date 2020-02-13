@@ -22,8 +22,8 @@ import com.chen.eric.ui.views.ContainerView;
 import com.chen.eric.ui.views.CustomerView;
 import com.chen.eric.ui.views.EmployeeView;
 import com.chen.eric.ui.views.Home;
-import com.chen.eric.ui.views.Statistics;
 import com.chen.eric.ui.views.VesselView;
+import com.chen.eric.ui.views.dashboard.DashboardView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
@@ -134,7 +134,7 @@ public class MainLayout extends FlexBoxLayout
 	private void initNaviItems() {
 		NaviMenu menu = naviDrawer.getMenu();
 		//menu.addNaviItem(VaadinIcon.HOME, "Home", Home.class);
-		menu.addNaviItem(VaadinIcon.CHART, "Accounts", Statistics.class);
+		menu.addNaviItem(VaadinIcon.CHART, "Dashboard", DashboardView.class);
 		menu.addNaviItem(VaadinIcon.BOAT, "Vessel", VesselView.class);
 		menu.addNaviItem(VaadinIcon.CUBES, "Container Location", ContainerLocationView.class);
 		menu.addNaviItem(VaadinIcon.PACKAGE, "Container", ContainerView.class);

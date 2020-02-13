@@ -221,6 +221,7 @@ public class ContainerLocationView extends SplitViewFrame{
 		Location loc = bay.getContainer(rowIndex);	
 		Button slot = UIUtils.createPrimaryButton("Empty");
 		slot.getStyle().set("width", "100px");
+		slot.getStyle().set("hegiht", "70%");
 		slot.getStyle().set("backgroundColor", areaMap.get(selectedStorage)[1]);
 		
 		if (loc.getContainerID() != null) {
