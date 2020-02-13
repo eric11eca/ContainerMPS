@@ -1,8 +1,5 @@
 package com.chen.eric.ui.views;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import com.chen.eric.backend.Customer;
 import com.chen.eric.backend.service.DataContainer;
 import com.chen.eric.ui.MainLayout;
@@ -28,7 +25,6 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -46,12 +42,6 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.DebouncePhase;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamResource;
-
-import net.sourceforge.plantuml.FileFormat;
-import net.sourceforge.plantuml.FileFormatOption;
-import net.sourceforge.plantuml.SourceStringReader;
-import net.sourceforge.plantuml.core.DiagramDescription;
 
 
 @SuppressWarnings("serial")
@@ -77,13 +67,6 @@ public class CustomerView extends SplitViewFrame {
 
 	private Component createContent() {
 		VerticalLayout mainContent = new VerticalLayout(createToolBar(), createGrid());
-		
-		try {
-			mainContent.add(createGrpah());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
 		FlexBoxLayout content = new FlexBoxLayout(mainContent);
 		content.setBoxSizing(BoxSizing.BORDER_BOX);
 		content.setHeightFull();
@@ -134,60 +117,6 @@ public class CustomerView extends SplitViewFrame {
         toolBar.setPadding(true);
         
         return toolBar;
-	}
-	
-	private Image createGrpah() throws IOException {
-		String source = "@startuml\n" + 
-				"\n" + 
-				"package \"Some Group\" {\n" + 
-				"  HTTP - [First Component]\n" + 
-				"  [Another Component]\n" + 
-				"}\n" + 
-				" \n" + 
-				"node \"Other Groups\" {\n" + 
-				"  FTP - [Second Component]\n" + 
-				"  [First Component] --> FTP\n" + 
-				"} \n" + 
-				"\n" + 
-				"cloud {\n" + 
-				"  [Example 1]\n" + 
-				"}\n" + 
-				"\n" + 
-				"\n" + 
-				"database \"MySql\" {\n" + 
-				"  folder \"This is my folder\" {\n" + 
-				"	[Folder 3]\n" + 
-				"  }\n" + 
-				"  frame \"Foo\" {\n" + 
-				"	[Frame 4]\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"\n" + 
-				"\n" + 
-				"[Another Component] --> [Example 1]\n" + 
-				"[Example 1] --> [Folder 3]\n" + 
-				"[Folder 3] --> [Frame 4]\n" + 
-				"\n" + 
-				"@enduml";
-		
-		
-
-		SourceStringReader reader = new SourceStringReader(source);
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		
-		FileFormatOption format = new FileFormatOption(FileFormat.SVG);
-		
-		DiagramDescription desc = reader.outputImage(os, format);
-		System.out.println(desc);
-		
-		StreamResource resource = new StreamResource("dummyImageName.svg", 
-				() -> new ByteArrayInputStream(os.toByteArray()));
-		Image image = new Image(resource, "dummy image");
-		image.setWidth("400px");
-		image.setHeight("400px");
-
-		os.close();
-		return image;
 	}
 
 	private Grid<Customer> createGrid() {

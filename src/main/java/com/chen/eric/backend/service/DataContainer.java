@@ -217,4 +217,73 @@ public class DataContainer {
 	public Map<String, TransPlan> transPlanRecords = new HashMap<>();
 	public Map<String, ImportPlan> importPlanRecords = new HashMap<>();
 	public Map<String, ExportPlan> exportPlanRecords = new HashMap<>();
+	
+	private PlanService planService = new PlanService(dbService);
+	
+	public void getPlanRecords() {
+		transPlanRecords = planService.retriveRecords();
+		importPlanRecords = planService.getImportPlans();
+		exportPlanRecords = planService.getExportPlans();
+		dbService.closeConnection();
+	}
+	
+	public int insertPlanRecords(TransPlan plan) {
+		int code = planService.insertRecords(plan);
+		dbService.closeConnection();
+		return code;
+	}
+	
+	public int updateUnLoadFromVessel(int unloadFrom, int primary, int secondary) {
+		int code = planService.updateImportVessel(unloadFrom, primary, secondary);
+		dbService.closeConnection();
+		return code;
+	}
+	
+	public int updateUnLoadCompleted(boolean unloaded, int primary, int secondary) {
+		int code = planService.updateImportUnload(unloaded, primary, secondary);
+		dbService.closeConnection();
+		return code;
+	}
+	
+	public int updateCustomPassed(boolean passed, int primary, int secondary) {
+		int code = planService.updateImportCustom(passed, primary, secondary);
+		dbService.closeConnection();
+		return code;
+	}
+	
+	public int updateContainerDistributed(boolean distributed, int primary, int secondary) {
+		int code = planService.updateImportDistribute(distributed, primary, secondary);
+		dbService.closeConnection();
+		return code;
+	}
+	
+	public int updateLoadToVessel(int loadTo, int primary, int secondary) {
+		int code = planService.updateExportVessel(loadTo, primary, secondary);
+		dbService.closeConnection();
+		return code;
+	}
+	
+	public int updateExportTotalCost(Double totalCost, int primary, int secondary) {
+		int code = planService.updateExportTotalCost(totalCost, primary, secondary);
+		dbService.closeConnection();
+		return code;
+	}
+	
+	public int updateLoadCompleted(boolean loaded, int primary, int secondary) {
+		int code = planService.updateExportLoad(loaded, primary, secondary);
+		dbService.closeConnection();
+		return code;
+	}
+	
+	public int updateContainerRetrived(boolean retrived, int primary, int secondary) {
+		int code = planService.updateExportRetrived(retrived, primary, secondary);
+		dbService.closeConnection();
+		return code;
+	}
+	
+	public int updateServicePayed(boolean payed, int primary, int secondary) {
+		int code = planService.updateExportBill(payed, primary, secondary);
+		dbService.closeConnection();
+		return code;
+	}
 }

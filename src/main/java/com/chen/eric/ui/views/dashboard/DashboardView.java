@@ -34,7 +34,6 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.H6;
 import com.vaadin.flow.component.html.Image;
@@ -113,12 +112,12 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
         
         board.addRow(createPlanGrid());
 
-        WrapperCard gridWrapper = new WrapperCard("wrapper",
+        /*WrapperCard gridWrapper = new WrapperCard("wrapper",
                 new Component[] { new H3("Service health"), grid }, "card");
        
         responseTimes.getConfiguration().setTitle("Response times");
         WrapperCard responseTimesWrapper = new WrapperCard("wrapper",
-                new Component[] { responseTimes }, "card");
+                new Component[] { responseTimes }, "card");*/
         
         updatePlanRow(true);
         board.add(editPlanRow);
@@ -225,12 +224,24 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
     private HorizontalLayout createImportTasks() {
     	 Checkbox unloadComplet = new Checkbox();
          unloadComplet.setLabel("Unload Container");
+         unloadComplet.addValueChangeListener(e -> 
+         	dataContainer.updateUnLoadCompleted(
+         			e.getValue(), currentImportPlan.planID, 
+         			currentImportPlan.getContainerID()));
          
          Checkbox checkComplet = new Checkbox();
          checkComplet.setLabel("Custom Check");
+         checkComplet.addValueChangeListener(e ->
+        	dataContainer.updateCustomPassed(
+        			e.getValue(), currentImportPlan.planID, 
+        			currentImportPlan.getContainerID()));
          
          Checkbox distirbuteComplet = new Checkbox();
          distirbuteComplet.setLabel("Distribute Container");
+         distirbuteComplet.addValueChangeListener(e ->
+     		dataContainer.updateContainerDistributed(
+     			e.getValue(), currentImportPlan.planID, 
+     			currentImportPlan.getContainerID()));
          
          HorizontalLayout checkboxes = new HorizontalLayout(
         		 new H6("Impor Tasks"), unloadComplet, checkComplet, distirbuteComplet);
@@ -242,12 +253,24 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
     private HorizontalLayout createExportTasks() {
    	 	Checkbox retriveComplet = new Checkbox();
         retriveComplet.setLabel("Retrive Container");
+        retriveComplet.addValueChangeListener(e -> 
+     		dataContainer.updateContainerRetrived(
+     			e.getValue(), currentExportPlan.planID, 
+     			currentExportPlan.getContainerID()));
         
         Checkbox billingComplet = new Checkbox();
         billingComplet.setLabel("Service Billing");
+        billingComplet.addValueChangeListener(e -> 
+ 			dataContainer.updateServicePayed(
+ 					e.getValue(), currentExportPlan.planID, 
+ 					currentExportPlan.getContainerID()));
         
         Checkbox loadComplet = new Checkbox();
         loadComplet.setLabel("Load Container");
+        loadComplet.addValueChangeListener(e -> 
+ 			dataContainer.updateLoadCompleted(
+ 					e.getValue(), currentExportPlan.planID, 
+ 					currentExportPlan.getContainerID()));
         
         HorizontalLayout checkboxes = new HorizontalLayout(
         		new H6("Export Tasks"), retriveComplet, billingComplet, loadComplet);

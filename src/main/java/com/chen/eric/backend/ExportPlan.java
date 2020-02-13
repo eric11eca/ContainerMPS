@@ -4,35 +4,29 @@ import java.sql.Date;
 
 public class ExportPlan extends TransPlan {
 	private Integer containerID;
-	private Date departureDate;
-	private String destinationCountry;
-	private String destinationState;
-	private String destinationCity;
 	private Integer loadTo;
 	private Double totalCost;
-	private boolean retrived;
-	private boolean loaded;
-	private boolean payed;
-	
+	private Integer retrivedFrom;
+	private boolean containerRetrived;
+	private boolean loadComplete;
+	private boolean servicePayed;
 	
 	public ExportPlan() {
 		super();
 	}
 	
-	public ExportPlan(int planID, String manager, Date date, String status, String type,
-			int containerID, Date departureDate, double totalCost,
-			String destinationCountry, String destinationState,
-			String destinationCity, int loadTo) {
+	public ExportPlan(int planID, String manager, Date date, 
+			String status, String type,
+			int containerID, int loadTo, double totalCost,
+			int retrivedFrom, boolean containerRetrived, 
+			boolean loadComplete, boolean servicePayed) {
 		super(planID, manager, date, status, type);
 		this.containerID = containerID;
-		this.departureDate = departureDate;
-		this.destinationCountry = destinationCountry;
-		this.destinationState = destinationState;
-		this.destinationCity = destinationCity;
 		this.loadTo = loadTo;
-		this.retrived = false;
-		this.loaded = false;
-		this.payed = false;
+		this.retrivedFrom = retrivedFrom;
+		this.containerRetrived = containerRetrived;
+		this.loadComplete = loadComplete;
+		this.servicePayed = servicePayed;
 	}
 
 	public Integer getContainerID() {
@@ -41,38 +35,6 @@ public class ExportPlan extends TransPlan {
 
 	public void setContainerID(Integer containerID) {
 		this.containerID = containerID;
-	}
-
-	public Date getDepartureDate() {
-		return departureDate;
-	}
-
-	public void setDepartureDate(Date departureDate) {
-		this.departureDate = departureDate;
-	}
-
-	public String getDestinationCountry() {
-		return destinationCountry;
-	}
-
-	public void setDestinationCountry(String destinationCountry) {
-		this.destinationCountry = destinationCountry;
-	}
-
-	public String getDestinationState() {
-		return destinationState;
-	}
-
-	public void setDestinationState(String destinationState) {
-		this.destinationState = destinationState;
-	}
-
-	public String getDestinationCity() {
-		return destinationCity;
-	}
-
-	public void setDestinationCity(String destinationCity) {
-		this.destinationCity = destinationCity;
 	}
 
 	public Integer getLoadTo() {
@@ -90,29 +52,36 @@ public class ExportPlan extends TransPlan {
 	public void setTotalCost(Double totalCost) {
 		this.totalCost = totalCost;
 	}
-
-	public boolean isRetrived() {
-		return retrived;
+	
+	public Integer getRetrivedFrom() {
+		return retrivedFrom;
 	}
 
-	public void setRetrived(boolean retrived) {
-		this.retrived = retrived;
+	public void setRetrivedFrom(Integer retrivedFrom) {
+		this.retrivedFrom = retrivedFrom;
 	}
 
-	public boolean isLoaded() {
-		return loaded;
+	public boolean isContainerRetrived() {
+		return containerRetrived;
 	}
 
-	public void setLoaded(boolean loaded) {
-		this.loaded = loaded;
+	public void setContainerRetrived(boolean containerRetrived) {
+		this.containerRetrived = containerRetrived;
 	}
 
-	public boolean isPayed() {
-		return payed;
+	public boolean isLoadComplete() {
+		return loadComplete;
 	}
 
-	public void setPayed(boolean payed) {
-		this.payed = payed;
+	public void setLoadComplete(boolean loadComplete) {
+		this.loadComplete = loadComplete;
 	}
 
+	public boolean isServicePayed() {
+		return servicePayed;
+	}
+
+	public void setServicePayed(boolean servicePayed) {
+		this.servicePayed = servicePayed;
+	}
 }
