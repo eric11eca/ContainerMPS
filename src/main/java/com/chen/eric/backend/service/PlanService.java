@@ -159,7 +159,7 @@ public class PlanService implements EntityService<TransPlan> {
 		}
 			try {
 				this.dbService.connect();
-				String query = "{call Search_ImportPlan(?,?,?,?,?,?)}";
+				String query = "{call Search_ImportPlan(?,?,?,?,?)}";
 				CallableStatement stmt = this.dbService.getConnection().prepareCall(query);
 				if (filter.equals("PlanID")) {
 					stmt.setString(1, value);
@@ -179,22 +179,17 @@ public class PlanService implements EntityService<TransPlan> {
 					stmt.setString(3, null);
 				}
 				
-				if (filter.equals("DistributeTo")) {
+				
+				if (filter.equals("Type")) {
 					stmt.setString(4, value);
 				}else {
 					stmt.setString(4, null);
 				}
 				
-				if (filter.equals("Type")) {
+				if (filter.equals("Manager")) {
 					stmt.setString(5, value);
 				}else {
 					stmt.setString(5, null);
-				}
-				
-				if (filter.equals("Manager")) {
-					stmt.setString(6, value);
-				}else {
-					stmt.setString(6, null);
 				}
 				
 				boolean hasRs = stmt.execute();
@@ -214,7 +209,7 @@ public class PlanService implements EntityService<TransPlan> {
 		}
 			try {
 				this.dbService.connect();
-				String query = "{call Search_ExportPlan(?,?,?,?,?,?)}";
+				String query = "{call Search_ExportPlan(?,?,?,?,?)}";
 				CallableStatement stmt = this.dbService.getConnection().prepareCall(query);
 				if (filter.equals("PlanID")) {
 					stmt.setString(1, value);
@@ -228,28 +223,23 @@ public class PlanService implements EntityService<TransPlan> {
 					stmt.setString(2, null);
 				}
 				
-				if (filter.equals("RetrivedFrom")) {
+				
+				if (filter.equals("LoadTo")) {
 					stmt.setString(3, value);
 				}else {
 					stmt.setString(3, null);
 				}
 				
-				if (filter.equals("LoadTo")) {
+				if (filter.equals("Type")) {
 					stmt.setString(4, value);
 				}else {
 					stmt.setString(4, null);
 				}
 				
-				if (filter.equals("Type")) {
+				if (filter.equals("Manager")) {
 					stmt.setString(5, value);
 				}else {
 					stmt.setString(5, null);
-				}
-				
-				if (filter.equals("Manager")) {
-					stmt.setString(6, value);
-				}else {
-					stmt.setString(6, null);
 				}
 				
 				boolean hasRs = stmt.execute();
