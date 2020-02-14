@@ -151,9 +151,119 @@ public class PlanService implements EntityService<TransPlan> {
 
 	@Override
 	public Map<String, TransPlan> retriveRecordsByParameters(String filter, String value) {
-		return null;
+		return new HashMap<>();
 	}
-
+	public Map<String, TransPlan> retriveImportPlanRecords(String filter, String value){	
+		if (filter.isEmpty()) {
+			return new HashMap<>();
+		}
+			try {
+				this.dbService.connect();
+				String query = "{call Search_ImportPlan(?,?,?,?,?,?)}";
+				CallableStatement stmt = this.dbService.getConnection().prepareCall(query);
+				if (filter.equals("PlanID")) {
+					stmt.setString(1, value);
+				}else {
+					stmt.setString(1, null);
+				}
+				
+				if (filter.equals("ContainerID")) {
+					stmt.setString(2, value);
+				}else {
+					stmt.setString(2, null);
+				}
+				
+				if (filter.equals("UnloadFrom")) {
+					stmt.setString(3, value);
+				}else {
+					stmt.setString(3, null);
+				}
+				
+				if (filter.equals("DistributeTo")) {
+					stmt.setString(4, value);
+				}else {
+					stmt.setString(4, null);
+				}
+				
+				if (filter.equals("Type")) {
+					stmt.setString(5, value);
+				}else {
+					stmt.setString(5, null);
+				}
+				
+				if (filter.equals("Manager")) {
+					stmt.setString(6, value);
+				}else {
+					stmt.setString(6, null);
+				}
+				
+				boolean hasRs = stmt.execute();
+				ResultSet res = stmt.getResultSet();
+				if (hasRs) {
+				return parseResults(res);
+				}
+				return new HashMap<>();
+			}catch(SQLException e) {
+				e.printStackTrace();
+				return new HashMap<>();
+			}
+	}
+	public Map<String, TransPlan> retriveExportPlanRecords(String filter, String value){	
+		if (filter.isEmpty()) {
+			return new HashMap<>();
+		}
+			try {
+				this.dbService.connect();
+				String query = "{call Search_ExportPlan(?,?,?,?,?,?)}";
+				CallableStatement stmt = this.dbService.getConnection().prepareCall(query);
+				if (filter.equals("PlanID")) {
+					stmt.setString(1, value);
+				}else {
+					stmt.setString(1, null);
+				}
+				
+				if (filter.equals("ContainerID")) {
+					stmt.setString(2, value);
+				}else {
+					stmt.setString(2, null);
+				}
+				
+				if (filter.equals("RetrivedFrom")) {
+					stmt.setString(3, value);
+				}else {
+					stmt.setString(3, null);
+				}
+				
+				if (filter.equals("LoadTo")) {
+					stmt.setString(4, value);
+				}else {
+					stmt.setString(4, null);
+				}
+				
+				if (filter.equals("Type")) {
+					stmt.setString(5, value);
+				}else {
+					stmt.setString(5, null);
+				}
+				
+				if (filter.equals("Manager")) {
+					stmt.setString(6, value);
+				}else {
+					stmt.setString(6, null);
+				}
+				
+				boolean hasRs = stmt.execute();
+				ResultSet res = stmt.getResultSet();
+				if (hasRs) {
+				return parseResults(res);
+				}
+				return new HashMap<>();
+			}catch(SQLException e) {
+				e.printStackTrace();
+				return new HashMap<>();
+			}
+	}
+	
 	@Override
 	public int updateRecords(TransPlan plan, int key) {
 		return 0;
@@ -337,7 +447,20 @@ public class PlanService implements EntityService<TransPlan> {
 
 	@Override
 	public int deleteRecords(int ID) {
-		return 0;
+		try {
+			dbService.connect();
+			String query = "{? = call dbo.Delete_Plan(?)}";
+			
+			CallableStatement stmt =  dbService.getConnection().prepareCall(query);	
+			stmt.registerOutParameter(1, Types.INTEGER);
+			stmt.setInt(2, ID);
+			stmt.execute();
+			
+			return stmt.getInt(1);
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+			return -1;
+		}
 	}
 
 }
