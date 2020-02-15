@@ -22,18 +22,23 @@ import com.chen.eric.ui.util.LumoStyles;
 import com.chen.eric.ui.util.UIUtils;
 import com.chen.eric.ui.util.css.WhiteSpace;
 import com.chen.eric.ui.util.css.lumo.BadgeColor;
+import com.chen.eric.ui.views.dashboard.WrapperCard;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.board.Board;
+import com.vaadin.flow.component.board.Row;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -96,7 +101,13 @@ public class ContainerLocationView extends SplitViewFrame{
 		initialContent();
 		content = new SplitLayout();
 		content.setSplitterPosition(42);
+		
+		Board board = new Board();
+		
 		createAreaOverview();
+		
+		
+		
 		content.addToPrimary(storageAreaOverView);
 		createStorageDetail();
 		content.addToSecondary(storageAreaDetail);
@@ -150,12 +161,10 @@ public class ContainerLocationView extends SplitViewFrame{
 		zone2.setSpacing(true);
 		zone2.setPadding(true);
 		
-		VerticalLayout block = new VerticalLayout();
-		block.getStyle().set("border", "2px solid #9E9E9E");
-		block.setWidth("400px");
-		block.add(zone1, zone2);
+		WrapperCard storages = new WrapperCard("wrapper", 
+				new Component[] {zone1, zone2}, "card", "space-m");	
 		
-		storageAreaOverView = new VerticalLayout(block, createStorageContent(), 
+		storageAreaOverView = new VerticalLayout(storages, createStorageContent(), 
 				createToolBar(), createContainerLocationGrid());
 	}
 	

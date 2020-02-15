@@ -1,5 +1,7 @@
 package com.chen.eric.backend.service;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -286,4 +288,88 @@ public class DataContainer {
 		dbService.closeConnection();
 		return code;
 	}
+	
+	public double calculateCost(int id) {
+    	Location loc = locationRecords.get(String.valueOf(id));
+    	Period noOfDaysBetween = loc.getStartDate().toLocalDate().until(LocalDate.now());
+    	int numDays = noOfDaysBetween.getDays();
+    	StorageArea area = storageAreaRecords.get(String.valueOf(loc.getStorageID()));
+    	double fee = area.getStoragePrice();
+    	double totalCost = fee * numDays;
+    	return totalCost;
+    }
+	
+    public static int getRandomNumber(int min, int max) {
+        return (int) Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    
+    public static final String exportDiagram = "@startuml\n" + 
+			"\n" + 
+			"package Retrive($retrived) {\n" + 
+			"    [Locate Container\\n <<$containerLocation>>] as location\n" + 
+			"    [Retrive Container\\n <<$containerID>>] as container\n" + 
+			"}\n" + 
+			"\n" + 
+			"package Payment($payed) {\n" + 
+			"    [Bill Container\\n <<$containerID>>\\n <<$fee>>] as bill\n" + 
+			"}\n" + 
+			"\n" + 
+			"package Load($loaded) {\n" + 
+			"    [Load To Vessel\\n <<$vesselID>>] as load\n" + 
+			"}\n" + 
+			"\n" + 
+			"\n" + 
+			"package ExportPlan {\n" + 
+			"    [Plan ID\\n <<$planID>>] as id\n" + 
+			"    [Plan Manager\\n <<$manager>>] as manager\n" + 
+			"    [Plan Status\\n <<$status>>] as status\n" + 
+			"    [Plan Date\\n <<$date>>] as date\n" + 
+			"}\n" + 
+			"\n" + 
+			"location -> container\n" + 
+			"container --> bill\n" + 
+			"bill --> load\n" + 
+			"\n" + 
+			"id-down-date\n" + 
+			"date-down-manager\n" + 
+			"manager-down-status\n" + 
+			"\n" + 
+			"@enduml";
+    
+    public static final String importDiagram = "@startuml\n" + 
+			"\n" + 
+			"package Unload($unloaded) {\n" + 
+			"    [Select Vessel\\n <<$vesselID>>] as vessel\n" + 
+			"    [Create Container\\n <<$containerID>>] as container\n" + 
+			"}\n" + 
+			"\n" + 
+			"package Custom($checked) {\n" + 
+			"    [Check Container\\n <<$containerID>>] as check\n" + 
+			"}\n" + 
+			"\n" + 
+			"package Distribute($distributed) {\n" + 
+			"    [Assign Loactaion\\n <<$containerID>>] as location\n" + 
+			"}\n" + 
+			"\n" + 
+			"node Storage($stored) {\n" + 
+			"    node Container <<$containerID>> as storage\n" + 
+			"}\n" + 
+			"\n" + 
+			"package Plan {\n" + 
+			"    [Plan ID\\n <<$planID>>] as id\n" + 
+			"    [Plan Manager\\n <<$manager>>] as manager\n" + 
+			"    [Plan Status\\n <<$status>>] as status\n" + 
+			"    [Plan Date\\n <<$date>>] as date\n" + 
+			"}\n" + 
+			"\n" + 
+			"vessel -> container\n" + 
+			"container --> check\n" + 
+			"check --> location\n" + 
+			"location --> storage\n" + 
+			"\n" + 
+			"id-down-date\n" + 
+			"date-down-manager\n" + 
+			"manager-down-status\n" + 
+			"\n" + 
+			"@enduml";
 }

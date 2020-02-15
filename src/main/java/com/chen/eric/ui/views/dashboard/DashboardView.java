@@ -2,7 +2,14 @@ package com.chen.eric.ui.views.dashboard;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +23,7 @@ import com.chen.eric.ui.components.FlexBoxLayout;
 import com.chen.eric.ui.util.UIUtils;
 import com.chen.eric.ui.util.css.FlexDirection;
 import com.chen.eric.ui.views.ViewFrame;
+import com.helger.commons.csv.CSVReader;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.board.Board;
 import com.vaadin.flow.component.board.Row;
@@ -30,10 +38,13 @@ import com.vaadin.flow.component.charts.model.YAxis;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.H6;
 import com.vaadin.flow.component.html.Image;
@@ -46,6 +57,8 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.upload.Receiver;
+import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -79,6 +92,8 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
     
     private Grid<TransPlan> planGrid;
     private ListDataProvider<TransPlan> dataProvider;
+    private File tempFile;
+    private DataInputStream in;
     
     private DataContainer dataContainer = DataContainer.getInstance();
     
@@ -88,9 +103,9 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
     public DashboardView() {    	
     	board = new Board();
         board.addRow(
-                createBadge("Users", usersH2, "primary-text", "Current users in the app", "badge"),
-                createBadge("Events", eventsH2, "success-text", "Events from the views", "badge success"),
-                createBadge("Conversion", conversionH2, "error-text","User conversion rate", "badge error")
+                createUploadBadge("Import List", usersH2, "primary-text", "Upload Import Container List", "badge"),
+                createUploadBadge("Export List", eventsH2, "success-text", "Upload Export Container List", "badge success"),
+                createUploadBadge("Conversion", conversionH2, "error-text","User conversion rate", "badge error")
         );
 
         monthlyVisitors.getConfiguration()
@@ -112,12 +127,14 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
         
         board.addRow(createPlanGrid());
 
-        /*WrapperCard gridWrapper = new WrapperCard("wrapper",
+        WrapperCard gridWrapper = new WrapperCard("wrapper",
                 new Component[] { new H3("Service health"), grid }, "card");
        
         responseTimes.getConfiguration().setTitle("Response times");
         WrapperCard responseTimesWrapper = new WrapperCard("wrapper",
-                new Component[] { responseTimes }, "card");*/
+                new Component[] { responseTimes }, "card");
+        
+        board.addRow(gridWrapper, responseTimesWrapper);
         
         updatePlanRow(true);
         board.add(editPlanRow);
@@ -127,242 +144,30 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
 		content.setFlexDirection(FlexDirection.COLUMN);
 		setViewContent(content);
     }
+
+
     
-    private String drawExportPlan() {
-    	String exportDiagram = "@startuml\n" + 
-    			"\n" + 
-    			"package Retrive($retrived) {\n" + 
-    			"    [Locate Container\\n <<$containerLocation>>] as location\n" + 
-    			"    [Retrive Container\\n <<$containerID>>] as container\n" + 
-    			"}\n" + 
-    			"\n" + 
-    			"package Payment($payed) {\n" + 
-    			"    [Bill Container\\n <<$containerID>>\\n <<$fee>>] as bill\n" + 
-    			"}\n" + 
-    			"\n" + 
-    			"package Load($loaded) {\n" + 
-    			"    [Load To Vessel\\n <<$vesselID>>] as load\n" + 
-    			"}\n" + 
-    			"\n" + 
-    			"\n" + 
-    			"package ExportPlan {\n" + 
-    			"    [Plan ID\\n <<$planID>>] as id\n" + 
-    			"    [Plan Manager\\n <<$manager>>] as manager\n" + 
-    			"    [Plan Status\\n <<$status>>] as status\n" + 
-    			"    [Plan Date\\n <<$date>>] as date\n" + 
-    			"}\n" + 
-    			"\n" + 
-    			"location -> container\n" + 
-    			"container --> bill\n" + 
-    			"bill --> load\n" + 
-    			"\n" + 
-    			"id-down-date\n" + 
-    			"date-down-manager\n" + 
-    			"manager-down-status\n" + 
-    			"\n" + 
-    			"@enduml";
-    	if (currentExportPlan != null) {
-    		exportDiagram = exportDiagram.replace("${vesselID}", String.valueOf(currentExportPlan.getLoadTo()));
-        	exportDiagram = exportDiagram.replace("${containerID}", String.valueOf(currentExportPlan.getContainerID()));
-        	exportDiagram = exportDiagram.replace("${planID}", String.valueOf(currentExportPlan.planID));
-        	exportDiagram = exportDiagram.replace("${manager}", currentExportPlan.manager);
-        	exportDiagram = exportDiagram.replace("${status}", currentExportPlan.status);
-        	exportDiagram = exportDiagram.replace("${date}", currentExportPlan.date.toString());
-    	}
-    	return exportDiagram;
-    }
-    
-    private String drawImportPlan() {
-    	String importDiagram = "@startuml\n" + 
-    			"\n" + 
-    			"package Unload($unloaded) {\n" + 
-    			"    [Select Vessel\\n <<$vesselID>>] as vessel\n" + 
-    			"    [Create Container\\n <<$containerID>>] as container\n" + 
-    			"}\n" + 
-    			"\n" + 
-    			"package Custom($checked) {\n" + 
-    			"    [Check Container\\n <<$containerID>>] as check\n" + 
-    			"}\n" + 
-    			"\n" + 
-    			"package Distribute($distributed) {\n" + 
-    			"    [Assign Loactaion\\n <<$containerID>>] as location\n" + 
-    			"}\n" + 
-    			"\n" + 
-    			"node Storage($stored) {\n" + 
-    			"    node Container <<$containerID>> as storage\n" + 
-    			"}\n" + 
-    			"\n" + 
-    			"package Plan {\n" + 
-    			"    [Plan ID\\n <<$planID>>] as id\n" + 
-    			"    [Plan Manager\\n <<$manager>>] as manager\n" + 
-    			"    [Plan Status\\n <<$status>>] as status\n" + 
-    			"    [Plan Date\\n <<$date>>] as date\n" + 
-    			"}\n" + 
-    			"\n" + 
-    			"vessel -> container\n" + 
-    			"container --> check\n" + 
-    			"check --> location\n" + 
-    			"location --> storage\n" + 
-    			"\n" + 
-    			"id-down-date\n" + 
-    			"date-down-manager\n" + 
-    			"manager-down-status\n" + 
-    			"\n" + 
-    			"@enduml";
-    	if (currentImportPlan != null) {
-    		importDiagram = importDiagram.replace("$vesselID", String.valueOf(currentImportPlan.getUnloadFrom()));
-        	importDiagram = importDiagram.replace("$containerID", String.valueOf(currentImportPlan.getContainerID()));
-        	importDiagram = importDiagram.replace("$planID", String.valueOf(currentImportPlan.planID));
-        	importDiagram = importDiagram.replace("$manager", currentImportPlan.manager);
-        	importDiagram = importDiagram.replace("$status", currentImportPlan.status);
-        	importDiagram = importDiagram.replace("$date", currentImportPlan.date.toString());
-    	}
+    private Dialog generatePlanPanel() {
+    	Dialog dialog = new Dialog();
+    	Upload uploader = uploadLists();
     	
-    	return importDiagram;
-    }
-    
-    private HorizontalLayout createImportTasks() {
-    	 Checkbox unloadComplet = new Checkbox();
-         unloadComplet.setLabel("Unload Container");
-         unloadComplet.addValueChangeListener(e -> 
-         	dataContainer.updateUnLoadCompleted(
-         			e.getValue(), currentImportPlan.planID, 
-         			currentImportPlan.getContainerID()));
-         
-         Checkbox checkComplet = new Checkbox();
-         checkComplet.setLabel("Custom Check");
-         checkComplet.addValueChangeListener(e ->
-        	dataContainer.updateCustomPassed(
-        			e.getValue(), currentImportPlan.planID, 
-        			currentImportPlan.getContainerID()));
-         
-         Checkbox distirbuteComplet = new Checkbox();
-         distirbuteComplet.setLabel("Distribute Container");
-         distirbuteComplet.addValueChangeListener(e ->
-     		dataContainer.updateContainerDistributed(
-     			e.getValue(), currentImportPlan.planID, 
-     			currentImportPlan.getContainerID()));
-         
-         HorizontalLayout checkboxes = new HorizontalLayout(
-        		 new H6("Impor Tasks"), unloadComplet, checkComplet, distirbuteComplet);
-         checkboxes.setSpacing(true);
-         checkboxes.setAlignItems(Alignment.BASELINE);
-         return checkboxes;
-    }
-    
-    private HorizontalLayout createExportTasks() {
-   	 	Checkbox retriveComplet = new Checkbox();
-        retriveComplet.setLabel("Retrive Container");
-        retriveComplet.addValueChangeListener(e -> 
-     		dataContainer.updateContainerRetrived(
-     			e.getValue(), currentExportPlan.planID, 
-     			currentExportPlan.getContainerID()));
-        
-        Checkbox billingComplet = new Checkbox();
-        billingComplet.setLabel("Service Billing");
-        billingComplet.addValueChangeListener(e -> 
- 			dataContainer.updateServicePayed(
- 					e.getValue(), currentExportPlan.planID, 
- 					currentExportPlan.getContainerID()));
-        
-        Checkbox loadComplet = new Checkbox();
-        loadComplet.setLabel("Load Container");
-        loadComplet.addValueChangeListener(e -> 
- 			dataContainer.updateLoadCompleted(
- 					e.getValue(), currentExportPlan.planID, 
- 					currentExportPlan.getContainerID()));
-        
-        HorizontalLayout checkboxes = new HorizontalLayout(
-        		new H6("Export Tasks"), retriveComplet, billingComplet, loadComplet);
-        checkboxes.setSpacing(true);
-        checkboxes.setAlignItems(Alignment.BASELINE);
-        return checkboxes;
-   }
-    
-    private VerticalLayout createPlanEditor(boolean isImport) {
-        VerticalLayout planEditor = new VerticalLayout();
-        TextField manager = new TextField();
-        if (isImport) {
-        	manager.setPlaceholder(currentImportPlan.manager);
-        } else {
-        	manager.setPlaceholder(currentExportPlan.manager);
-        }
-        manager.setLabel("Plan Manager");
-
-        planEditor.add(manager);
-        
-        if (isImport) {
-        	planEditor.add(createImportTasks());
-        } else {
-        	planEditor.add(createExportTasks());
-        }
-        
-        return planEditor;
+    	TextField signature = new TextField();
+    	signature.setLabel("Electric Signature(User Name");
+    	
+    	Button generate = UIUtils.createPrimaryButton("Execute");
+    	generate.addClickListener(e -> {
+    		buildContainerFromCSV(in, signature.getValue());
+    	});
+    	
+    	Div panel = new Div();
+    	panel.add(uploader, signature);
+    	dialog.add(panel);
+    	dialog.setWidthFull();
+    	
+    	return dialog;
     }
 
-    
-	private Image createGrpah(boolean isImport) throws IOException {
-		String digram = isImport? drawImportPlan() : drawExportPlan();
-		SourceStringReader reader = new SourceStringReader(digram);
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		FileFormatOption format = new FileFormatOption(FileFormat.SVG);
-		reader.outputImage(os, format);
-		
-		StreamResource resource = new StreamResource("Plan.svg", 
-				() -> new ByteArrayInputStream(os.toByteArray()));
-		Image image = new Image(resource, "plan");
-		image.setWidth("400px");
-		image.setHeight("400px");
-
-		os.close();
-		return image;
-	}
-	
-	private void initNoPlan() {
-		WrapperCard noPlan = new WrapperCard("wrapper",
-		        new Component[] {new H4("No Plan Selected")}, "card");
-		WrapperCard noPlan1 = new WrapperCard("wrapper",
-		        new Component[] {new H4("No Plan Selected")}, "card");
-		editPlanRow.add(noPlan, noPlan1);
-	}
-	
-	private void updatePlanRow(boolean isImport) {
-		editPlanRow = new Row();
-		
-		if (isImport) {
-			if (currentImportPlan == null) {
-				initNoPlan();
-			} else {
-				WrapperCard importPlanEditor = new WrapperCard("wrapper",
-				        new Component[] {new H4("Import Plan"), createPlanEditor(true) }, "card");
-				try {
-					WrapperCard planTree = new WrapperCard("wrapper",
-					        new Component[] {new H4("Import Plan Flow"), createGrpah(true) }, "card");
-					editPlanRow.add(importPlanEditor, planTree);
-				} catch (IOException e) {
-					e.printStackTrace();
-					editPlanRow.add(importPlanEditor);
-				}
-			}
-		} else {
-			if (currentExportPlan == null) {
-				initNoPlan();
-			} else {
-				WrapperCard exportPlanEditor = new WrapperCard("wrapper",
-				        new Component[] {new H4("Export Plan"), createPlanEditor(false) }, "card");
-				try {
-					WrapperCard planTree = new WrapperCard("wrapper",
-					        new Component[] {new H4("Export Plan Flow"), createGrpah(false) }, "card");
-					editPlanRow.add(exportPlanEditor, planTree);
-				} catch (IOException e) {
-					e.printStackTrace();
-					editPlanRow.add(exportPlanEditor);
-				}
-			}
-		}
-	}
-
-    private WrapperCard createBadge(String title, H2 h2, String h2ClassName,
+    private WrapperCard createUploadBadge(String title, H2 h2, String h2ClassName,
             String description, String badgeTheme) {
         Span titleSpan = new Span(title);
         titleSpan.getElement().setAttribute("theme", badgeTheme);
@@ -371,9 +176,14 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
 
         Span descriptionSpan = new Span(description);
         descriptionSpan.addClassName("secondary-text");
+        
+        Button importUpload = UIUtils.createTertiaryButton("Upload Import List");
+        importUpload.addClickListener(e-> {
+        	generatePlanPanel().open();
+        });
 
         return new WrapperCard("wrapper",
-                new Component[] { titleSpan, h2, descriptionSpan }, "card", "space-m");
+                new Component[] {titleSpan, h2, descriptionSpan, importUpload}, "card", "space-m");
     }
     
     private Grid<TransPlan> createPlanGrid() {
@@ -454,6 +264,238 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
     private ExportPlan getExportPlan(TransPlan plan) {
     	return dataContainer.exportPlanRecords.get(String.valueOf(plan.planID));
     }
+    
+	private void initNoPlan() {
+		WrapperCard noPlan = new WrapperCard("wrapper",
+		        new Component[] {new H4("No Plan Selected")}, "card");
+		WrapperCard noPlan1 = new WrapperCard("wrapper",
+		        new Component[] {new H4("No Plan Selected")}, "card");
+		editPlanRow.add(noPlan, noPlan1);
+	}
+	
+	private void updatePlanRow(boolean isImport) {
+		editPlanRow = new Row();
+		
+		if (isImport) {
+			if (currentImportPlan == null) {
+				initNoPlan();
+			} else {
+				WrapperCard importPlanEditor = new WrapperCard("wrapper",
+				        new Component[] {new H4("Import Plan"), createPlanEditor(true) }, "card");
+				try {
+					WrapperCard planTree = new WrapperCard("wrapper",
+					        new Component[] {new H4("Import Plan Flow"), createGrpah(true) }, "card");
+					editPlanRow.add(importPlanEditor, planTree);
+				} catch (IOException e) {
+					e.printStackTrace();
+					editPlanRow.add(importPlanEditor);
+				}
+			}
+		} else {
+			if (currentExportPlan == null) {
+				initNoPlan();
+			} else {
+				WrapperCard exportPlanEditor = new WrapperCard("wrapper",
+				        new Component[] {new H4("Export Plan"), createPlanEditor(false) }, "card");
+				try {
+					WrapperCard planTree = new WrapperCard("wrapper",
+					        new Component[] {new H4("Export Plan Flow"), createGrpah(false) }, "card");
+					editPlanRow.add(exportPlanEditor, planTree);
+				} catch (IOException e) {
+					e.printStackTrace();
+					editPlanRow.add(exportPlanEditor);
+				}
+			}
+		}
+	}
+    
+    private HorizontalLayout createImportTasks() {
+   	 	Checkbox unloadComplet = new Checkbox();
+        unloadComplet.setLabel("Unload Container");
+        unloadComplet.addValueChangeListener(e -> 
+        	dataContainer.updateUnLoadCompleted(
+        			e.getValue(), currentImportPlan.planID, 
+        			currentImportPlan.getContainerID()));
+        
+        Checkbox checkComplet = new Checkbox();
+        checkComplet.setLabel("Custom Check");
+        checkComplet.addValueChangeListener(e ->
+       	dataContainer.updateCustomPassed(
+       			e.getValue(), currentImportPlan.planID, 
+       			currentImportPlan.getContainerID()));
+        
+        Checkbox distirbuteComplet = new Checkbox();
+        distirbuteComplet.setLabel("Distribute Container");
+        distirbuteComplet.addValueChangeListener(e ->
+    		dataContainer.updateContainerDistributed(
+    			e.getValue(), currentImportPlan.planID, 
+    			currentImportPlan.getContainerID()));
+        
+        HorizontalLayout checkboxes = new HorizontalLayout(
+       		 new H6("Impor Tasks"), unloadComplet, checkComplet, distirbuteComplet);
+        checkboxes.setSpacing(true);
+        checkboxes.setAlignItems(Alignment.BASELINE);
+        return checkboxes;
+   }
+   
+   private HorizontalLayout createExportTasks() {
+	   Checkbox retriveComplet = new Checkbox();
+       retriveComplet.setLabel("Retrive Container");
+       retriveComplet.addValueChangeListener(e -> 
+    		dataContainer.updateContainerRetrived(
+    			e.getValue(), currentExportPlan.planID, 
+    			currentExportPlan.getContainerID()));
+       
+       Checkbox billingComplet = new Checkbox();
+       billingComplet.setLabel("Service Billing");
+       billingComplet.addValueChangeListener(e -> 
+			dataContainer.updateServicePayed(
+					e.getValue(), currentExportPlan.planID, 
+					currentExportPlan.getContainerID()));
+       
+       Checkbox loadComplet = new Checkbox();
+       loadComplet.setLabel("Load Container");
+       loadComplet.addValueChangeListener(e -> 
+			dataContainer.updateLoadCompleted(
+					e.getValue(), currentExportPlan.planID, 
+					currentExportPlan.getContainerID()));
+       
+       HorizontalLayout checkboxes = new HorizontalLayout(
+       		new H6("Export Tasks"), retriveComplet, billingComplet, loadComplet);
+       checkboxes.setSpacing(true);
+       checkboxes.setAlignItems(Alignment.BASELINE);
+       return checkboxes;
+  }
+   
+   private VerticalLayout createPlanEditor(boolean isImport) {
+       VerticalLayout planEditor = new VerticalLayout();
+       TextField manager = new TextField();
+       if (isImport) {
+       	manager.setPlaceholder(currentImportPlan.manager);
+       } else {
+       	manager.setPlaceholder(currentExportPlan.manager);
+       }
+       manager.setLabel("Plan Manager");
+
+       planEditor.add(manager);
+       
+       if (isImport) {
+       	planEditor.add(createImportTasks());
+       } else {
+       	planEditor.add(createExportTasks());
+       }
+       
+       return planEditor;
+   }
+
+   private String drawExportPlan() {
+	   String exportDiagram = DataContainer.exportDiagram;
+	   	
+	   	if (currentExportPlan != null) {
+	   		exportDiagram = exportDiagram.replace("${vesselID}", String.valueOf(currentExportPlan.getLoadTo()));
+	       	exportDiagram = exportDiagram.replace("${containerID}", String.valueOf(currentExportPlan.getContainerID()));
+	       	exportDiagram = exportDiagram.replace("${planID}", String.valueOf(currentExportPlan.planID));
+	       	exportDiagram = exportDiagram.replace("${manager}", currentExportPlan.manager);
+	       	exportDiagram = exportDiagram.replace("${status}", currentExportPlan.status);
+	       	exportDiagram = exportDiagram.replace("${date}", currentExportPlan.date.toString());
+	   	}
+	   	return exportDiagram;
+   }
+   
+   private String drawImportPlan() {
+   		String importDiagram = DataContainer.exportDiagram;
+   	
+	   	if (currentImportPlan != null) {
+	   		importDiagram = importDiagram.replace("$vesselID", String.valueOf(currentImportPlan.getUnloadFrom()));
+	       	importDiagram = importDiagram.replace("$containerID", String.valueOf(currentImportPlan.getContainerID()));
+	       	importDiagram = importDiagram.replace("$planID", String.valueOf(currentImportPlan.planID));
+	       	importDiagram = importDiagram.replace("$manager", currentImportPlan.manager);
+	       	importDiagram = importDiagram.replace("$status", currentImportPlan.status);
+	       	importDiagram = importDiagram.replace("$date", currentImportPlan.date.toString());
+   		}
+   	
+   		return importDiagram;
+   	}
+   
+	private Image createGrpah(boolean isImport) throws IOException {
+		String digram = isImport? drawImportPlan() : drawExportPlan();
+		SourceStringReader reader = new SourceStringReader(digram);
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		FileFormatOption format = new FileFormatOption(FileFormat.SVG);
+		reader.outputImage(os, format);
+		
+		StreamResource resource = new StreamResource("Plan.svg", 
+				() -> new ByteArrayInputStream(os.toByteArray()));
+		Image image = new Image(resource, "plan");
+		image.setWidth("400px");
+		image.setHeight("400px");
+	
+		os.close();
+		return image;
+	}
+	
+	private Upload uploadLists() {
+		Upload upload = new Upload(new Receiver() {
+			@Override
+		      public OutputStream receiveUpload(String filename, String mimeType) {
+		        try {
+		          tempFile = File.createTempFile("temp", ".csv");
+		          return new FileOutputStream(tempFile);
+		        } catch (IOException e) {
+		          e.printStackTrace();
+		          return null;
+		        }}});
+		
+		upload.addSucceededListener(e -> {
+			try {
+				in = new DataInputStream(new FileInputStream(tempFile));
+				tempFile.delete();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		});
+		upload.setWidthFull();
+		return upload;
+	}
+	
+	private void buildContainerFromCSV(DataInputStream in, String manager) {
+		CSVReader csvReader;
+		try {
+			csvReader = new CSVReader(new InputStreamReader(in,"utf-8"));
+	    	List<String> record;
+			while ((record = csvReader.readNext()) != null) {
+				int planID =  DataContainer.getRandomNumber(00000000, 99999999);
+				Date planDate = Date.valueOf(LocalDate.now());
+				String status = "Incomplete";
+				
+				Integer containerID = Integer.valueOf(record.get(0));
+				Integer vesselID = Integer.valueOf(record.get(1));
+				String type = record.get(2);
+				
+				if (type.equals("Import")) {
+					TransPlan importPlan = new ImportPlan(
+							planID, manager, planDate, status, type,
+							containerID, vesselID, null, false, false, false);
+					dataContainer.insertPlanRecords(importPlan);
+					
+				} else {					
+					double totalCost = dataContainer.calculateCost(containerID);
+					TransPlan exportPlan = new ExportPlan(
+							planID, manager, planDate, status, type, 
+							containerID, vesselID, totalCost, 
+							0, false, false, false);
+					dataContainer.insertPlanRecords(exportPlan);
+				}
+			}
+			
+			dataContainer.getPlanRecords();
+			dataProvider = DataProvider.ofCollection(
+					dataContainer.transPlanRecords.values());
+			planGrid.setDataProvider(dataProvider);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}	
+	}
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
