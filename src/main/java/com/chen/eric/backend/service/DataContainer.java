@@ -319,21 +319,21 @@ public class DataContainer {
 			"}\n" + 
 			"\n" + 
 			"\n" + 
-			"package ExportPlan {\n" + 
+			/*"package ExportPlan {\n" + 
 			"    [Plan ID\\n <<$planID>>] as id\n" + 
 			"    [Plan Manager\\n <<$manager>>] as manager\n" + 
 			"    [Plan Status\\n <<$status>>] as status\n" + 
 			"    [Plan Date\\n <<$date>>] as date\n" + 
-			"}\n" + 
+			"}\n" + */
 			"\n" + 
 			"location -> container\n" + 
 			"container --> bill\n" + 
 			"bill --> load\n" + 
 			"\n" + 
-			"id-down-date\n" + 
+			/*"id-down-date\n" + 
 			"date-down-manager\n" + 
 			"manager-down-status\n" + 
-			"\n" + 
+			"\n" + */
 			"@enduml";
     
     public static final String importDiagram = "@startuml\n" + 
@@ -355,21 +355,21 @@ public class DataContainer {
 			"    node Container <<$containerID>> as storage\n" + 
 			"}\n" + 
 			"\n" + 
-			"package Plan {\n" + 
+			/*"package Plan {\n" + 
 			"    [Plan ID\\n <<$planID>>] as id\n" + 
 			"    [Plan Manager\\n <<$manager>>] as manager\n" + 
 			"    [Plan Status\\n <<$status>>] as status\n" + 
 			"    [Plan Date\\n <<$date>>] as date\n" + 
-			"}\n" + 
+			"}\n" + */
 			"\n" + 
 			"vessel -> container\n" + 
 			"container --> check\n" + 
 			"check --> location\n" + 
 			"location --> storage\n" + 
 			"\n" + 
-			"id-down-date\n" + 
+			/*"id-down-date\n" + 
 			"date-down-manager\n" + 
 			"manager-down-status\n" + 
-			"\n" + 
+			"\n" + */
 			"@enduml";
 }

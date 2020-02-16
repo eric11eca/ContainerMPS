@@ -19,9 +19,12 @@ import com.chen.eric.backend.ImportPlan;
 import com.chen.eric.backend.TransPlan;
 import com.chen.eric.backend.service.DataContainer;
 import com.chen.eric.ui.MainLayout;
+import com.chen.eric.ui.components.Badge;
 import com.chen.eric.ui.components.FlexBoxLayout;
+import com.chen.eric.ui.components.ListItem;
 import com.chen.eric.ui.util.UIUtils;
 import com.chen.eric.ui.util.css.FlexDirection;
+import com.chen.eric.ui.util.css.lumo.BadgeColor;
 import com.chen.eric.ui.views.ViewFrame;
 import com.helger.commons.csv.CSVReader;
 import com.vaadin.flow.component.Component;
@@ -48,6 +51,7 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.H6;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -125,7 +129,9 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
                 .setWidth("140px");
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         
-        board.addRow(createPlanGrid());
+        WrapperCard planGridWrapper = new WrapperCard("wrapper",
+                new Component[] { createPlanGrid() }, "card");
+        //board.addRow(planGridWrapper);
 
         WrapperCard gridWrapper = new WrapperCard("wrapper",
                 new Component[] { new H3("Service health"), grid }, "card");
@@ -134,7 +140,7 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
         WrapperCard responseTimesWrapper = new WrapperCard("wrapper",
                 new Component[] { responseTimes }, "card");
         
-        board.addRow(gridWrapper, responseTimesWrapper);
+        board.addRow(planGridWrapper, responseTimesWrapper);
         
         updatePlanRow(true);
         board.add(editPlanRow);
@@ -144,7 +150,6 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
 		content.setFlexDirection(FlexDirection.COLUMN);
 		setViewContent(content);
     }
-
 
     
     private Dialog generatePlanPanel() {
@@ -186,15 +191,33 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
                 new Component[] {titleSpan, h2, descriptionSpan, importUpload}, "card", "space-m");
     }
     
+    private HorizontalLayout createPlanCard(TransPlan plan) {
+    	Label planID = UIUtils.createH3PlanTitle(String.valueOf(plan.planID));
+    	Label planType = UIUtils.createH3Label(plan.type.trim() + " Plan");
+    	
+    	Badge planStatus = new Badge(
+    			plan.status, BadgeColor.getThemeByStatus(plan.status));
+
+    	ListItem titleItem = new ListItem();
+    	titleItem.setPlanListItem(planType, plan.manager);
+    	ListItem idItem = new ListItem();
+    	idItem.setPlanListItem(planID, UIUtils.formatSqlDate(plan.date));
+    	
+    	HorizontalLayout planCard = new HorizontalLayout(planStatus, titleItem, idItem);
+    	planCard.setSpacing(true);
+    	planCard.setPadding(true);
+    	return planCard;
+    }
+    
     private Grid<TransPlan> createPlanGrid() {
     	planGrid = new Grid<>();
     	
     	planGrid.addSelectionListener(e -> {
     		TransPlan plan = e.getFirstSelectedItem().get();
-    		if (plan.type.equals("Import")) {
+    		if (plan.type.contains("Import")) {
     			currentImportPlan = getImportPlan(plan);
     			updatePlanRow(true);
-    		} else if (plan.type.equals("Export")) {
+    		} else if (plan.type.contains("Export")) {
     			currentExportPlan = getExportPlan(plan);
     			updatePlanRow(false);
     		}
@@ -202,37 +225,16 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
     		board.addRow(editPlanRow);
     	});
     	
+    	dataContainer.getPlanRecords();	
     	dataProvider = DataProvider.ofCollection(
     			dataContainer.transPlanRecords.values());
     	planGrid.setDataProvider(dataProvider);
-    	planGrid.setHeightByRows(true);
     	planGrid.setWidthFull();
 		
-    	planGrid.addColumn(TransPlan::getPlanID)
+    	planGrid.addComponentColumn(this::createPlanCard)
 				.setAutoWidth(true)
 				.setFlexGrow(0)
-				.setSortable(true)
-				.setHeader("Plan ID");
-    	planGrid.addColumn(TransPlan::getManager)
-				.setAutoWidth(true)
-				.setFlexGrow(0)
-				.setSortable(true)
-				.setHeader("Plan Manager");
-    	planGrid.addColumn(plan -> UIUtils.formatSqlDate(plan.getDate()))
-				.setAutoWidth(true)
-				.setFlexGrow(0)
-				.setSortable(true)
-				.setHeader("Plan Date");
-    	planGrid.addColumn(TransPlan::getStatus)
-				.setAutoWidth(true)
-				.setFlexGrow(0)
-				.setSortable(true)
-				.setHeader("Plan Status");
-    	planGrid.addColumn(TransPlan::getType)
-				.setAutoWidth(true)
-				.setFlexGrow(0)
-				.setSortable(true)
-				.setHeader("Plan Type");
+				.setSortable(true);
     	planGrid.addComponentColumn(this::createRemoveButton)
 				.setFlexGrow(0).setWidth("130px")
 				.setResizable(true)
@@ -281,10 +283,11 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
 				initNoPlan();
 			} else {
 				WrapperCard importPlanEditor = new WrapperCard("wrapper",
-				        new Component[] {new H4("Import Plan"), createPlanEditor(true) }, "card");
+				        new Component[] {new H3("Import Plan"), createPlanEditor(true) }, "card");
 				try {
+					HorizontalLayout planDetail = new HorizontalLayout(createPlanEditor(true), createGrpah(true));
 					WrapperCard planTree = new WrapperCard("wrapper",
-					        new Component[] {new H4("Import Plan Flow"), createGrpah(true) }, "card");
+					        new Component[] {new H3("Import Plan"),  planDetail}, "card");
 					editPlanRow.add(importPlanEditor, planTree);
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -309,7 +312,7 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
 		}
 	}
     
-    private HorizontalLayout createImportTasks() {
+    private VerticalLayout createImportTasks() {
    	 	Checkbox unloadComplet = new Checkbox();
         unloadComplet.setLabel("Unload Container");
         unloadComplet.addValueChangeListener(e -> 
@@ -331,14 +334,14 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
     			e.getValue(), currentImportPlan.planID, 
     			currentImportPlan.getContainerID()));
         
-        HorizontalLayout checkboxes = new HorizontalLayout(
-       		 new H6("Impor Tasks"), unloadComplet, checkComplet, distirbuteComplet);
+        VerticalLayout checkboxes = new VerticalLayout(
+        		unloadComplet, checkComplet, distirbuteComplet);
         checkboxes.setSpacing(true);
         checkboxes.setAlignItems(Alignment.BASELINE);
         return checkboxes;
    }
    
-   private HorizontalLayout createExportTasks() {
+   private VerticalLayout createExportTasks() {
 	   Checkbox retriveComplet = new Checkbox();
        retriveComplet.setLabel("Retrive Container");
        retriveComplet.addValueChangeListener(e -> 
@@ -360,8 +363,8 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
 					e.getValue(), currentExportPlan.planID, 
 					currentExportPlan.getContainerID()));
        
-       HorizontalLayout checkboxes = new HorizontalLayout(
-       		new H6("Export Tasks"), retriveComplet, billingComplet, loadComplet);
+       VerticalLayout checkboxes = new VerticalLayout(
+    		   retriveComplet, billingComplet, loadComplet);
        checkboxes.setSpacing(true);
        checkboxes.setAlignItems(Alignment.BASELINE);
        return checkboxes;
@@ -370,21 +373,22 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
    private VerticalLayout createPlanEditor(boolean isImport) {
        VerticalLayout planEditor = new VerticalLayout();
        TextField manager = new TextField();
-       if (isImport) {
-       	manager.setPlaceholder(currentImportPlan.manager);
-       } else {
-       	manager.setPlaceholder(currentExportPlan.manager);
-       }
        manager.setLabel("Plan Manager");
-
+       
+       if (isImport) {
+    	   manager.setPlaceholder(currentImportPlan.manager);
+       } else {
+    	   manager.setPlaceholder(currentExportPlan.manager);
+       }
+       
        planEditor.add(manager);
        
        if (isImport) {
-       	planEditor.add(createImportTasks());
+    	   planEditor.add(createImportTasks());
        } else {
-       	planEditor.add(createExportTasks());
+    	   planEditor.add(createExportTasks());
        }
-       
+       planEditor.setWidth("40%");
        return planEditor;
    }
 
@@ -403,7 +407,7 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
    }
    
    private String drawImportPlan() {
-   		String importDiagram = DataContainer.exportDiagram;
+   		String importDiagram = DataContainer.importDiagram;
    	
 	   	if (currentImportPlan != null) {
 	   		importDiagram = importDiagram.replace("$vesselID", String.valueOf(currentImportPlan.getUnloadFrom()));
@@ -427,7 +431,7 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
 		StreamResource resource = new StreamResource("Plan.svg", 
 				() -> new ByteArrayInputStream(os.toByteArray()));
 		Image image = new Image(resource, "plan");
-		image.setWidth("400px");
+		image.setWidth("300px");
 		image.setHeight("400px");
 	
 		os.close();

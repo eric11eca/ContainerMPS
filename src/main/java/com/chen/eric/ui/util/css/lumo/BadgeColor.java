@@ -18,5 +18,16 @@ public enum BadgeColor {
 	public String getThemeName() {
 		return style;
 	}
+	
+	public static BadgeColor getThemeByStatus(String status) {
+		if (status.equals("Complete")) {
+			return SUCCESS;
+		} else if (status.equals("Pending")) {
+			return ERROR;
+		} else if (status.equals("Incomplete")) {
+			return NORMAL;
+		}
+		return CONTRAST;
+	}
 
 }

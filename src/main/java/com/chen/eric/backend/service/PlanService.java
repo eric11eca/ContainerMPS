@@ -46,15 +46,15 @@ public class PlanService implements EntityService<TransPlan> {
 	        }	
 	        
 	        if (hasRsExport) {
-	        	try (ResultSet rs = stmtImport.getResultSet()) {     	
+	        	try (ResultSet rs = stmtExport.getResultSet()) {     	
 	        		parseResults(rs);
 	        	}
 	        }
-	  
+	        return transPlans;
 		} catch (SQLException ex) {
 			ex.printStackTrace();
-		}
-		return transPlans;
+			return transPlans;
+		}		
 	}
 
 	public Map<String, ImportPlan> getImportPlans() {
@@ -74,19 +74,18 @@ public class PlanService implements EntityService<TransPlan> {
 			int Status = rs.findColumn("Status");
 			int Manager = rs.findColumn("Manager");
 			while (rs.next()) {
-				if (rs.getString(type).equals("Import")) {
+				if (rs.getString(type).contains("Import")) {
 					ImportPlan importPlan = new ImportPlan(
 							rs.getInt(PlanID), rs.getString(Manager),
 							rs.getDate(Date), rs.getString(Status),
 							rs.getString(type), rs.getInt("ContainerID"), 
-							rs.getInt("UnLoadFrom"), rs.getInt("DistributeTo"),
+							rs.getInt("UnLoadFrom"), null,
 							rs.getBoolean("UnLoadCompleted"),
 							rs.getBoolean("CustomPassed"),
 							rs.getBoolean("ContainerDistributed"));
-					
 					transPlans.put(rs.getString(PlanID), importPlan);
 					importPlans.put(rs.getString(PlanID), importPlan);
-				} else if (rs.getString(type).equals("Export")) {
+				} else if (rs.getString(type).contains("Export")) {
 					ExportPlan exportPlan = new ExportPlan(
 							rs.getInt(PlanID), rs.getString(Manager),
 							rs.getDate(Date), rs.getString(Status),rs.getString(type),

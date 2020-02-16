@@ -255,6 +255,13 @@ public class UIUtils {
 		label.addClassName(LumoStyles.Heading.H2);
 		return label;
 	}
+	
+	public static Label createH3PlanTitle(String text) {
+		Label label = new Label(text);
+		label.addClassName("primary-text");
+		label.addClassName(LumoStyles.Heading.H3);
+		return label;
+	}
 
 	public static Label createH3Label(String text) {
 		Label label = new Label(text);
