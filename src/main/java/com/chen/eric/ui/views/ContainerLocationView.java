@@ -1,27 +1,29 @@
 package com.chen.eric.ui.views;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.vaadin.klaudeta.PaginatedGrid;
 
 import com.chen.eric.backend.Bay;
 import com.chen.eric.backend.Block;
 import com.chen.eric.backend.Location;
 import com.chen.eric.backend.StorageArea;
-import com.chen.eric.backend.Tier;
 import com.chen.eric.backend.service.DataContainer;
 import com.chen.eric.ui.MainLayout;
-import com.chen.eric.ui.components.Badge;
+import com.chen.eric.ui.components.FlexBoxLayout;
 import com.chen.eric.ui.components.ListItem;
 import com.chen.eric.ui.components.detailsdrawer.DetailsDrawerFooter;
 import com.chen.eric.ui.layout.size.Bottom;
 import com.chen.eric.ui.util.FontSize;
 import com.chen.eric.ui.util.LumoStyles;
 import com.chen.eric.ui.util.UIUtils;
+import com.chen.eric.ui.util.css.FlexDirection;
 import com.chen.eric.ui.util.css.WhiteSpace;
-import com.chen.eric.ui.util.css.lumo.BadgeColor;
 import com.chen.eric.ui.views.dashboard.WrapperCard;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClickEvent;
@@ -32,13 +34,13 @@ import com.vaadin.flow.component.board.Board;
 import com.vaadin.flow.component.board.Row;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -47,7 +49,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
-import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -63,6 +64,8 @@ import com.vaadin.flow.router.Route;
 @PageTitle("Container Location")
 @Route(value = "stored-at", layout = MainLayout.class)
 @SuppressWarnings("serial")
+@CssImport(value = "styles/views/dashboard/dashboard-view.css", include = "lumo-badge")
+@JsModule("@vaadin/vaadin-lumo-styles/badge.js")
 public class ContainerLocationView extends SplitViewFrame{
 	private Grid<Location> containerLocationGrid;
 	private Grid<StorageArea> storageGrid;
@@ -70,12 +73,16 @@ public class ContainerLocationView extends SplitViewFrame{
 	private ListDataProvider<StorageArea> storageDataProvider;
 	
 	private Tabs blockTabs;
-	private VerticalLayout storageAreaOverView;
-	private VerticalLayout storageAreaDetail;
+	private WrapperCard storageOverviewWrapper;
+	private WrapperCard storageContentWrapper;
+	private WrapperCard locationWrapper;
+
+	private Row storageAreaDetail;
 	private StorageArea areaToBeDisplayed ;
 	private VerticalLayout blockContent;
+	private WrapperCard blocksWrapper;
 	
-	private SplitLayout content;
+	private Board board;
 	
 	private StorageArea tempStorageArea;
 	private Integer storageID;
@@ -98,19 +105,22 @@ public class ContainerLocationView extends SplitViewFrame{
 	}
 	
 	private Component createContent() {
+		board = new Board();
+		storageAreaDetail = new Row();
+		
 		initialContent();
-		content = new SplitLayout();
-		content.setSplitterPosition(42);
-		
-		Board board = new Board();
-		
+
 		createAreaOverview();
-		
-		
-		
-		content.addToPrimary(storageAreaOverView);
+		createStorageContent();
+		createContainerLocationGrid();
 		createStorageDetail();
-		content.addToSecondary(storageAreaDetail);
+		
+		board.add(storageAreaDetail);
+		board.addRow(storageContentWrapper, locationWrapper);
+
+		FlexBoxLayout content = new FlexBoxLayout(board);
+		content.setAlignItems(FlexComponent.Alignment.CENTER);
+		content.setFlexDirection(FlexDirection.COLUMN);
 		return content;
 	}
 	
@@ -131,10 +141,10 @@ public class ContainerLocationView extends SplitViewFrame{
 			String storageID = String.valueOf(areaID);
 			dataContainer.getLocationRecordsByParams("StorageID", storageID);
 			areaToBeDisplayed = dataContainer.storageAreaRecords.get(storageID);
-			
+
 			createStorageDetail();
-			content.addToSecondary(storageAreaDetail);
-			content.setSplitterPosition(40);
+			board.remove(storageAreaDetail);
+			board.addComponentAtIndex(0, storageAreaDetail);
 		});
 		return areaButton;
 	}
@@ -156,30 +166,33 @@ public class ContainerLocationView extends SplitViewFrame{
 		zone1.setAlignItems(Alignment.BASELINE);
 		zone1.setSpacing(true);
 		zone1.setPadding(true);
+		zone1.setMargin(true);
 		
 		zone2.setAlignItems(Alignment.BASELINE);
 		zone2.setSpacing(true);
 		zone2.setPadding(true);
+		zone2.setMargin(true);
 		
-		WrapperCard storages = new WrapperCard("wrapper", 
-				new Component[] {zone1, zone2}, "card", "space-m");	
-		
-		storageAreaOverView = new VerticalLayout(storages, createStorageContent(), 
-				createToolBar(), createContainerLocationGrid());
+		storageOverviewWrapper = new WrapperCard("wrapper", 
+				new Component[] {zone1, zone2}, "card", "space-m");
 	}
 	
 	private void createStorageDetail() {
 		dataContainer.initStorageArea(
 			String.valueOf(areaToBeDisplayed.getStorageID()));
 		
-		storageAreaDetail = new VerticalLayout();
-		storageAreaDetail.setAlignItems(Alignment.START);
+		if (storageAreaDetail.getComponentCount()>0) {
+			storageAreaDetail.removeAll();
+		}
 		
-		createBlockTabs();
+		if (blockTabs == null) {
+			createBlockTabs();
+		}
 		createBlockContent(areaToBeDisplayed, 0);
 		
-		storageAreaDetail.add(blockTabs);
-		storageAreaDetail.add(blockContent);
+		blocksWrapper = new WrapperCard("wrapper", 
+				new Component[] {blockTabs,blockContent}, "card", "space-m");
+		storageAreaDetail.add(storageOverviewWrapper, blocksWrapper);
 	}
 	
 	private void createBlockTabs() {
@@ -193,44 +206,49 @@ public class ContainerLocationView extends SplitViewFrame{
 		blockTabs = new Tabs(block1Tab, block2Tab);
 		blockTabs.addSelectedChangeListener(e -> {
 		    int blockIndex = tabsToBlock.get(blockTabs.getSelectedTab());
-		    storageAreaDetail.remove(blockContent);
 		    createBlockContent(areaToBeDisplayed, blockIndex);
-		    storageAreaDetail.add(blockContent);
+		    
+		    blocksWrapper = new WrapperCard("wrapper", 
+					new Component[] {blockTabs, blockContent}, "card", "space-m");
+		  
+		    storageAreaDetail.removeAll();
+		    storageAreaDetail.add(storageOverviewWrapper, blocksWrapper);
+		    
+		    board.remove(storageAreaDetail);
+			board.addComponentAtIndex(0, storageAreaDetail);
 		});
 	}
 	
 	private void createBlockContent(StorageArea area, int blockIndex) {
 		Block block = area.getBlock(blockIndex);
 		blockContent = new VerticalLayout();
-		String[] tireName = new String[] {"Tier1", "Tier2", "Tier3"};
+		
+		PaginatedGrid<Bay> blockLayer = new PaginatedGrid<>();
+		List<Bay> concactnated = new ArrayList<>();
 		for (int i = 0; i < 3; i++) {
-			Grid<Bay> blockLayer = createTireGrid(tireName[i], block.getTier(i));
-			blockContent.add(blockLayer);
+			concactnated.addAll(block.getTier(i));
 		}
-		blockContent.setSpacing(true);	
+		blockLayer.setSizeFull();
+		blockLayer.setDataProvider(DataProvider.ofCollection(concactnated));
+		blockLayer.addComponentColumn(this::slotLayout).setAutoWidth(true);
+		blockLayer.setPageSize(6);
+		blockLayer.setPaginatorSize(2);
+		
+		blockContent.add(blockLayer);
 	}
-
-	private Grid<Bay> createTireGrid(String layerName, Tier tier) {
-		Grid<Bay> blockTire = new Grid<>();
-		blockTire.setDataProvider(DataProvider.ofCollection(tier));
-		
-		blockTire.addComponentColumn(c-> drawSlot(c,0))
-			.setAutoWidth(true).setHeader(new Badge(layerName, BadgeColor.SUCCESS));
-		blockTire.addComponentColumn(c-> drawSlot(c,1)).setAutoWidth(true);
-		blockTire.addComponentColumn(c-> drawSlot(c,2)).setAutoWidth(true);
-		blockTire.addComponentColumn(c-> drawSlot(c,3)).setAutoWidth(true);
-		blockTire.addComponentColumn(c-> drawSlot(c,4)).setAutoWidth(true);
-		
-		blockTire.setHeightByRows(true);
-		blockTire.setWidth("680px");
-		return blockTire;
+	
+	private Component slotLayout(Bay bay) {
+		HorizontalLayout slots =  new HorizontalLayout(drawSlot(bay,0),drawSlot(bay,1),
+				drawSlot(bay,2),drawSlot(bay,3),drawSlot(bay,4));
+		slots.setSpacing(false);
+		slots.setAlignItems(Alignment.BASELINE);
+		return slots;
 	}
 	
 	private Component drawSlot(Bay bay, int rowIndex) {
 		Location loc = bay.getContainer(rowIndex);	
-		Button slot = UIUtils.createPrimaryButton("Empty");
-		slot.getStyle().set("width", "100px");
-		slot.getStyle().set("hegiht", "70%");
+		Button slot = UIUtils.createPrimaryButton("Empty   ");
+		slot.setSizeUndefined();
 		slot.getStyle().set("backgroundColor", areaMap.get(selectedStorage)[1]);
 		
 		if (loc.getContainerID() != null) {
@@ -270,12 +288,13 @@ public class ContainerLocationView extends SplitViewFrame{
 		insert.addClickListener(e->{	
 			int code = dataContainer.insertLocationRecords(newLocation);
 			if (code == 0) {
-				Notification.show("Succesfully Placed Container!", 4000, Notification.Position.BOTTOM_CENTER);
+				Notification.show("Successfully Placed the Container!", 4000, Notification.Position.BOTTOM_CENTER);
 				dataContainer.getLocationRecords();
 		        dataProvider = DataProvider.ofCollection(dataContainer.locationRecords.values());
 		        containerLocationGrid.setDataProvider(dataProvider);
 		        createStorageDetail();
-		        content.addToSecondary(storageAreaDetail);
+		        board.remove(storageAreaDetail);
+				board.addComponentAtIndex(0, storageAreaDetail);
 		        dialog.close();
 			} else if (code == 1) {
 				Notification.show("The given containerID already exits!", 4000, Notification.Position.BOTTOM_CENTER);
@@ -286,11 +305,11 @@ public class ContainerLocationView extends SplitViewFrame{
 			}
 		});
 		
-		Button update = UIUtils.createPrimaryButton("Update");
+		/*Button update = UIUtils.createPrimaryButton("Update");
 		update.addClickListener(e->{
 			int code = dataContainer.updateLocationRecords(newLocation, newLocation.getContainerID());
 			if (code == 0) {
-				Notification.show("Succesfully Update the Loacation!", 4000, Notification.Position.BOTTOM_CENTER);
+				Notification.show("Successfully Update the Location!", 4000, Notification.Position.BOTTOM_CENTER);
 				dataContainer.getLocationRecords();
 		        dataProvider = DataProvider.ofCollection(dataContainer.locationRecords.values());
 		        containerLocationGrid.setDataProvider(dataProvider);
@@ -305,7 +324,7 @@ public class ContainerLocationView extends SplitViewFrame{
 			} else {
 				Notification.show("ERROR: Update FAILED!", 4000, Notification.Position.BOTTOM_CENTER);
 			}
-		});
+		});*/
 		
 		Button cancel = UIUtils.createTertiaryButton("Cancel");
 		cancel.addClickListener(e->{
@@ -345,75 +364,51 @@ public class ContainerLocationView extends SplitViewFrame{
         }).debounce(300, DebouncePhase.TRAILING);
         
         HorizontalLayout toolBar = new HorizontalLayout(searchBar);
-        toolBar.setAlignItems(Alignment.BASELINE);
-        toolBar.setSpacing(true);
-        toolBar.setPadding(true);
-        
         return toolBar;
 	}
 
-	private Grid<Location> createContainerLocationGrid() {
+	private void createContainerLocationGrid() {
 		dataContainer.getLocationRecords();
 		dataProvider = DataProvider.ofCollection(dataContainer.locationRecords.values());
 		
 		containerLocationGrid = new Grid<>();
 		containerLocationGrid.setDataProvider(dataProvider);
-		containerLocationGrid.setHeightByRows(true);
-		containerLocationGrid.setWidthFull();
 		
 		containerLocationGrid.addColumn(Location::getContainerID)
 				.setAutoWidth(true)
 				.setResizable(true)
-				.setFlexGrow(0)
-				.setSortable(true)
 				.setHeader("Container ID");
-		containerLocationGrid.addColumn(Location::getStorageID)
-				.setAutoWidth(true)
-				.setResizable(true)
-				.setFlexGrow(0)
-				.setSortable(true)
-				.setHeader("Type");
 		containerLocationGrid.addComponentColumn(this::createLocation)
 				.setAutoWidth(true)
 				.setResizable(true)
-				.setFlexGrow(0)
-				.setSortable(true)
-				.setHeader("Detailed Location");
+				.setHeader("Area;Block;\nTire;Bay;Row");
 		containerLocationGrid.addColumn(vessel -> UIUtils.formatSqlDate(vessel.getStartDate()))
 				.setAutoWidth(true)
 				.setResizable(true)
-				.setFlexGrow(0)
 				.setComparator(Location::getStartDate)
 				.setHeader("Start Date");
 		containerLocationGrid.addColumn(vessel -> UIUtils.formatSqlDate(vessel.getEndDate()))
 				.setAutoWidth(true)
 				.setResizable(true)
 				.setComparator(Location::getEndDate)
-				.setFlexGrow(0)
 				.setHeader("End Date");
 		containerLocationGrid.addColumn(new ComponentRenderer<>(this::createRemoveButton))
-				.setFlexGrow(0)
-				.setWidth("130px")
-				.setResizable(true)
+				.setAutoWidth(true)
 				.setResizable(true)
 				.setTextAlign(ColumnTextAlign.CENTER);
-		return containerLocationGrid;
+		
+		locationWrapper = new WrapperCard("wrapper", 
+				new Component[] {createToolBar(), containerLocationGrid}, "card", "space-m"); 
 	}
 
 	private Component createLocation(Location location) {
-		Label blockIndex = UIUtils.createLabel(FontSize.M, 
-				"Block:"+String.valueOf(location.getBlockIndex().intValue()));
-        Label bayIndex = UIUtils.createLabel(FontSize.M,
-        		" Bay:"+String.valueOf(location.getBayIndex().intValue()));
-        Label tierIndex = UIUtils.createLabel(FontSize.M, 
-        		" Tier:"+String.valueOf(location.getTierIndex().intValue()));
-        Label slotIndex = UIUtils.createLabel(FontSize.M, 
-        		" Row:"+String.valueOf(location.getRowIndex().intValue())); 
-
-		HorizontalLayout locationLayer = new HorizontalLayout(
-				blockIndex, bayIndex, tierIndex, slotIndex);
-		locationLayer.setAlignItems(Alignment.BASELINE);
-		return locationLayer;
+		Label locationVec = UIUtils.createLabel(FontSize.M, "["+
+				String.valueOf(location.getStorageID().intValue())+"; "+
+				String.valueOf(location.getBlockIndex().intValue())+"; "+
+				String.valueOf(location.getBayIndex().intValue())+"; "+
+				String.valueOf(location.getTierIndex().intValue())+"; "+
+				String.valueOf(location.getRowIndex().intValue())+"]");
+		return locationVec;
 	}
 	
 	private Button createRemoveButton(Location location) {
@@ -437,14 +432,14 @@ public class ContainerLocationView extends SplitViewFrame{
 	
 	
 	
-	private Component createStorageContent() {
+	private void createStorageContent() {
 		Button addStorageArea = UIUtils.createPrimaryButton("Add StorageArea");
 		addStorageArea.addClickListener(e-> {
 			createAddStorageArea().open();
 	    });
 	        
-		VerticalLayout content = new VerticalLayout(addStorageArea, createStorageGrid());
-		return content;
+		storageContentWrapper = new WrapperCard("wrapper", 
+				new Component[] {addStorageArea, createStorageGrid()}, "card", "space-m"); 
 	}
 
 	private Grid<StorageArea> createStorageGrid() {
@@ -452,32 +447,26 @@ public class ContainerLocationView extends SplitViewFrame{
 		storageDataProvider = DataProvider.ofCollection(dataContainer.storageAreaRecords.values());
 		storageGrid = new Grid<>();
 		storageGrid.setDataProvider(storageDataProvider);
-		storageGrid.setHeightByRows(true);
-		storageGrid.setWidth("480px");
+		storageGrid.setSizeFull();
 		
 		storageGrid.addColumn(StorageArea::getStorageID)
-				.setWidth("80px")
-				.setFlexGrow(0)
+				.setAutoWidth(true)
 				.setSortable(true)
 				.setHeader("ID");
 		storageGrid.addColumn(StorageArea::getType)
-				.setWidth("80px")
-				.setFlexGrow(0)
+				.setAutoWidth(true)
 				.setSortable(true)
 				.setHeader("Type");
 		storageGrid.addColumn(StorageArea::getCapacity)
-				.setWidth("120px")
-				.setFlexGrow(0)
+				.setAutoWidth(true)
 				.setSortable(true)
 				.setHeader("Capacity");
 		storageGrid.addColumn(StorageArea::getStoragePrice)
-				.setWidth("80px")
-				.setFlexGrow(0)
+				.setAutoWidth(true)
 				.setSortable(true)
 				.setHeader("Fee");
 		storageGrid.addColumn(new ComponentRenderer<>(this::buttonBar))
-				.setFlexGrow(0)
-				.setWidth("80px")
+				.setAutoWidth(true)
 				.setResizable(true)
 				.setTextAlign(ColumnTextAlign.CENTER);
 		return storageGrid;

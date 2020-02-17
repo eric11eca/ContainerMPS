@@ -138,8 +138,6 @@ public class ContainerView extends SplitViewFrame {
 		grid = new Grid<>();
 		grid.addSelectionListener(event -> event.getFirstSelectedItem().ifPresent(this::showDetails));
 		grid.setDataProvider(dataProvider);
-		grid.setHeightByRows(true);
-		grid.setWidthFull();
 		
 		grid.addColumn(Container::getContainerID)
 				.setAutoWidth(true)

@@ -49,7 +49,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.H6;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
@@ -103,6 +102,9 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
     
     private Board board; 
     private Row editPlanRow;
+    
+    private WrapperCard planGridWrapper;
+    private WrapperCard planDetailWrapper;
 
     public DashboardView() {    	
     	board = new Board();
@@ -129,9 +131,7 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
                 .setWidth("140px");
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         
-        WrapperCard planGridWrapper = new WrapperCard("wrapper",
-                new Component[] { createPlanGrid() }, "card");
-        //board.addRow(planGridWrapper);
+        /*board.addRow(planGridWrapper);
 
         WrapperCard gridWrapper = new WrapperCard("wrapper",
                 new Component[] { new H3("Service health"), grid }, "card");
@@ -140,9 +140,13 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
         WrapperCard responseTimesWrapper = new WrapperCard("wrapper",
                 new Component[] { responseTimes }, "card");
         
-        board.addRow(planGridWrapper, responseTimesWrapper);
-        
+        board.addRow(planGridWrapper, responseTimesWrapper);*/
+        createPlanGrid();
         updatePlanRow(true);
+        
+        planGridWrapper = new WrapperCard("wrapper", new Component[] {planGrid}, "card");
+        editPlanRow = new Row();
+        editPlanRow.add(planGridWrapper, planDetailWrapper);
         board.add(editPlanRow);
         
         FlexBoxLayout content = new FlexBoxLayout(board);
@@ -209,20 +213,25 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
     	return planCard;
     }
     
-    private Grid<TransPlan> createPlanGrid() {
+    private void showPlanDetail(TransPlan plan) {
+    	if (plan.type.contains("Import")) {
+			currentImportPlan = getImportPlan(plan);
+			updatePlanRow(true);
+		} else if (plan.type.contains("Export")) {
+			currentExportPlan = getExportPlan(plan);
+			updatePlanRow(false);
+		}
+    	editPlanRow.removeAll();
+    	editPlanRow.add(planGridWrapper, planDetailWrapper);
+    	board.remove(editPlanRow);
+    	board.add(editPlanRow);
+    }
+    
+    private void createPlanGrid() {
     	planGrid = new Grid<>();
     	
     	planGrid.addSelectionListener(e -> {
-    		TransPlan plan = e.getFirstSelectedItem().get();
-    		if (plan.type.contains("Import")) {
-    			currentImportPlan = getImportPlan(plan);
-    			updatePlanRow(true);
-    		} else if (plan.type.contains("Export")) {
-    			currentExportPlan = getExportPlan(plan);
-    			updatePlanRow(false);
-    		}
-    		board.removeRow(editPlanRow);
-    		board.addRow(editPlanRow);
+    		e.getFirstSelectedItem().ifPresent(this::showPlanDetail);
     	});
     	
     	dataContainer.getPlanRecords();	
@@ -239,7 +248,6 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
 				.setFlexGrow(0).setWidth("130px")
 				.setResizable(true)
 				.setTextAlign(ColumnTextAlign.CENTER);
-		return planGrid;
 	}
 
 	private Button createRemoveButton(TransPlan plan) {
@@ -267,46 +275,39 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
     	return dataContainer.exportPlanRecords.get(String.valueOf(plan.planID));
     }
     
-	private void initNoPlan() {
+	private WrapperCard initNoPlan() {
 		WrapperCard noPlan = new WrapperCard("wrapper",
-		        new Component[] {new H4("No Plan Selected")}, "card");
-		WrapperCard noPlan1 = new WrapperCard("wrapper",
-		        new Component[] {new H4("No Plan Selected")}, "card");
-		editPlanRow.add(noPlan, noPlan1);
+		        new Component[] {new H3("No Plan Selected")}, "card");
+		return noPlan;
 	}
 	
 	private void updatePlanRow(boolean isImport) {
-		editPlanRow = new Row();
-		
 		if (isImport) {
 			if (currentImportPlan == null) {
-				initNoPlan();
+				planDetailWrapper = initNoPlan();
 			} else {
-				WrapperCard importPlanEditor = new WrapperCard("wrapper",
-				        new Component[] {new H3("Import Plan"), createPlanEditor(true) }, "card");
 				try {
-					HorizontalLayout planDetail = new HorizontalLayout(createPlanEditor(true), createGrpah(true));
-					WrapperCard planTree = new WrapperCard("wrapper",
+					HorizontalLayout planDetail = new HorizontalLayout(
+							createPlanEditor(true), createGrpah(true));
+					planDetailWrapper = new WrapperCard("wrapper",
 					        new Component[] {new H3("Import Plan"),  planDetail}, "card");
-					editPlanRow.add(importPlanEditor, planTree);
 				} catch (IOException e) {
 					e.printStackTrace();
-					editPlanRow.add(importPlanEditor);
+					planDetailWrapper = initNoPlan();
 				}
 			}
 		} else {
 			if (currentExportPlan == null) {
-				initNoPlan();
+				planDetailWrapper = initNoPlan();
 			} else {
-				WrapperCard exportPlanEditor = new WrapperCard("wrapper",
-				        new Component[] {new H4("Export Plan"), createPlanEditor(false) }, "card");
 				try {
-					WrapperCard planTree = new WrapperCard("wrapper",
-					        new Component[] {new H4("Export Plan Flow"), createGrpah(false) }, "card");
-					editPlanRow.add(exportPlanEditor, planTree);
+					HorizontalLayout planDetail = new HorizontalLayout(
+							createPlanEditor(false), createGrpah(false));
+					planDetailWrapper = new WrapperCard("wrapper",
+					        new Component[] {new H3("Export Plan"),  planDetail}, "card");
 				} catch (IOException e) {
 					e.printStackTrace();
-					editPlanRow.add(exportPlanEditor);
+					planDetailWrapper = initNoPlan();
 				}
 			}
 		}
