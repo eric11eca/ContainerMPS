@@ -88,7 +88,7 @@ public class CustomerView extends SplitViewFrame {
         searchBar.setSuffixComponent(closeIcon);
         
         Select<String> searchFilter = new Select<>();
-        searchFilter.setItems("CustomerID", "Company Name", "Contact Email", "Country");
+        searchFilter.setItems("None","CustomerID", "Company Name", "Contact Email", "Country");
         searchFilter.setLabel("Search Filter");
         searchFilter.addValueChangeListener(e -> filter = e.getValue());
 
@@ -105,7 +105,7 @@ public class CustomerView extends SplitViewFrame {
 	        grid.setDataProvider(dataProvider);
         }).debounce(300, DebouncePhase.TRAILING);
         
-        Button addContainer = UIUtils.createPrimaryButton("Add Container");
+        Button addContainer = UIUtils.createPrimaryButton("Add Customer");
         addContainer.setWidthFull();
         addContainer.addClickListener(e-> {
         	createAddCustomer().open();
@@ -125,8 +125,6 @@ public class CustomerView extends SplitViewFrame {
 		grid = new Grid<>();
 		grid.addSelectionListener(event -> event.getFirstSelectedItem().ifPresent(this::showDetails));
 		grid.setDataProvider(dataProvider);
-		grid.setHeightByRows(true);
-		grid.setWidthFull();
 		
 		grid.addColumn(Customer::getCustomerID)
 				.setAutoWidth(true)
@@ -184,14 +182,13 @@ public class CustomerView extends SplitViewFrame {
 		});
 		
 		TextField updateName = new TextField();
-		updateName.setWidth("50%");
 		updateName.setLabel("Company Name");
 		updateName.addValueChangeListener(e-> {
 			newCustomer.setCompanyName(e.getValue());
 		});
         
 		EmailField updateEmail = new EmailField();
-		updateEmail.setWidth("50%");
+		updateEmail.setWidth("100%");
 		updateEmail.setLabel("Contact Email");
 		updateEmail.addValueChangeListener(e-> {
         	newCustomer.setContactEmail(e.getValue());
@@ -205,7 +202,7 @@ public class CustomerView extends SplitViewFrame {
 		});
 		
 		TextField updateState = new TextField();
-		updateState.setWidth("30%");
+		updateState.setWidth("50%");
 		updateState.setLabel("State");
 		updateState.addValueChangeListener(e-> {
 			newCustomer.setState(e.getValue());
@@ -219,6 +216,7 @@ public class CustomerView extends SplitViewFrame {
 		addrLayer.setAlignItems(Alignment.BASELINE);
 		
 		DetailsDrawerFooter detailsDrawerFooter = new DetailsDrawerFooter();
+		detailsDrawerFooter.setWidth("50%");
 		detailsDrawerFooter.addSaveListener(e->{
 			if (newCustomer.getCustomerID() == null) {
 				Notification.show("Customer ID cannot be empty!");
@@ -302,7 +300,8 @@ public class CustomerView extends SplitViewFrame {
 		});
         
 		EmailField updateEmail = new EmailField();
-        updateEmail.setWidth("50%");
+		updateEmail.setWidth("100%");
+		updateEmail.setErrorMessage("Please enter a valid email address");
         updateEmail.setValue(customer.getContactEmail());
         updateEmail.addValueChangeListener(e-> {
         	tempCustomer.setContactEmail(e.getValue());

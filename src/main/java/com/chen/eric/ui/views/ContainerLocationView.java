@@ -33,6 +33,8 @@ import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.board.Board;
 import com.vaadin.flow.component.board.Row;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.charts.model.Crosshair;
+import com.vaadin.flow.component.charts.model.XAxis;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -492,7 +494,13 @@ public class ContainerLocationView extends SplitViewFrame{
        button.setClassName("delete-button");
        button.addThemeName("small");
        return button;
-   }
+	}
+	
+	private void createCurrCapacityChart() {
+		XAxis x = new XAxis();
+		x.setCrosshair(new Crosshair());
+		x.setCategories("Normal1", "Normal2", "Normal3", "Hazard", "Refeer","");
+	}
 	
 	private Button createStorageUpdateButton(StorageArea storageArea) {
 		Button button = new Button(new Icon(VaadinIcon.REFRESH), clickEvent -> {

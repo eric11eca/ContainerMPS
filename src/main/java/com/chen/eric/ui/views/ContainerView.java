@@ -141,38 +141,31 @@ public class ContainerView extends SplitViewFrame {
 		
 		grid.addColumn(Container::getContainerID)
 				.setAutoWidth(true)
-				.setFlexGrow(0)
 				.setSortable(true)
 				.setHeader("Container ID");
 		grid.addColumn(Container::getType)
 				.setAutoWidth(true)
-				.setFlexGrow(0)
 				.setSortable(true)
 				.setHeader("Type");
 		grid.addColumn(Container::getOwner)
 				.setAutoWidth(true)
-				.setFlexGrow(0)
 				.setSortable(true)
 				.setHeader("Owner");
 		grid.addColumn(this::createFee)
 				.setAutoWidth(true)
-				.setFlexGrow(0)
 				.setSortable(true)
 				.setHeader("Service Fee");
 		grid.addComponentColumn(this::createActive)
 				.setAutoWidth(true)
-				.setFlexGrow(0)
 				.setSortable(true)
 				.setHeader("Fee Payed");
 		grid.addComponentColumn(this::create3DVolume)
 				.setWidth("360px")
-				.setFlexGrow(0)
 				.setSortable(true)
 				.setHeader("Length/Width/Height/Volume")
 				.setTextAlign(ColumnTextAlign.END);
 		grid.addColumn(this::createWeight)
 				.setAutoWidth(true)
-				.setFlexGrow(0)
 				.setSortable(true)
 				.setHeader("Weight")
 				.setTextAlign(ColumnTextAlign.END);
@@ -264,7 +257,7 @@ public class ContainerView extends SplitViewFrame {
 		
 		Select<String> typePicker = new Select<>();
 		typePicker.setLabel("Type");
-		typePicker.setItems("Normal", "Reefer", "Hazard", "Illegal", "Livestock");
+		typePicker.setItems("Normal", "Reefer", "Hazard", "Illegal");
 		typePicker.setWidth("30%");
 		typePicker.addValueChangeListener(
         		e -> newContainer.setType(e.getValue()));
@@ -391,14 +384,14 @@ public class ContainerView extends SplitViewFrame {
 		});
 		
 		TextField updateOwner = new TextField();
-		updateOwner.setWidth("50%");
+		updateOwner.setWidth("100%");
 		updateOwner.setValue(String.valueOf(container.getOwner()));
 		updateOwner.addValueChangeListener(e-> {
 			tempContainer.setOwner(e.getValue());
 		});
 		
 		Select<String> typePicker = new Select<>();
-		typePicker.setItems("Normal", "Reefer", "Hazard", "Illegal", "Livestock");
+		typePicker.setItems("Normal", "Reefer", "Hazard", "Illegal");
 		typePicker.setValue(container.getType());
 		typePicker.setWidth("30%");
 		typePicker.addValueChangeListener(
@@ -425,7 +418,7 @@ public class ContainerView extends SplitViewFrame {
         } else {
         	payedPicker.setValue("Not Payed");
         }
-        payedPicker.setWidth("30%");
+        payedPicker.setWidth("50%");
         payedPicker.addValueChangeListener(e ->{
         	if (e.getValue().equals("Payed")) {
         		tempContainer.setPayed(true);

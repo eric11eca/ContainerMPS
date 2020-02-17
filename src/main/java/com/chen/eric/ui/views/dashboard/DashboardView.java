@@ -48,7 +48,6 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
@@ -131,16 +130,6 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
                 .setWidth("140px");
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         
-        /*board.addRow(planGridWrapper);
-
-        WrapperCard gridWrapper = new WrapperCard("wrapper",
-                new Component[] { new H3("Service health"), grid }, "card");
-       
-        responseTimes.getConfiguration().setTitle("Response times");
-        WrapperCard responseTimesWrapper = new WrapperCard("wrapper",
-                new Component[] { responseTimes }, "card");
-        
-        board.addRow(planGridWrapper, responseTimesWrapper);*/
         createPlanGrid();
         updatePlanRow(true);
         
