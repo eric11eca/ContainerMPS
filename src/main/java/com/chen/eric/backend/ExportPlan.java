@@ -6,7 +6,6 @@ public class ExportPlan extends TransPlan {
 	private Integer containerID;
 	private Integer loadTo;
 	private Double totalCost;
-	private Integer retrivedFrom;
 	private boolean containerRetrived;
 	private boolean loadComplete;
 	private boolean servicePayed;
@@ -18,12 +17,11 @@ public class ExportPlan extends TransPlan {
 	public ExportPlan(int planID, String manager, Date date, 
 			String status, String type,
 			int containerID, int loadTo, double totalCost,
-			int retrivedFrom, boolean containerRetrived, 
+			boolean containerRetrived, 
 			boolean loadComplete, boolean servicePayed) {
 		super(planID, manager, date, status, type);
 		this.containerID = containerID;
 		this.loadTo = loadTo;
-		this.retrivedFrom = retrivedFrom;
 		this.containerRetrived = containerRetrived;
 		this.loadComplete = loadComplete;
 		this.servicePayed = servicePayed;
@@ -51,14 +49,6 @@ public class ExportPlan extends TransPlan {
 
 	public void setTotalCost(Double totalCost) {
 		this.totalCost = totalCost;
-	}
-	
-	public Integer getRetrivedFrom() {
-		return retrivedFrom;
-	}
-
-	public void setRetrivedFrom(Integer retrivedFrom) {
-		this.retrivedFrom = retrivedFrom;
 	}
 
 	public boolean isContainerRetrived() {

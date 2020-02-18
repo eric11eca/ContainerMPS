@@ -79,7 +79,7 @@ public class PlanService implements EntityService<TransPlan> {
 							rs.getInt(PlanID), rs.getString(Manager),
 							rs.getDate(Date), rs.getString(Status),
 							rs.getString(type), rs.getInt("ContainerID"), 
-							rs.getInt("UnLoadFrom"), null,
+							rs.getInt("UnLoadFrom"),
 							rs.getBoolean("UnLoadCompleted"),
 							rs.getBoolean("CustomPassed"),
 							rs.getBoolean("ContainerDistributed"));
@@ -90,7 +90,7 @@ public class PlanService implements EntityService<TransPlan> {
 							rs.getInt(PlanID), rs.getString(Manager),
 							rs.getDate(Date), rs.getString(Status),rs.getString(type),
 							rs.getInt("ContainerID"), rs.getInt("LoadTo"),
-							rs.getDouble("TotalCoat"), rs.getInt("RetrivedFrom"),
+							rs.getDouble("TotalCoat"),
 							rs.getBoolean("ContainerRetrived"),
 							rs.getBoolean("ServicePayed"),
 							rs.getBoolean("LoadComplete"));

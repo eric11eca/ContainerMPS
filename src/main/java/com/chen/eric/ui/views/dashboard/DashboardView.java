@@ -158,9 +158,9 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
     	});
     	
     	Div panel = new Div();
-    	panel.add(uploader, signature);
+    	panel.add(uploader, signature, generate);
     	dialog.add(panel);
-    	dialog.setWidthFull();
+    	dialog.setSizeFull();
     	
     	return dialog;
     }
@@ -176,12 +176,12 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
         descriptionSpan.addClassName("secondary-text");
         
         Button importUpload = UIUtils.createTertiaryButton("Upload Import List");
-        importUpload.addClickListener(e-> {
+        importUpload.addClickListener(e -> {
         	generatePlanPanel().open();
         });
 
-        return new WrapperCard("wrapper",
-                new Component[] {titleSpan, h2, descriptionSpan, importUpload}, "card", "space-m");
+        return new WrapperCard("wrapper", new Component[] {
+        		titleSpan, h2, descriptionSpan, importUpload}, "card", "space-m");
     }
     
     private HorizontalLayout createPlanCard(TransPlan plan) {
@@ -469,15 +469,14 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
 				if (type.equals("Import")) {
 					TransPlan importPlan = new ImportPlan(
 							planID, manager, planDate, status, type,
-							containerID, vesselID, null, false, false, false);
+							containerID, vesselID, false, false, false);
 					dataContainer.insertPlanRecords(importPlan);
 					
 				} else {					
 					double totalCost = dataContainer.calculateCost(containerID);
 					TransPlan exportPlan = new ExportPlan(
 							planID, manager, planDate, status, type, 
-							containerID, vesselID, totalCost, 
-							0, false, false, false);
+							containerID, vesselID, totalCost, false, false, false);
 					dataContainer.insertPlanRecords(exportPlan);
 				}
 			}
@@ -493,8 +492,7 @@ public class DashboardView extends ViewFrame implements AfterNavigationObserver 
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-
-        usersH2.setText("745");
+    	usersH2.setText("745");
         eventsH2.setText("54.6k");
         conversionH2.setText("18%");
 

@@ -5,7 +5,6 @@ import java.sql.Date;
 public class ImportPlan extends TransPlan {
 	private Integer containerID;
 	private Date arrivalDate;
-	private Integer  distributeTo;
 	private Integer unloadFrom;
 	private boolean unLoadCompleted;
 	private boolean customPassed;
@@ -39,14 +38,6 @@ public class ImportPlan extends TransPlan {
 		this.unloadFrom = unloadFrom;
 	}
 	
-	public Integer getDistributeTo() {
-		return distributeTo;
-	}
-
-	public void setDistributeTo(Integer distributeTo) {
-		this.distributeTo = distributeTo;
-	}
-	
 	public boolean isUnLoadCompleted() {
 		return unLoadCompleted;
 	}
@@ -72,13 +63,11 @@ public class ImportPlan extends TransPlan {
 	}
 
 	public ImportPlan(int planID, String manager, Date date, String status, String type,
-			Integer containerID, Integer unloadFrom,
-			Integer distributeTo, boolean unLoadCompleted, 
+			Integer containerID, Integer unloadFrom, boolean unLoadCompleted, 
 			boolean customPassed, boolean containerDistributed) {
 		super(planID, manager, date, status, type);
 		this.containerID = containerID;
 		this.unloadFrom = unloadFrom;
-		this.distributeTo = distributeTo;
 		this.unLoadCompleted = unLoadCompleted;
 		this.customPassed = customPassed;
 		this.containerDistributed = containerDistributed;

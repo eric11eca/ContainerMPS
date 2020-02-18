@@ -33,8 +33,13 @@ import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.board.Board;
 import com.vaadin.flow.component.board.Row;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.charts.Chart;
+import com.vaadin.flow.component.charts.model.ChartType;
+import com.vaadin.flow.component.charts.model.Configuration;
 import com.vaadin.flow.component.charts.model.Crosshair;
+import com.vaadin.flow.component.charts.model.ListSeries;
 import com.vaadin.flow.component.charts.model.XAxis;
+import com.vaadin.flow.component.charts.model.YAxis;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -85,6 +90,7 @@ public class ContainerLocationView extends SplitViewFrame{
 	private WrapperCard blocksWrapper;
 	
 	private Board board;
+	private Chart areaCapacity;
 	
 	private StorageArea tempStorageArea;
 	private Integer storageID;
@@ -111,7 +117,7 @@ public class ContainerLocationView extends SplitViewFrame{
 		storageAreaDetail = new Row();
 		
 		initialContent();
-
+		createCurrCapacityChart();
 		createAreaOverview();
 		createStorageContent();
 		createContainerLocationGrid();
@@ -176,7 +182,7 @@ public class ContainerLocationView extends SplitViewFrame{
 		zone2.setMargin(true);
 		
 		storageOverviewWrapper = new WrapperCard("wrapper", 
-				new Component[] {zone1, zone2}, "card", "space-m");
+				new Component[] {zone1, zone2, areaCapacity}, "card", "space-m");
 	}
 	
 	private void createStorageDetail() {
@@ -497,9 +503,20 @@ public class ContainerLocationView extends SplitViewFrame{
 	}
 	
 	private void createCurrCapacityChart() {
+		areaCapacity = new Chart();
+		Configuration config = areaCapacity.getConfiguration();
+		config.setTitle("Current Number of Containers per Area");
+		config.getChart().setType(ChartType.COLUMN);
 		XAxis x = new XAxis();
 		x.setCrosshair(new Crosshair());
-		x.setCategories("Normal1", "Normal2", "Normal3", "Hazard", "Refeer","");
+		x.setCategories("Normal1", "Normal2", "Normal3", "Hazard", "Refeer","IIlegal");
+		config.addxAxis(x);
+		YAxis y = new YAxis();
+        y.setMin(0);
+        config.addyAxis(y);
+
+        config.addSeries(new ListSeries("Current Capacity", 700, 500, 600, 300, 200, 100));
+        config.addSeries(new ListSeries("Allwoed Capacity", 800, 800, 800, 600, 600, 500));
 	}
 	
 	private Button createStorageUpdateButton(StorageArea storageArea) {

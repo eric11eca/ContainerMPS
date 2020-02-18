@@ -62,8 +62,9 @@ import com.vaadin.flow.router.Route;
 @Route(value = "container", layout = MainLayout.class)
 public class ContainerView extends SplitViewFrame {
 	private Grid<Container> grid;
-	private ListDataProvider<Container> dataProvider;
 	private DetailsDrawer detailsDrawer;
+	private ListDataProvider<Container> dataProvider;
+	
 	private File tempFile;
 	private String filter = "";
 	private Container tempContainer;
