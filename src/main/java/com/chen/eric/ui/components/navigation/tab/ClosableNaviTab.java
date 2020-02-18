@@ -8,7 +8,7 @@ import com.chen.eric.ui.util.FontSize;
 import com.chen.eric.ui.util.UIUtils;
 
 public class ClosableNaviTab extends NaviTab {
-
+	private static final long serialVersionUID = 1L;
 	private final Button close;
 
 	public ClosableNaviTab(String label,
@@ -17,7 +17,6 @@ public class ClosableNaviTab extends NaviTab {
 		getElement().setAttribute("closable", true);
 
 		close = UIUtils.createButton(VaadinIcon.CLOSE, ButtonVariant.LUMO_TERTIARY_INLINE);
-		// ButtonVariant.LUMO_SMALL isn't small enough.
 		UIUtils.setFontSize(FontSize.XXS, close);
 		add(close);
 	}

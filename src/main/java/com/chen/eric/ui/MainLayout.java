@@ -21,7 +21,6 @@ import com.chen.eric.ui.views.ContainerLocationView;
 import com.chen.eric.ui.views.ContainerView;
 import com.chen.eric.ui.views.CustomerView;
 import com.chen.eric.ui.views.EmployeeView;
-import com.chen.eric.ui.views.Home;
 import com.chen.eric.ui.views.VesselView;
 import com.chen.eric.ui.views.dashboard.DashboardView;
 import com.vaadin.flow.component.Component;
@@ -63,6 +62,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 public class MainLayout extends FlexBoxLayout
 		implements RouterLayout, PageConfigurator, AfterNavigationObserver {
 
+	private static final long serialVersionUID = 1L;
 	private static final Logger log = LoggerFactory.getLogger(MainLayout.class);
 	private static final String CLASS_NAME = "root";
 
@@ -102,9 +102,6 @@ public class MainLayout extends FlexBoxLayout
 		initHeadersAndFooters();
 	}
 
-	/**
-	 * Initialise the required components and containers.
-	 */
 	private void initStructure() {
 		naviDrawer = new NaviDrawer();
 
@@ -126,12 +123,8 @@ public class MainLayout extends FlexBoxLayout
 		setFlexGrow(1, row);
 	}
 
-	/**
-	 * Initialise the navigation items.
-	 */
 	private void initNaviItems() {
 		NaviMenu menu = naviDrawer.getMenu();
-		//menu.addNaviItem(VaadinIcon.HOME, "Home", Home.class);
 		menu.addNaviItem(VaadinIcon.CHART, "Dashboard", DashboardView.class);
 		menu.addNaviItem(VaadinIcon.BOAT, "Vessel", VesselView.class);
 		menu.addNaviItem(VaadinIcon.CUBES, "Container Location", ContainerLocationView.class);
@@ -144,15 +137,8 @@ public class MainLayout extends FlexBoxLayout
 				roles.contains("Super Manager")) {
 			menu.addNaviItem(VaadinIcon.USERS, "Employee", EmployeeView.class);
 		}
-		
-		//NaviItem personnel = menu.addNaviItem(VaadinIcon.USERS, "Personnel",null);
-		//menu.addNaviItem(personnel, "Accountants", Accountants.class);
-		//menu.addNaviItem(personnel, "Managers", Managers.class);
 	}
 
-	/**
-	 * Configure the app's inner and outer headers and footers.
-	 */
 	private void initHeadersAndFooters() {
 		 setAppHeaderOuter();
 		 setAppFooterInner();
@@ -263,7 +249,7 @@ public class MainLayout extends FlexBoxLayout
 		NaviItem active = getActiveItem(e);
 		if (active == null) {
 			if (tabBar.getTabCount() == 0) {
-				tabBar.addClosableTab("", Home.class);
+				tabBar.addClosableTab("", DashboardView.class);
 			}
 		} else {
 			if (tabBar.getTabCount() > 0) {

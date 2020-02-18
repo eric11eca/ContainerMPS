@@ -1,5 +1,13 @@
 package com.chen.eric.ui.components.navigation.bar;
 
+import static com.chen.eric.ui.util.UIUtils.IMG_PATH;
+
+import com.chen.eric.ui.MainLayout;
+import com.chen.eric.ui.components.FlexBoxLayout;
+import com.chen.eric.ui.components.navigation.tab.NaviTabs;
+import com.chen.eric.ui.util.LumoStyles;
+import com.chen.eric.ui.util.UIUtils;
+import com.chen.eric.ui.views.dashboard.DashboardView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
@@ -10,17 +18,10 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
-import com.chen.eric.ui.MainLayout;
-import com.chen.eric.ui.components.FlexBoxLayout;
-import com.chen.eric.ui.components.navigation.tab.NaviTabs;
-import com.chen.eric.ui.util.LumoStyles;
-import com.chen.eric.ui.util.UIUtils;
-import com.chen.eric.ui.views.Home;
-
-import static com.chen.eric.ui.util.UIUtils.IMG_PATH;
 
 @CssImport("./styles/components/tab-bar.css")
 public class TabBar extends FlexBoxLayout {
+	private static final long serialVersionUID = 1L;
 
 	private String CLASS_NAME = "tab-bar";
 
@@ -51,7 +52,7 @@ public class TabBar extends FlexBoxLayout {
 
 		addTab = UIUtils.createSmallButton(VaadinIcon.PLUS);
 		addTab.addClickListener(e -> tabs
-				.setSelectedTab(addClosableTab("New Tab", Home.class)));
+				.setSelectedTab(addClosableTab("New Tab", DashboardView.class)));
 		addTab.setClassName(CLASS_NAME + "__add-tab");
 
 		tabs = new NaviTabs();

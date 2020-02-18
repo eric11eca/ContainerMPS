@@ -234,7 +234,11 @@ public class DataContainer {
 		dbService.closeConnection();
 		return code;
 	}
-	
+	public int deletePlanRecords(Integer planID) {
+		int code = planService.deleteRecords(planID);
+		dbService.closeConnection();
+		return code;
+	}
 	public int updateUnLoadFromVessel(int unloadFrom, int primary, int secondary) {
 		int code = planService.updateImportVessel(unloadFrom, primary, secondary);
 		dbService.closeConnection();
@@ -372,4 +376,6 @@ public class DataContainer {
 			"manager-down-status\n" + 
 			"\n" + */
 			"@enduml";
+
+	
 }

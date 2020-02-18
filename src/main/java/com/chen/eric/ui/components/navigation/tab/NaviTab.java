@@ -7,6 +7,7 @@ import java.util.Objects;
 
 public class NaviTab extends Tab {
 
+	private static final long serialVersionUID = 1L;
 	private Class<? extends Component> navigationTarget;
 
 	public NaviTab(String label, Class<? extends Component> navigationTarget) {

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 @CssImport("./styles/components/navi-menu.css")
 public class NaviMenu extends Div {
 
+	private static final long serialVersionUID = 1L;
 	private String CLASS_NAME = "navi-menu";
 
 	public NaviMenu() {

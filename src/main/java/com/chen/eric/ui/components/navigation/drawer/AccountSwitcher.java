@@ -15,6 +15,7 @@ import static com.chen.eric.ui.util.UIUtils.IMG_PATH;
 
 @CssImport("./styles/components/account-switcher.css")
 public class AccountSwitcher extends Div {
+	private static final long serialVersionUID = 1L;
 
 	private String CLASS_NAME = "account-switcher";
 

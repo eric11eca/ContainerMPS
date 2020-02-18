@@ -20,6 +20,7 @@ import elemental.json.JsonObject;
 public class NaviDrawer extends Div
 		implements AfterNavigationObserver {
 
+	private static final long serialVersionUID = 1L;
 	private String CLASS_NAME = "navi-drawer";
 	private String RAIL = "rail";
 	private String OPEN = "open";
@@ -37,7 +38,7 @@ public class NaviDrawer extends Div
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
 		UI ui = attachEvent.getUI();
-		ui.getPage().executeJavaScript("window.addSwipeAway($0,$1,$2,$3)",
+		ui.getPage().executeJs("window.addSwipeAway($0,$1,$2,$3)",
 				mainContent.getElement(), this, "onSwipeAway",
 				scrim.getElement());
 	}
@@ -119,9 +120,9 @@ public class NaviDrawer extends Div
 			railButton.setIcon(new Icon(VaadinIcon.CHEVRON_RIGHT_SMALL));
 			railButton.setText("Expand");
 			UIUtils.setAriaLabel("Expand menu", railButton);
-			getUI().get().getPage().executeJavaScript(
-					"var originalStyle = getComputedStyle($0).pointerEvents;" //
-							+ "$0.style.pointerEvents='none';" //
+			getUI().get().getPage().executeJs(
+					"var originalStyle = getComputedStyle($0).pointerEvents;" 
+							+ "$0.style.pointerEvents='none';" 
 							+ "setTimeout(function() {$0.style.pointerEvents=originalStyle;}, 170);",
 					getElement());
 		}
@@ -145,12 +146,10 @@ public class NaviDrawer extends Div
 	}
 
 	private void applyIOS122Workaround() {
-		// iOS 12.2 sometimes fails to animate the menu away.
-		// It should be gone after 240ms
-		// This will make sure it disappears even when the browser fails.
-		getUI().get().getPage().executeJavaScript(
-				"var originalStyle = getComputedStyle($0).transitionProperty;" //
-						+ "setTimeout(function() {$0.style.transitionProperty='padding'; requestAnimationFrame(function() {$0.style.transitionProperty=originalStyle})}, 250);",
+		getUI().get().getPage().executeJs(
+				"var originalStyle = getComputedStyle($0).transitionProperty;" 
+						+ "setTimeout(function() {$0.style.transitionProperty='padding'; "
+						+ "requestAnimationFrame(function() {$0.style.transitionProperty=originalStyle})}, 250);",
 				mainContent.getElement());
 	}
 

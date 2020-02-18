@@ -7,13 +7,8 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
-import com.chen.eric.backend.Address;
-import com.chen.eric.backend.DummyData;
-import com.chen.eric.ui.components.FlexBoxLayout;
-import com.chen.eric.ui.layout.size.Right;
 import com.chen.eric.ui.util.css.*;
 
 import java.sql.Date;
@@ -39,9 +34,6 @@ public class UIUtils {
 	private static final SimpleDateFormat sqlDateFormat = new SimpleDateFormat("MM-dd-yyyy");
 
 	/* ==== BUTTONS ==== */
-
-	// Styles
-
 	public static Button createPrimaryButton(String text) {
 		return createButton(text, ButtonVariant.LUMO_PRIMARY);
 	}
@@ -163,7 +155,6 @@ public class UIUtils {
 				ButtonVariant.LUMO_PRIMARY);
 	}
 
-	// Size
 
 	public static Button createSmallButton(String text) {
 		return createButton(text, ButtonVariant.LUMO_SMALL);
@@ -189,7 +180,6 @@ public class UIUtils {
 		return createButton(text, icon, ButtonVariant.LUMO_LARGE);
 	}
 
-	// Text
 
 	public static Button createButton(String text, ButtonVariant... variants) {
 		Button button = new Button(text);
@@ -198,7 +188,6 @@ public class UIUtils {
 		return button;
 	}
 
-	// Icon
 
 	public static Button createButton(VaadinIcon icon,
 	                                  ButtonVariant... variants) {
@@ -207,7 +196,6 @@ public class UIUtils {
 		return button;
 	}
 
-	// Text and icon
 
 	public static Button createButton(String text, VaadinIcon icon,
 	                                  ButtonVariant... variants) {
@@ -288,12 +276,6 @@ public class UIUtils {
 	}
 
 	/* === MISC === */
-
-	public static String formatAddress(Address address) {
-		return address.getStreet() + "\n" + address.getCity() + ", "
-				+ address.getCity() + " " + address.getZip();
-	}
-	
 	public static String formatWorldAddress(String country, String state, String city) {
 		return country + "\n" + state + ", "+ city;
 	}
@@ -302,20 +284,6 @@ public class UIUtils {
 		Button button = createPrimaryButton(icon);
 		button.addThemeName("fab");
 		return button;
-	}
-
-	public static FlexLayout createPhoneLayout() {
-		TextField prefix = new TextField();
-		prefix.setValue("+358");
-		prefix.setWidth("80px");
-
-		TextField number = new TextField();
-		number.setValue(DummyData.getPhoneNumber());
-
-		FlexBoxLayout layout = new FlexBoxLayout(prefix, number);
-		layout.setFlexGrow(1, number);
-		layout.setSpacing(Right.S);
-		return layout;
 	}
 
 	/* === NUMBERS === */

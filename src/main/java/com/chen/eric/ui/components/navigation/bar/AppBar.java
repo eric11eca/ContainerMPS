@@ -1,5 +1,16 @@
 package com.chen.eric.ui.components.navigation.bar;
 
+import static com.chen.eric.ui.util.UIUtils.IMG_PATH;
+
+import java.util.ArrayList;
+
+import com.chen.eric.ui.MainLayout;
+import com.chen.eric.ui.components.FlexBoxLayout;
+import com.chen.eric.ui.components.navigation.tab.NaviTab;
+import com.chen.eric.ui.components.navigation.tab.NaviTabs;
+import com.chen.eric.ui.util.LumoStyles;
+import com.chen.eric.ui.util.UIUtils;
+import com.chen.eric.ui.views.dashboard.DashboardView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
@@ -18,20 +29,11 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.shared.Registration;
-import com.chen.eric.ui.MainLayout;
-import com.chen.eric.ui.components.FlexBoxLayout;
-import com.chen.eric.ui.components.navigation.tab.NaviTab;
-import com.chen.eric.ui.components.navigation.tab.NaviTabs;
-import com.chen.eric.ui.util.LumoStyles;
-import com.chen.eric.ui.util.UIUtils;
-import com.chen.eric.ui.views.Home;
-
-import java.util.ArrayList;
-
-import static com.chen.eric.ui.util.UIUtils.IMG_PATH;
 
 @CssImport("./styles/components/app-bar.css")
 public class AppBar extends FlexBoxLayout {
+
+	private static final long serialVersionUID = 1L;
 
 	private String CLASS_NAME = "app-bar";
 
@@ -141,7 +143,7 @@ public class AppBar extends FlexBoxLayout {
 	private void initTabs(NaviTab... tabs) {
 		addTab = UIUtils.createSmallButton(VaadinIcon.PLUS);
 		addTab.addClickListener(e -> this.tabs
-				.setSelectedTab(addClosableNaviTab("New Tab", Home.class)));
+				.setSelectedTab(addClosableNaviTab("New Tab", DashboardView.class)));
 		addTab.setVisible(false);
 
 		this.tabs = tabs.length > 0 ? new NaviTabs(tabs) : new NaviTabs();
@@ -322,16 +324,12 @@ public class AppBar extends FlexBoxLayout {
 		search.setVisible(false);
 	}
 
-	/* === RESET === */
-
 	public void reset() {
 		title.setText("");
 		setNaviMode(AppBar.NaviMode.MENU);
 		removeAllActionItems();
 		removeAllTabs();
 	}
-
-	/* === UPDATE VISIBILITY === */
 
 	private void updateActionItemsVisibility() {
 		actionItems.setVisible(actionItems.getComponentCount() > 0);

@@ -112,7 +112,7 @@ public class PlanService implements EntityService<TransPlan> {
 		try {
 			dbService.connect();
 			
-			if (plan.status.equals("Import")) {
+			if (plan.type.equals("Import")) {
 				String queryImport = "{? = CALL dbo.Insert_ImportPlan(?,?,?,?,?,?)}";
 				ImportPlan importPlan = (ImportPlan) plan;
 				CallableStatement stmtImport = dbService.getConnection().prepareCall(queryImport);
@@ -123,9 +123,9 @@ public class PlanService implements EntityService<TransPlan> {
 				stmtImport.setString(5, importPlan.getStatus());
 				stmtImport.setInt(6, importPlan.getContainerID());
 				stmtImport.setInt(7, importPlan.getUnloadFrom());
-				stmtImport.execute();
+				stmtImport.execute();				
 				return stmtImport.getInt(1);
-			} else if (plan.status.equals("Export")) {
+			} else if (plan.type.equals("Export")) {
 				String queryExport = "{? = CALL dbo.Insert_ExportPlan(?,?,?,?,?,?,?)}";
 				ExportPlan exportPlan = (ExportPlan) plan;
 				CallableStatement stmtExport = dbService.getConnection().prepareCall(queryExport);
@@ -299,7 +299,7 @@ public class PlanService implements EntityService<TransPlan> {
 	public int updateImportUnload(boolean unloadComplet, int primary, int secondary) {
 		try {
 			dbService.connect();
-			String query = "{? = CALL dbo.Update_ImportPlan_CustomPassed(?,?,?)}";
+			String query = "{? = CALL dbo.Update_ImportPlan_UnloadComplete(?,?,?)}";
 			CallableStatement stmt = dbService.getConnection().prepareCall(query);
 			stmt.registerOutParameter(1, Types.INTEGER);
 			stmt.setInt(2, primary);
@@ -318,7 +318,7 @@ public class PlanService implements EntityService<TransPlan> {
 	public int updateImportDistribute(boolean containerDistributed, int primary, int secondary) {
 		try {
 			dbService.connect();
-			String query = "{? = CALL dbo.Update_ImportPlan_CustomPassed(?,?,?)}";
+			String query = "{? = CALL dbo.Update_ImportPlan_Distributed(?,?,?)}";
 			CallableStatement stmt = dbService.getConnection().prepareCall(query);
 			stmt.registerOutParameter(1, Types.INTEGER);
 			stmt.setInt(2, primary);
@@ -444,7 +444,6 @@ public class PlanService implements EntityService<TransPlan> {
 			stmt.registerOutParameter(1, Types.INTEGER);
 			stmt.setInt(2, ID);
 			stmt.execute();
-			
 			return stmt.getInt(1);
 		} catch (SQLException ex) {
 			ex.printStackTrace();

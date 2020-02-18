@@ -492,9 +492,9 @@ public class ContainerLocationView extends SplitViewFrame{
            	dataContainer.getStorageAreaRecords();
            	storageDataProvider = DataProvider.ofCollection(dataContainer.storageAreaRecords.values());
        		storageGrid.setDataProvider(storageDataProvider);
-       		Notification.show("Succesfully deleted the customer" ,4000, Notification.Position.BOTTOM_CENTER);
+       		Notification.show("Succesfully deleted the customer", 4000, Notification.Position.BOTTOM_CENTER);
            } else {
-           	Notification.show("ERROR: DELETION FALIED" ,4000, Notification.Position.BOTTOM_CENTER);
+           	Notification.show("ERROR: DELETION FALIED", 4000, Notification.Position.BOTTOM_CENTER);
            }
        });
        button.setClassName("delete-button");
@@ -514,9 +514,8 @@ public class ContainerLocationView extends SplitViewFrame{
 		YAxis y = new YAxis();
         y.setMin(0);
         config.addyAxis(y);
-
-        config.addSeries(new ListSeries("Current Capacity", 700, 500, 600, 300, 200, 100));
-        config.addSeries(new ListSeries("Allwoed Capacity", 800, 800, 800, 600, 600, 500));
+        config.addSeries(new ListSeries("Allwoed Capacity", 180, 180, 180, 180, 180, 180));
+        config.addSeries(new ListSeries("Current Capacity", 90, 60, 50, 20, 45, 18));
 	}
 	
 	private Button createStorageUpdateButton(StorageArea storageArea) {

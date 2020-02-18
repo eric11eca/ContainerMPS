@@ -6,6 +6,7 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
 import com.chen.eric.ui.util.UIUtils;
 
+@SuppressWarnings("serial")
 @CssImport("./styles/components/brand-expression.css")
 public class BrandExpression extends Div {
 

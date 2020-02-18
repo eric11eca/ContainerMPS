@@ -20,6 +20,8 @@ import java.util.List;
 @CssImport("./styles/components/navi-item.css")
 public class NaviItem extends Div {
 
+	private static final long serialVersionUID = 6320474421342560614L;
+
 	private String CLASS_NAME = "navi-item";
 
 	private int level = 0;
