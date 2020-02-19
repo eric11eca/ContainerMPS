@@ -19,12 +19,13 @@ public class ExportPlan extends TransPlan {
 			int containerID, int loadTo, double totalCost,
 			boolean containerRetrived, 
 			boolean loadComplete, boolean servicePayed) {
-		super(planID, manager, date, status, type);
+		super(planID, containerID, manager, date, status, type);
 		this.containerID = containerID;
 		this.loadTo = loadTo;
 		this.containerRetrived = containerRetrived;
 		this.loadComplete = loadComplete;
 		this.servicePayed = servicePayed;
+		this.totalCost = totalCost;
 	}
 
 	public Integer getContainerID() {

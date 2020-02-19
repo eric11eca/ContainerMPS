@@ -213,6 +213,13 @@ public class DataContainer {
 		return code;
 	}
 	
+	public int countContainerInArea(String type) {
+		LocationService locService = new LocationService(dbService);
+		int code =  locService.countContainerInArea(type);
+		dbService.closeConnection();
+		return code;
+	}
+	
 	private StorageLayoutFactory storageAreaFactory = new StorageLayoutFactory(dbService);
 	
 	public void initStorageArea(String storageID) {
@@ -234,6 +241,12 @@ public class DataContainer {
 		dbService.closeConnection();
 	}
 	
+	public void getPlanRecordsByParams(String filter, String value) {
+		transPlanRecords = planService.retriveRecordsByParameters(filter, value);			
+		exportPlanRecords = planService.getExportPlans();
+		importPlanRecords = planService.getImportPlans();
+	}
+	
 	public int insertPlanRecords(TransPlan plan) {
 		int code = planService.insertRecords(plan);
 		dbService.closeConnection();
@@ -244,6 +257,7 @@ public class DataContainer {
 		dbService.closeConnection();
 		return code;
 	}
+	
 	public int updateUnLoadFromVessel(int unloadFrom, int primary, int secondary) {
 		int code = planService.updateImportVessel(unloadFrom, primary, secondary);
 		dbService.closeConnection();
@@ -298,14 +312,25 @@ public class DataContainer {
 		return code;
 	}
 	
+	public int uodatePlanStatus(int planID, String status) {
+		int code = planService.updateStatus(status, planID);
+		dbService.closeConnection();
+		return code;
+	}
+	
 	public double calculateCost(int id) {
-    	Location loc = locationRecords.get(String.valueOf(id));
-    	Period noOfDaysBetween = loc.getStartDate().toLocalDate().until(LocalDate.now());
-    	int numDays = noOfDaysBetween.getDays();
-    	StorageArea area = storageAreaRecords.get(String.valueOf(loc.getStorageID()));
-    	double fee = area.getStoragePrice();
-    	double totalCost = fee * numDays;
-    	return totalCost;
+    	try {
+    		Location loc = locationRecords.get(String.valueOf(id));
+    		Period noOfDaysBetween = loc.getStartDate().toLocalDate().until(LocalDate.now());
+        	int numDays = noOfDaysBetween.getDays();
+        	StorageArea area = storageAreaRecords.get(String.valueOf(loc.getStorageID()));
+        	double fee = area.getStoragePrice();
+        	double totalCost = fee * numDays;
+        	return totalCost;
+    	} catch(NullPointerException e) {
+    		return 0;
+    	}
+    	
     }
 	
     public static int getRandomNumber(int min, int max) {
@@ -314,16 +339,16 @@ public class DataContainer {
     
     public static final String exportDiagram = "@startuml\n" + 
 			"\n" + 
-			"package Retrive($retrived) {\n" + 
-			"    [Locate Container\\n <<$containerLocation>>] as location\n" + 
+			"package Retrive {\n" + 
+			"    [Locate Container\\n <<$containerID>>] as location\n" + 
 			"    [Retrive Container\\n <<$containerID>>] as container\n" + 
 			"}\n" + 
 			"\n" + 
-			"package Payment($payed) {\n" + 
+			"package Payment {\n" + 
 			"    [Bill Container\\n <<$containerID>>\\n <<$fee>>] as bill\n" + 
 			"}\n" + 
 			"\n" + 
-			"package Load($loaded) {\n" + 
+			"package Load {\n" + 
 			"    [Load To Vessel\\n <<$vesselID>>] as load\n" + 
 			"}\n" + 
 			"\n" + 
@@ -347,20 +372,20 @@ public class DataContainer {
     
     public static final String importDiagram = "@startuml\n" + 
 			"\n" + 
-			"package Unload($unloaded) {\n" + 
+			"package Unload {\n" + 
 			"    [Select Vessel\\n <<$vesselID>>] as vessel\n" + 
 			"    [Create Container\\n <<$containerID>>] as container\n" + 
 			"}\n" + 
 			"\n" + 
-			"package Custom($checked) {\n" + 
+			"package Custom {\n" + 
 			"    [Check Container\\n <<$containerID>>] as check\n" + 
 			"}\n" + 
 			"\n" + 
-			"package Distribute($distributed) {\n" + 
+			"package Distribute {\n" + 
 			"    [Assign Loactaion\\n <<$containerID>>] as location\n" + 
 			"}\n" + 
 			"\n" + 
-			"node Storage($stored) {\n" + 
+			"node Storage {\n" + 
 			"    node Container <<$containerID>> as storage\n" + 
 			"}\n" + 
 			"\n" + 

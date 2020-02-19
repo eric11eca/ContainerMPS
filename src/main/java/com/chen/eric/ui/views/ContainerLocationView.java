@@ -95,6 +95,7 @@ public class ContainerLocationView extends SplitViewFrame{
 	private StorageArea tempStorageArea;
 	private Integer storageID;
 	private Integer selectedStorage = 100;
+	private Integer currentBlockIndex = 0;
 
 	private DataContainer dataContainer = DataContainer.getInstance();
 	private static Map<Integer, String[]> areaMap = new HashMap<>();
@@ -117,7 +118,6 @@ public class ContainerLocationView extends SplitViewFrame{
 		storageAreaDetail = new Row();
 		
 		initialContent();
-		createCurrCapacityChart();
 		createAreaOverview();
 		createStorageContent();
 		createContainerLocationGrid();
@@ -158,6 +158,8 @@ public class ContainerLocationView extends SplitViewFrame{
 	}
 	
 	private void createAreaOverview() {
+		createCurrCapacityChart();
+		
 		HorizontalLayout zone1 = new HorizontalLayout();
 		HorizontalLayout zone2 = new HorizontalLayout();
 		
@@ -199,7 +201,7 @@ public class ContainerLocationView extends SplitViewFrame{
 		if (blockTabs == null) {
 			createBlockTabs();
 		}
-		createBlockContent(areaToBeDisplayed, 0);
+		createBlockContent(areaToBeDisplayed, currentBlockIndex);
 		
 		blocksWrapper = new WrapperCard("wrapper", 
 				new Component[] {blockTabs,blockContent}, "card", "space-m");
@@ -217,6 +219,7 @@ public class ContainerLocationView extends SplitViewFrame{
 		blockTabs = new Tabs(block1Tab, block2Tab);
 		blockTabs.addSelectedChangeListener(e -> {
 		    int blockIndex = tabsToBlock.get(blockTabs.getSelectedTab());
+		    currentBlockIndex = blockIndex;
 		    createBlockContent(areaToBeDisplayed, blockIndex);
 		    
 		    blocksWrapper = new WrapperCard("wrapper", 
@@ -316,6 +319,9 @@ public class ContainerLocationView extends SplitViewFrame{
 			} else if (code == 2) {
 				Notification.show("The given containerID dose not exist!", 
 						4000, Notification.Position.BOTTOM_CENTER);
+			} else if (code == 4) {
+				Notification.show("The End Date cannot be eariler than the Start Date!", 
+						4000, Notification.Position.BOTTOM_CENTER);
 			} else {
 				Notification.show("Fail to place the container, please try again", 
 						4000, Notification.Position.BOTTOM_CENTER);
@@ -377,7 +383,7 @@ public class ContainerLocationView extends SplitViewFrame{
 		containerLocationGrid.addComponentColumn(this::createLocation)
 				.setAutoWidth(true)
 				.setResizable(true)
-				.setHeader("Area;Block;\nTire;Bay;Row");
+				.setHeader("Area;Block;Tire;Bay;Row");
 		containerLocationGrid.addColumn(vessel -> UIUtils.formatSqlDate(vessel.getStartDate()))
 				.setAutoWidth(true)
 				.setResizable(true)
@@ -400,10 +406,10 @@ public class ContainerLocationView extends SplitViewFrame{
 	private Component createLocation(Location location) {
 		Label locationVec = UIUtils.createLabel(FontSize.M, "["+
 				String.valueOf(location.getStorageID().intValue())+"; "+
-				String.valueOf(location.getBlockIndex().intValue())+"; "+
-				String.valueOf(location.getBayIndex().intValue())+"; "+
-				String.valueOf(location.getTierIndex().intValue())+"; "+
-				String.valueOf(location.getRowIndex().intValue())+"]");
+				String.valueOf(location.getBlockIndex().intValue()+1)+"; "+
+				String.valueOf(location.getBayIndex().intValue()+1)+"; "+
+				String.valueOf(location.getTierIndex().intValue()+1)+"; "+
+				String.valueOf(location.getRowIndex().intValue()+1)+"]");
 		return locationVec;
 	}
 	
@@ -502,15 +508,29 @@ public class ContainerLocationView extends SplitViewFrame{
 		Configuration config = areaCapacity.getConfiguration();
 		config.setTitle("Current Number of Containers per Area");
 		config.getChart().setType(ChartType.COLUMN);
+		
+		String[] types = new String[] {"Normal1", "Normal2", "Normal3", "Hazard", "Refeer","IIlegal"};
+		
 		XAxis x = new XAxis();
 		x.setCrosshair(new Crosshair());
-		x.setCategories("Normal1", "Normal2", "Normal3", "Hazard", "Refeer","IIlegal");
+		x.setTitle("Storage Areas");
+		x.setCategories(types);
 		config.addxAxis(x);
+		
 		YAxis y = new YAxis();
         y.setMin(0);
+        y.setTitle("Capacity");
         config.addyAxis(y);
+        
+        int i = 0;
+        Number[] capacities = new Number[6];
+        for (String type : types) {
+        	capacities[i] = dataContainer.countContainerInArea(type);
+        	i++;
+        }
+        
         config.addSeries(new ListSeries("Allwoed Capacity", 180, 180, 180, 180, 180, 180));
-        config.addSeries(new ListSeries("Current Capacity", 90, 60, 50, 20, 45, 18));
+        config.addSeries(new ListSeries("Current Number of Container", capacities));
 	}
 	
 	private Button createStorageUpdateButton(StorageArea storageArea) {

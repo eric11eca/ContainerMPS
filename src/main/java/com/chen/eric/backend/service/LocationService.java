@@ -15,6 +15,24 @@ public class LocationService implements EntityService<Location> {
 	public  LocationService (DBConnectionService dbService) {
 		this.dbService = dbService;
 	}
+	
+	public int countContainerInArea(String area) {
+		try {
+			dbService.connect();
+			String query = "{? = call dbo.Num_Container_Area(?)}";
+			
+			CallableStatement stmt =  dbService.getConnection().prepareCall(query);		
+			stmt.registerOutParameter(1, Types.INTEGER);
+			stmt.setString(2, area);
+			stmt.execute();
+			int count = stmt.getInt(1);
+			return count;
+		}
+		catch (SQLException ex) {
+			ex.printStackTrace();
+			return 0;
+		}
+	}
 
 	@Override
 	public Map<String, Location> retriveRecords() {

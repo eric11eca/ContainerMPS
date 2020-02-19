@@ -76,7 +76,6 @@ public class StorageLayoutFactory {
 		retriveLocationByArea(storageArea.getStorageID());
 		
 		for (Location loc : locations) {
-			System.out.println("Number of container: " + locations.size());
 			updateStorageSlot(storageArea, loc, true);
 		}
 		return storageArea;

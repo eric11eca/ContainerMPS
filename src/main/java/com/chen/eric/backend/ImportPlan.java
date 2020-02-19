@@ -65,7 +65,7 @@ public class ImportPlan extends TransPlan {
 	public ImportPlan(int planID, String manager, Date date, String status, String type,
 			Integer containerID, Integer unloadFrom, boolean unLoadCompleted, 
 			boolean customPassed, boolean containerDistributed) {
-		super(planID, manager, date, status, type);
+		super(planID, containerID, manager, date, status, type);
 		this.containerID = containerID;
 		this.unloadFrom = unloadFrom;
 		this.unLoadCompleted = unLoadCompleted;

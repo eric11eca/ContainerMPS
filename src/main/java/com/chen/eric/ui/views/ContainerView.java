@@ -102,7 +102,7 @@ public class ContainerView extends SplitViewFrame {
         searchBar.setSuffixComponent(closeIcon);
         
         Select<String> searchFilter = new Select<>();
-        searchFilter.setItems("ContainerID", "isPayed", "Owner", "Weight", "Volume", "Type");
+        searchFilter.setItems("None", "ContainerID", "isPayed", "Owner", "Weight", "Type");
         searchFilter.setLabel("Search Filter");
         searchFilter.addValueChangeListener(e -> filter = e.getValue());
 
@@ -419,7 +419,6 @@ public class ContainerView extends SplitViewFrame {
         } else {
         	payedPicker.setValue("Not Payed");
         }
-        payedPicker.setWidth("50%");
         payedPicker.addValueChangeListener(e ->{
         	if (e.getValue().equals("Payed")) {
         		tempContainer.setPayed(true);

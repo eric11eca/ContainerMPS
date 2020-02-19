@@ -8,14 +8,16 @@ public abstract class TransPlan {
 	public Date date;
 	public String status;
 	public String type;
+	public Integer containerID;
 	
 	public TransPlan() {
 		
 	}
 	
-	public TransPlan(int planID, String manager, 
+	public TransPlan(int planID, int containerID, String manager, 
 			Date date, String status, String type) {
 		this.planID = planID;
+		this.containerID = containerID;
 		this.manager = manager;
 		this.date = date;
 		this.status = status;

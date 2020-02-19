@@ -83,7 +83,7 @@ public class EmployeeView extends SplitViewFrame {
         searchBar.setSuffixComponent(closeIcon);
 
         Select<String> searchFilter = new Select<>();
-        searchFilter.setItems("SSN", "Name", "Role");
+        searchFilter.setItems("None", "SSN", "Name", "Role");
         searchFilter.setLabel("Search Filter");
         searchFilter.addValueChangeListener(e -> filter = e.getValue());
 
