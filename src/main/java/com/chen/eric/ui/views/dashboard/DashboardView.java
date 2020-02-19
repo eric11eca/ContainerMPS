@@ -38,6 +38,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
@@ -68,11 +69,7 @@ import net.sourceforge.plantuml.SourceStringReader;
 @CssImport(value = "styles/views/dashboard/dashboard-view.css", include = "lumo-badge")
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")
 public class DashboardView extends ViewFrame {
-    //private Chart monthlyVisitors = new Chart();
-    //private Chart responseTimes = new Chart();
-    //private final H2 usersH2 = new H2();
-    //private final H2 eventsH2 = new H2();
-    //private final H2 conversionH2 = new H2();
+    private final H2  vesselCount = new H2();
     
     private ImportPlan currentImportPlan;
     private ExportPlan currentExportPlan;
@@ -92,9 +89,11 @@ public class DashboardView extends ViewFrame {
 
     public DashboardView() {    	
     	board = new Board();
+    	vesselCount.setText(String.valueOf(dataContainer.countVessel()));
         board.addRow(
-                createUploadBadge("Import List", "Upload Import Container List", "badge"),           //"primary-text"
-                createUploadBadge("Export List", "Upload Export Container List", "badge success")    //"success-text"
+                createUploadBadge("Import List", "Upload Import Container List", "badge"),          
+                createUploadBadge("Export List", "Upload Export Container List", "badge success"),  
+                vesselCountBadge("Vessel Count", vesselCount, "error-text", "Number of vessels docked", "badge error")
         );
     
         /*createUploadBadge("Conversion", "error-text", "User conversion rate", "badge error")
@@ -144,8 +143,6 @@ public class DashboardView extends ViewFrame {
         Span titleSpan = new Span(title);
         titleSpan.getElement().setAttribute("theme", badgeTheme);
 
-        //h2.addClassName(h2ClassName);
-
         Span descriptionSpan = new Span(description);
         descriptionSpan.addClassName("secondary-text");
         
@@ -156,6 +153,19 @@ public class DashboardView extends ViewFrame {
 
         return new WrapperCard("wrapper", new Component[] {
         		titleSpan, importUpload, descriptionSpan}, "card", "space-m");
+    }
+    
+    private WrapperCard vesselCountBadge(String title, H2 h2, String h2ClassName, String description, String badgeTheme) {
+    	 Span titleSpan = new Span(title);
+         titleSpan.getElement().setAttribute("theme", badgeTheme);
+
+         h2.addClassName(h2ClassName);
+
+         Span descriptionSpan = new Span(description);
+         descriptionSpan.addClassName("secondary-text");
+
+         return new WrapperCard("wrapper", new Component[] {
+         		titleSpan, h2, descriptionSpan}, "card", "space-m");
     }
     
     private HorizontalLayout createPlanCard(TransPlan plan) {
@@ -280,32 +290,46 @@ public class DashboardView extends ViewFrame {
     	/*=== Define Checkpoints ===*/
    	 	Checkbox unloadComplet = new Checkbox();
         unloadComplet.setLabel("Unload Container");
-        unloadComplet.addValueChangeListener(e -> 
+        if (currentImportPlan.isUnLoadCompleted()) {
+        	unloadComplet.setValue(true);
+        }
+        unloadComplet.addValueChangeListener(e -> {
+        	currentImportPlan.setUnLoadCompleted(e.getValue());
         	dataContainer.updateUnLoadCompleted(
         			e.getValue(), currentImportPlan.planID, 
-        			currentImportPlan.getContainerID()));
+        			currentImportPlan.getContainerID());
+        	Notification.show("Unload Container Completed",
+					4000, Notification.Position.BOTTOM_CENTER);
+        });
         
         Checkbox checkComplet = new Checkbox();
         checkComplet.setLabel("Custom Check");
-        checkComplet.addValueChangeListener(e ->
-       	dataContainer.updateCustomPassed(
-       			e.getValue(), currentImportPlan.planID, 
-       			currentImportPlan.getContainerID()));
+        if (currentImportPlan.isCustomPassed()) {
+        	checkComplet.setValue(true);
+        }
+        checkComplet.addValueChangeListener(e -> {
+        	currentImportPlan.setCustomPassed(e.getValue());
+	       	dataContainer.updateCustomPassed(
+	       			e.getValue(), currentImportPlan.planID, 
+	       			currentImportPlan.getContainerID()); 
+	       	Notification.show("Cuatomer Check Completed",
+					4000, Notification.Position.BOTTOM_CENTER);
+        });
         
         Checkbox distirbuteComplet = new Checkbox();
         distirbuteComplet.setLabel("Distribute Container");
-        distirbuteComplet.addValueChangeListener(e ->
+        if (currentImportPlan.isContainerDistributed()) {
+        	distirbuteComplet.setValue(true);
+        }
+        distirbuteComplet.addValueChangeListener(e -> {
+        	currentImportPlan.setContainerDistributed(e.getValue());
     		dataContainer.updateContainerDistributed(
     			e.getValue(), currentImportPlan.planID, 
-    			currentImportPlan.getContainerID()));
-        
-        /*=== Create Checkpoints Navigator===*/
-        Button navigateVessel = UIUtils.createPrimaryButton("Unload Container");
-        navigateVessel.addClickListener(e -> {
-        	generatePlanPanel().open();
-        }); 
-     
-        
+    			currentImportPlan.getContainerID());
+    		Notification.show("Distribute Container Completed",
+					4000, Notification.Position.BOTTOM_CENTER);
+        });
+      
         VerticalLayout checkboxes = new VerticalLayout(
         		unloadComplet, checkComplet, distirbuteComplet);
         checkboxes.setSpacing(true);
@@ -319,30 +343,42 @@ public class DashboardView extends ViewFrame {
        if (currentExportPlan.isContainerRetrived()) {
     	   retriveComplet.setValue(true);
        }
-       retriveComplet.addValueChangeListener(e -> 
-    		dataContainer.updateContainerRetrived(
+       retriveComplet.addValueChangeListener(e -> {
+    	   currentExportPlan.setContainerRetrived(true);
+    	   dataContainer.updateContainerRetrived(
     			e.getValue(), currentExportPlan.planID, 
-    			currentExportPlan.getContainerID()));
+    			currentExportPlan.getContainerID());
+    	   Notification.show("Container Retrived",
+					4000, Notification.Position.BOTTOM_CENTER);
+      });
        
        Checkbox billingComplet = new Checkbox();
        billingComplet.setLabel("Service Billing");
        if (currentExportPlan.isServicePayed()) {
     	   billingComplet.setValue(true);
        }
-       billingComplet.addValueChangeListener(e -> 
-			dataContainer.updateServicePayed(
-					e.getValue(), currentExportPlan.planID, 
-					currentExportPlan.getContainerID()));
+       billingComplet.addValueChangeListener(e -> {
+    	   currentExportPlan.setServicePayed(true);
+    	   dataContainer.updateServicePayed(
+    			   e.getValue(), currentExportPlan.planID, 
+    			   currentExportPlan.getContainerID());
+    	   Notification.show("Container Service Billed",
+    			   4000, Notification.Position.BOTTOM_CENTER);
+		});
        
        Checkbox loadComplet = new Checkbox();
        loadComplet.setLabel("Load Container");
        if (currentExportPlan.isContainerRetrived()) {
     	   loadComplet.setValue(true);
        }
-       loadComplet.addValueChangeListener(e -> 
-			dataContainer.updateLoadCompleted(
-					e.getValue(), currentExportPlan.planID, 
-					currentExportPlan.getContainerID()));
+       loadComplet.addValueChangeListener(e -> {
+    	   currentExportPlan.setLoadComplete(true);
+    	   dataContainer.updateLoadCompleted(
+    			   e.getValue(), currentExportPlan.planID, 
+    			   currentExportPlan.getContainerID());
+    	   Notification.show("Container Loading Completed",
+    			   4000, Notification.Position.BOTTOM_CENTER);
+       });
        
        VerticalLayout checkboxes = new VerticalLayout(
     		   retriveComplet, billingComplet, loadComplet);
@@ -355,20 +391,20 @@ public class DashboardView extends ViewFrame {
        VerticalLayout planEditor = new VerticalLayout();
        TextField manager = new TextField();
        manager.setLabel("Plan Manager");
-       
-       if (isImport) {
-    	   manager.setPlaceholder(currentImportPlan.manager);
-       } else {
-    	   manager.setPlaceholder(currentExportPlan.manager);
-       }
-       
-       planEditor.add(manager);
+       manager.setPlaceholder("Completion Signature(User Name)");
+      
+       Button complete = UIUtils.createPrimaryButton("Plan Complete");
+       complete.addClickListener(e -> {
+    	   
+       });
        
        if (isImport) {
     	   planEditor.add(createImportTasks());
        } else {
     	   planEditor.add(createExportTasks());
        }
+       planEditor.add(manager, complete);
+       
        planEditor.setWidth("40%");
        return planEditor;
    }

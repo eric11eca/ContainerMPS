@@ -40,6 +40,11 @@ public class DataContainer {
 		dbService.closeConnection();
 	}
 	
+	public int countVessel() {
+		VesselService vesselService = new VesselService(dbService);
+		return vesselService.getVesselCount();
+	}
+	
 	public void getVesselRecordsByParams(String filter, String value) {
 		vesselRecords = vesselService.retriveRecordsByParameters(filter, value);
 		dbService.closeConnection();

@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.chen.eric.ui.components.ValidTextField;
 import com.chen.eric.ui.util.UIUtils;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -22,7 +23,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
-import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -100,7 +101,8 @@ public class LoginView extends HorizontalLayout {
         	signupDialog.setWidth("640px");
         	signupDialog.setHeight("480px");
         	
-    		TextField user = new TextField();
+        	ValidTextField user = new ValidTextField();
+        	user.addValidator(new StringLengthValidator("Cannot exceed 20 characters", 0, 20));
     		user.setLabel("User Name");
     		user.addValueChangeListener(e->{
     			userName = e.getValue();
@@ -108,18 +110,22 @@ public class LoginView extends HorizontalLayout {
     		
     		PasswordField passwordInput = new PasswordField();
     		passwordInput.setLabel("Password");
+    		passwordInput.setMaxLength(80);
+    		passwordInput.setErrorMessage("Cannot exceed 80 characters");
     		passwordInput.addValueChangeListener(e->{
     			password = e.getValue();
     		});
     		
-    		TextField ssnInput = new TextField();
+    		ValidTextField ssnInput = new ValidTextField();
     		ssnInput.setLabel("SSN");
-    		ssnInput.addValueChangeListener(e->{
+    		user.addValidator(new StringLengthValidator("Invalid SSN format", 9, 9));
+    		ssnInput.addValueChangeListener(e-> {
     			SSN = e.getValue();
     		});
     		
-    		TextField nameInput = new TextField();
+    		ValidTextField nameInput = new ValidTextField();
     		nameInput.setLabel("Name");
+    		user.addValidator(new StringLengthValidator("Cannot exceed 50 characters", 0, 50));
     		nameInput.addValueChangeListener(e->{
     			name = e.getValue();
     		});

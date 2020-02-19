@@ -96,17 +96,28 @@ public class VesselService implements EntityService<Vessel>{
 	    					   rs.getString("DepartedFrom_City"), rs.getString("Destination_Country"),
 	    					   rs.getString("Destination_State"),rs.getString("Destination_City"),
 	    					   rs.getDate ("DepartureDate"), rs.getDate ("ArrivalDate")));
-	    			}
+	        	   }
 	            }
 	         }
-			
-			System.out.println("Return Value: " + stmt.getInt(1));
-
 			return vesselTable;
-		}
-		catch (SQLException ex) {
+		} catch (SQLException ex) {
 			ex.printStackTrace();
 			return new HashMap<>();
+		}
+	}
+	
+	public int getVesselCount() {
+		try {
+			dbService.connect();
+			String query = "{? = CALL dbo.Num_Vessel()}";
+			CallableStatement stmt =  dbService.getConnection().prepareCall(query);		
+			stmt.registerOutParameter(1, Types.INTEGER);
+			stmt.execute();
+			
+			return stmt.getInt(1);
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+			return 0;
 		}
 	}
 	
