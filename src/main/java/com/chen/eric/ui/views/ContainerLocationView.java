@@ -264,8 +264,10 @@ public class ContainerLocationView extends SplitViewFrame{
 			slot.setText(String.valueOf(loc.getContainerID()));
 		}
 		
-		slot.addClickListener(e->{
+		slot.addClickListener(e-> {
 			updateLocation(loc, slot).open();
+			System.out.println(String.format("Area:%s, Block:%s, Tire:%s, Bay:%s, Row:%s", 
+					loc.getStorageID(), loc.getBlockIndex(), loc.getTierIndex(), loc.getBayIndex(), loc.getRowIndex()));
 		});
 		return slot;
 	}
@@ -298,6 +300,7 @@ public class ContainerLocationView extends SplitViewFrame{
 			if (code == 0) {
 				Notification.show("Successfully Placed the Container!", 4000, Notification.Position.BOTTOM_CENTER);
 				dataContainer.getLocationRecords();
+				
 		        dataProvider = DataProvider.ofCollection(dataContainer.locationRecords.values());
 		        containerLocationGrid.setDataProvider(dataProvider);
 		        createStorageDetail();
@@ -305,11 +308,14 @@ public class ContainerLocationView extends SplitViewFrame{
 				board.addComponentAtIndex(0, storageAreaDetail);
 		        dialog.close();
 			} else if (code == 1) {
-				Notification.show("The given containerID already exits!", 4000, Notification.Position.BOTTOM_CENTER);
+				Notification.show("The given containerID already exits!", 
+						4000, Notification.Position.BOTTOM_CENTER);
 			} else if (code == 2) {
-				Notification.show("The given owner dose not exist!", 4000, Notification.Position.BOTTOM_CENTER);
+				Notification.show("The given containerID dose not exist!", 
+						4000, Notification.Position.BOTTOM_CENTER);
 			} else {
-				Notification.show("ERROR: Insertion FAILED!", 4000, Notification.Position.BOTTOM_CENTER);
+				Notification.show("Fail to place the container, please try again", 
+						4000, Notification.Position.BOTTOM_CENTER);
 			}
 		});
 		
@@ -426,9 +432,11 @@ public class ContainerLocationView extends SplitViewFrame{
             	dataContainer.getLocationRecords();
             	dataProvider = DataProvider.ofCollection(dataContainer.locationRecords.values());
         		containerLocationGrid.setDataProvider(dataProvider);
-        		Notification.show("Succesfully deleted the storage area" ,4000, Notification.Position.BOTTOM_CENTER);
+        		Notification.show("Succesfully moved out the container", 
+        				4000, Notification.Position.BOTTOM_CENTER);
             } else {
-            	Notification.show("ERROR: DELETION FALIED" ,4000, Notification.Position.BOTTOM_CENTER);
+            	Notification.show("Fail to move out the container away, plese try again", 
+            			4000, Notification.Position.BOTTOM_CENTER);
             }
         });
         button.setClassName("delete-button");
@@ -487,19 +495,21 @@ public class ContainerLocationView extends SplitViewFrame{
 	
 	private Button createStorageRemoveButton(StorageArea storageArea) {
 		Button button = new Button(new Icon(VaadinIcon.TRASH), clickEvent -> {
-           int code = dataContainer.deleteStorageAreaRecords(storageArea.getStorageID());
-           if (code == 0) {
-           	dataContainer.getStorageAreaRecords();
-           	storageDataProvider = DataProvider.ofCollection(dataContainer.storageAreaRecords.values());
-       		storageGrid.setDataProvider(storageDataProvider);
-       		Notification.show("Succesfully deleted the customer", 4000, Notification.Position.BOTTOM_CENTER);
-           } else {
-           	Notification.show("ERROR: DELETION FALIED", 4000, Notification.Position.BOTTOM_CENTER);
-           }
-       });
-       button.setClassName("delete-button");
-       button.addThemeName("small");
-       return button;
+			int code = dataContainer.deleteStorageAreaRecords(storageArea.getStorageID());
+			if (code == 0) {
+				dataContainer.getStorageAreaRecords();
+				storageDataProvider = DataProvider.ofCollection(dataContainer.storageAreaRecords.values());
+				storageGrid.setDataProvider(storageDataProvider);
+				Notification.show("Succesfully deleted this area", 
+						4000, Notification.Position.BOTTOM_CENTER);
+			} else {
+				Notification.show("Fail to delete the are, please try again", 
+						4000, Notification.Position.BOTTOM_CENTER);
+			}
+		});
+		button.setClassName("delete-button");
+		button.addThemeName("small");
+		return button;
 	}
 	
 	private void createCurrCapacityChart() {
@@ -548,7 +558,7 @@ public class ContainerLocationView extends SplitViewFrame{
 		
 		Select<String> typePicker = new Select<>();
 		typePicker.setLabel("Type");
-		typePicker.setItems("Normal", "Reefer", "Hazard", "Illegal", "Livestock");
+		typePicker.setItems("Normal", "Reefer", "Hazard", "Illegal");
 		typePicker.setWidth("100%");
 		typePicker.addValueChangeListener(
        		e -> newStorageArea.setType(e.getValue()));
@@ -563,22 +573,24 @@ public class ContainerLocationView extends SplitViewFrame{
 		DetailsDrawerFooter detailsDrawerFooter = new DetailsDrawerFooter();
 		detailsDrawerFooter.addSaveListener(e->{
 			if (newStorageArea.getStorageID() == null) {
-				Notification.show("Container ID cannot be empty!", 4000, Notification.Position.BOTTOM_CENTER);
+				Notification.show("Container ID cannot be empty!", 
+						4000, Notification.Position.BOTTOM_CENTER);
 			} else {
 				int code = dataContainer.insertStorageAreaRecords(newStorageArea);
 				
 				if (code == 0) {
-					Notification.show("Succesfully Inserted the Container!", 4000, Notification.Position.BOTTOM_CENTER);
+					Notification.show("Succesfully Inserted the storage area!", 
+							4000, Notification.Position.BOTTOM_CENTER);
 					dataContainer.getStorageAreaRecords();
 			        storageDataProvider = DataProvider.ofCollection(dataContainer.storageAreaRecords.values());
 			        storageGrid.setDataProvider(storageDataProvider);
 			        addPanel.close();
 				} else if (code == 1) {
-					Notification.show("The given containerID already exits!", 4000, Notification.Position.BOTTOM_CENTER);
-				} else if (code == 2) {
-					Notification.show("The given owner dose not exist!", 4000, Notification.Position.BOTTOM_CENTER);
+					Notification.show("This storage area already exits!", 
+							4000, Notification.Position.BOTTOM_CENTER);
 				} else {
-					Notification.show("ERROR: Insertion FAILED!", 4000, Notification.Position.BOTTOM_CENTER);
+					Notification.show("Fail to insert the storage area, please Try Again!", 
+							4000, Notification.Position.BOTTOM_CENTER);
 				}
 			}
 		});
@@ -600,6 +612,7 @@ public class ContainerLocationView extends SplitViewFrame{
 		storageID = storageArea.getStorageID();
 		
 		TextField updateID = new TextField();
+		updateID.setEnabled(false);
 		updateID.setWidth("100%");
 		updateID.setLabel("StorageArea ID");
 		updateID.setPlaceholder(String.valueOf(storageArea.getStorageID()));
@@ -618,7 +631,7 @@ public class ContainerLocationView extends SplitViewFrame{
 		Select<String> typePicker = new Select<>();
 		typePicker.setLabel("Type");
 		typePicker.setPlaceholder(storageArea.getType());
-		typePicker.setItems("Normal", "Reefer", "Hazard", "Illegal", "Livestock");
+		typePicker.setItems("Normal", "Reefer", "Hazard", "Illegal");
 		typePicker.setWidth("100%");
 		typePicker.addValueChangeListener(
        		e -> tempStorageArea.setType(e.getValue()));
@@ -661,11 +674,11 @@ public class ContainerLocationView extends SplitViewFrame{
 					dataContainer.getStorageAreaRecords();
 					storageDataProvider = DataProvider.ofCollection(dataContainer.storageAreaRecords.values());
 					storageGrid.setDataProvider(storageDataProvider);
-					Notification.show("Succesfully Updated the Data! WITH CODE: " + code, 4000, Notification.Position.BOTTOM_CENTER);
-				} else if (code == 1) {
-					Notification.show("This Vessel Does Not Exist");
+					Notification.show("Succesfully Updated the storage area", 
+							4000, Notification.Position.BOTTOM_CENTER);
 				} else {
-					Notification.show("ERROR: UPDATE FAILED!");
+					Notification.show("Fail to insert storage area, please try again", 
+							4000, Notification.Position.BOTTOM_CENTER);
 				}
 			}
 		});

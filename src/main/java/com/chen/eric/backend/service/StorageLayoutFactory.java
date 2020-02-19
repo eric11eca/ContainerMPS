@@ -30,9 +30,7 @@ public class StorageLayoutFactory {
 			boolean hasRs = stmt.execute();
 			
 			locations = new HashSet<>();
-			
 	        if (hasRs) {
-	        	
 	           try (ResultSet rs = stmt.getResultSet()) {     	
 	        	   while (rs.next()) {
 	        		   locations.add(
@@ -47,7 +45,7 @@ public class StorageLayoutFactory {
 	           }
 	        }	
 	        
-	        System.out.println("Current Capacity at Area " + storageID + ": " + locations.size());
+	        System.out.println("Number of container: " + locations.size());
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		}

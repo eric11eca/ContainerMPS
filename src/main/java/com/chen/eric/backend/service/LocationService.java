@@ -10,8 +10,8 @@ import java.util.Map;
 import com.chen.eric.backend.Location;
 
 public class LocationService implements EntityService<Location> {
-
 	private DBConnectionService dbService;
+	
 	public  LocationService (DBConnectionService dbService) {
 		this.dbService = dbService;
 	}
@@ -82,10 +82,6 @@ public class LocationService implements EntityService<Location> {
 			stmt.setDate(8, t.getStartDate());
 			stmt.setDate(9, t.getEndDate());
 			stmt.execute();
-			
-			System.out.println();
-			System.out.println(stmt.getInt(1));
-			System.out.println();
 			
 			return stmt.getInt(1);
 		}

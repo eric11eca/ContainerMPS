@@ -146,7 +146,7 @@ public class DashboardView extends ViewFrame {
         Span descriptionSpan = new Span(description);
         descriptionSpan.addClassName("secondary-text");
         
-        Button importUpload = UIUtils.createTertiaryButton("Upload Import List");
+        Button importUpload = UIUtils.createTertiaryButton("Upload CSV List Here");
         importUpload.addClickListener(e -> {
         	generatePlanPanel().open();
         });

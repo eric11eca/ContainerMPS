@@ -138,7 +138,9 @@ public class PlanService implements EntityService<TransPlan> {
 				stmtExport.setInt(7, exportPlan.getLoadTo());
 				stmtExport.setDouble(8, exportPlan.getTotalCost());
 				stmtExport.execute();
-				return stmtExport.getInt(1);
+				int code = stmtExport.getInt(1);
+				System.out.println(code);
+				return code;
 			}
 		}
 		catch (SQLException ex) {

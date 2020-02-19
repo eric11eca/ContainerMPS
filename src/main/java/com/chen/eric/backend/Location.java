@@ -15,7 +15,7 @@ public class Location {
 	public Location() {}
 	
 	public Location(Integer containerID, Integer storageID, Integer blockIndex, 
-				Integer bayIndex, Integer tierIndex, Integer rowIndex, Date startDate, Date endDate) {
+			Integer tierIndex, Integer bayIndex, Integer rowIndex, Date startDate, Date endDate) {
 		this.containerID = containerID;
 		this.storageID = storageID;
 		this.blockIndex = blockIndex;
