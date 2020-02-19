@@ -500,12 +500,14 @@ public class DashboardView extends ViewFrame {
 							planID, manager, planDate, status, type,
 							containerID, vesselID, false, false, false);
 					code = dataContainer.insertPlanRecords(importPlan);
-				} else {					
-					double totalCost = dataContainer.calculateCost(containerID);
-					TransPlan exportPlan = new ExportPlan(
-							planID, manager, planDate, status, type, 
-							containerID, vesselID, totalCost, false, false, false);
-					code = dataContainer.insertPlanRecords(exportPlan);
+				} else {	
+					if (dataContainer.locationRecords.containsKey(String.valueOf(containerID))) {
+						double totalCost = dataContainer.calculateCost(containerID);
+						TransPlan exportPlan = new ExportPlan(
+								planID, manager, planDate, status, type, 
+								containerID, vesselID, totalCost, false, false, false);
+						code = dataContainer.insertPlanRecords(exportPlan);
+					}
 				}
 				count += (code==1)? 1 : 0;
 			}

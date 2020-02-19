@@ -188,6 +188,9 @@ public class ContainerLocationView extends SplitViewFrame{
 	private void createStorageDetail() {
 		dataContainer.initStorageArea(
 			String.valueOf(areaToBeDisplayed.getStorageID()));
+		areaToBeDisplayed = dataContainer
+			.storageAreaRecords.get(
+					String.valueOf(areaToBeDisplayed.getStorageID()));
 		
 		if (storageAreaDetail.getComponentCount()>0) {
 			storageAreaDetail.removeAll();
@@ -319,27 +322,6 @@ public class ContainerLocationView extends SplitViewFrame{
 			}
 		});
 		
-		/*Button update = UIUtils.createPrimaryButton("Update");
-		update.addClickListener(e->{
-			int code = dataContainer.updateLocationRecords(newLocation, newLocation.getContainerID());
-			if (code == 0) {
-				Notification.show("Successfully Update the Location!", 4000, Notification.Position.BOTTOM_CENTER);
-				dataContainer.getLocationRecords();
-		        dataProvider = DataProvider.ofCollection(dataContainer.locationRecords.values());
-		        containerLocationGrid.setDataProvider(dataProvider);
-		        createStorageDetail();
-		        content.addToSecondary(storageAreaDetail);
-		        slot.getStyle().set("backgroundColor", "cyan");
-		        dialog.close();
-			} else if (code == 1) {
-				Notification.show("The given containerID already exits!", 4000, Notification.Position.BOTTOM_CENTER);
-			} else if (code == 2) {
-				Notification.show("The given owner dose not exist!", 4000, Notification.Position.BOTTOM_CENTER);
-			} else {
-				Notification.show("ERROR: Update FAILED!", 4000, Notification.Position.BOTTOM_CENTER);
-			}
-		});*/
-		
 		Button cancel = UIUtils.createTertiaryButton("Cancel");
 		cancel.addClickListener(e->{
 			dialog.close();
@@ -432,6 +414,7 @@ public class ContainerLocationView extends SplitViewFrame{
             	dataContainer.getLocationRecords();
             	dataProvider = DataProvider.ofCollection(dataContainer.locationRecords.values());
         		containerLocationGrid.setDataProvider(dataProvider);
+        		this.createStorageDetail();
         		Notification.show("Succesfully moved out the container", 
         				4000, Notification.Position.BOTTOM_CENTER);
             } else {
@@ -500,6 +483,8 @@ public class ContainerLocationView extends SplitViewFrame{
 				dataContainer.getStorageAreaRecords();
 				storageDataProvider = DataProvider.ofCollection(dataContainer.storageAreaRecords.values());
 				storageGrid.setDataProvider(storageDataProvider);
+				board.remove(storageAreaDetail);
+				board.addComponentAtIndex(0, storageAreaDetail);
 				Notification.show("Succesfully deleted this area", 
 						4000, Notification.Position.BOTTOM_CENTER);
 			} else {

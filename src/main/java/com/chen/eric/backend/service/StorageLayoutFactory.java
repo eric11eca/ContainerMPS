@@ -43,9 +43,7 @@ public class StorageLayoutFactory {
 	        				  rs.getInt("RowIndex"), null, null));
 	        	   }
 	           }
-	        }	
-	        
-	        System.out.println("Number of container: " + locations.size());
+	        }
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		}
@@ -75,13 +73,12 @@ public class StorageLayoutFactory {
 		for (int i = 0; i < 2; i++) {
 			storageArea.addBlock(i, generateBlock(storageArea.getStorageID(), i));
 		}
-		
 		retriveLocationByArea(storageArea.getStorageID());
 		
 		for (Location loc : locations) {
+			System.out.println("Number of container: " + locations.size());
 			updateStorageSlot(storageArea, loc, true);
 		}
-		
 		return storageArea;
 	}
 	
