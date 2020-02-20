@@ -357,7 +357,7 @@ public class ContainerView extends SplitViewFrame {
 					grid.setDataProvider(dataProvider);
 					Notification.show("Succesfully Updated the Data! WITH CODE: " + code, 4000, Notification.Position.BOTTOM_CENTER);
 				} else if (code == 1) {
-					Notification.show("This Vessel Does Not Exist");
+					Notification.show("This Container Does Not Exist");
 				} else {
 					Notification.show("ERROR: UPDATE FAILED!");
 				}

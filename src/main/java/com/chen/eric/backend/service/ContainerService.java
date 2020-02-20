@@ -236,7 +236,7 @@ public class ContainerService implements EntityService<Container>{
 	public int deleteRecords(int ID) {
 		try {
 			dbService.connect();
-			String query = "{? = call dbo.Delete_Container(?)";
+			String query = "{? = call dbo.Delete_Container(?)}";
 			
 			CallableStatement stmt =  dbService.getConnection().prepareCall(query);	
 			stmt.registerOutParameter(1, Types.INTEGER);
