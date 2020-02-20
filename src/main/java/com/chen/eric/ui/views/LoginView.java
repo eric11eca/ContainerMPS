@@ -118,14 +118,14 @@ public class LoginView extends HorizontalLayout {
     		
     		ValidTextField ssnInput = new ValidTextField();
     		ssnInput.setLabel("SSN");
-    		user.addValidator(new StringLengthValidator("Invalid SSN format", 9, 9));
+    		ssnInput.addValidator(new StringLengthValidator("Invalid SSN format", 9, 9));
     		ssnInput.addValueChangeListener(e-> {
     			SSN = e.getValue();
     		});
     		
     		ValidTextField nameInput = new ValidTextField();
     		nameInput.setLabel("Name");
-    		user.addValidator(new StringLengthValidator("Cannot exceed 50 characters", 0, 50));
+    		nameInput.addValidator(new StringLengthValidator("Cannot exceed 50 characters", 0, 50));
     		nameInput.addValueChangeListener(e->{
     			name = e.getValue();
     		});
