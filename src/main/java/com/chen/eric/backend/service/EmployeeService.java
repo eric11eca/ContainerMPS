@@ -7,7 +7,6 @@ import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.chen.eric.backend.Customer;
 import com.chen.eric.backend.Employee;
 
 public class EmployeeService implements EntityService<Employee>{

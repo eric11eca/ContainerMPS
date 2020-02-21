@@ -6,6 +6,7 @@ public class Employee {
 	private String name;
 	private String role;
 	private String userName;
+	private String password;
 	
 	public int key;
 	
@@ -15,6 +16,14 @@ public class Employee {
 
 	public void setSSN(int SSN) {
 		this.SSN = SSN;
+	}
+	
+	public String getPassword() {
+		return password;
+	}
+	
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getName() {

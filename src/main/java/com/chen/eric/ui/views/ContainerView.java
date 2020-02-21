@@ -219,7 +219,7 @@ public class ContainerView extends SplitViewFrame {
             	dataContainer.getContainerRecords();
             	dataProvider = DataProvider.ofCollection(dataContainer.containerRecords.values());
         		grid.setDataProvider(dataProvider);
-        		Notification.show("Succesfully deleted the customer" ,4000, Notification.Position.BOTTOM_CENTER);
+        		Notification.show("Succesfully deleted the container" ,4000, Notification.Position.BOTTOM_CENTER);
             } else {
             	Notification.show("ERROR: DELETION FALIED" ,4000, Notification.Position.BOTTOM_CENTER);
             }
@@ -237,9 +237,16 @@ public class ContainerView extends SplitViewFrame {
 		updateID.setWidth("50%");
 		updateID.setLabel("Container ID");
 		updateID.addValueChangeListener(e-> {
-			try {
-				newContainer.setContainerID(Integer.valueOf(e.getValue()));
-			} catch (NumberFormatException ex) {
+			if (e.getValue().length() == 8) {
+				try {
+					newContainer.setContainerID(Integer.valueOf(e.getValue()));
+				} catch (Exception ex) {
+					Notification.show("Invalid container ID format!", 
+	        				4000, Notification.Position.BOTTOM_CENTER);
+				}
+			} else if(e.getValue().isBlank() || e.getValue().isBlank()) {
+				return;
+			} else {
 				Notification.show("Invalid container ID format!", 
         				4000, Notification.Position.BOTTOM_CENTER);
 			}

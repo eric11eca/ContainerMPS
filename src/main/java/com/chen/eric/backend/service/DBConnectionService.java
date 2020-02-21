@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 
 public class DBConnectionService {
-	  //private static final String DBURL = "jdbc:sqlserver://golem.csse.rose-hulman.edu;databaseName=ContainerTerminal;";
+	  //private static final String DBURL = "jdbc:sqlserver://golem.csse.rose-hulman.edu;databaseName=ContainerTestDB;";
 	  private SQLServerDataSource ds = new SQLServerDataSource();
 	  
 	  private Connection connection = null;
@@ -23,7 +23,7 @@ public class DBConnectionService {
 		  ds.setUser("gaoq");
 	      ds.setPassword("668899aA");
 	      ds.setServerName("golem.csse.rose-hulman.edu");
-	      ds.setDatabaseName("ContainerTerminal");
+	      ds.setDatabaseName("ContainerTestDB");
 	  }
 	  
 	  public boolean connect() {

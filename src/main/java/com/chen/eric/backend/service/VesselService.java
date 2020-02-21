@@ -1,14 +1,12 @@
 package com.chen.eric.backend.service;
 
 import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.chen.eric.backend.Employee;
 import com.chen.eric.backend.Vessel;
 
 public class VesselService implements EntityService<Vessel>{
@@ -22,6 +20,7 @@ public class VesselService implements EntityService<Vessel>{
 	public Map<String, Vessel> retriveRecords() {
 		try {
 			dbService.connect();
+			
 			String query = "{? = call dbo.View_Vessel()}";
 			CallableStatement stmt =  dbService.getConnection().prepareCall(query);
 			stmt.registerOutParameter(1, Types.INTEGER);

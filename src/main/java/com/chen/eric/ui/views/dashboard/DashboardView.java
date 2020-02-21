@@ -124,10 +124,12 @@ public class DashboardView extends ViewFrame {
         createImportPlanGrid();
         updateImportPlanRow();
         createImportPlanRow();
+        board.addComponentAtIndex(1, editImportPlanRow);
         
         createExportPlanGrid();
         updateExportPlanRow();
         createExportPlanRow();
+        board.addComponentAtIndex(2, editExportPlanRow);
 
         FlexBoxLayout content = new FlexBoxLayout(board);
 		content.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -139,7 +141,8 @@ public class DashboardView extends ViewFrame {
     	 importPlanGridWrapper = new WrapperCard("wrapper", 
          		new Component[] {createToolBar(true), importPlanGrid}, "card");
          editImportPlanRow = new Row();
-         editImportPlanRow.add(importPlanGridWrapper, importPlanDetailWrapper);
+         editImportPlanRow.addComponentAtIndex(0, importPlanGridWrapper);
+         editImportPlanRow.addComponentAtIndex(1, importPlanDetailWrapper);
          board.addComponentAtIndex(1, editImportPlanRow);
     }
     
@@ -147,7 +150,8 @@ public class DashboardView extends ViewFrame {
     	exportPlanGridWrapper = new WrapperCard("wrapper", 
         		new Component[] {createToolBar(false), exportPlanGrid}, "card");
         editExportPlanRow = new Row();
-        editExportPlanRow.add(exportPlanGridWrapper, exportPlanDetailWrapper);
+        editExportPlanRow.addComponentAtIndex(0, exportPlanGridWrapper);
+        editExportPlanRow.addComponentAtIndex(1, exportPlanDetailWrapper);
         board.addComponentAtIndex(2, editExportPlanRow);
     }
 
@@ -244,20 +248,16 @@ public class DashboardView extends ViewFrame {
     
     private void showImportPlanDetail(TransPlan plan) {
 		currentImportPlan = getImportPlan(plan);
+		editImportPlanRow.remove(importPlanDetailWrapper);
 		updateImportPlanRow();
-    	editImportPlanRow.removeAll();
-    	editImportPlanRow.add(importPlanGridWrapper, importPlanDetailWrapper);
-    	board.remove(editImportPlanRow);
-    	board.addComponentAtIndex(1, editImportPlanRow);
+    	editImportPlanRow.addComponentAtIndex(1, importPlanDetailWrapper);
     }
     
     private void showExportPlanDetail(TransPlan plan) {
     	currentExportPlan = getExportPlan(plan);
+    	editExportPlanRow.remove(exportPlanDetailWrapper);
 		updateExportPlanRow();
-    	editExportPlanRow.removeAll();
-    	editExportPlanRow.add(exportPlanGridWrapper, exportPlanDetailWrapper);
-    	board.remove(editExportPlanRow);
-    	board.addComponentAtIndex(2, editExportPlanRow);
+    	editExportPlanRow.addComponentAtIndex(1, exportPlanDetailWrapper);
     }
     
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -383,7 +383,11 @@ public class DashboardView extends ViewFrame {
 	}
 
 	private Button createRemoveButton(TransPlan plan, boolean isImport) {
-		Button button = new Button(new Icon(VaadinIcon.TRASH), clickEvent -> {
+		
+		System.out.println(plan.planID);
+		Button button = new Button(new Icon(VaadinIcon.TRASH));
+		button.addClickListener(e-> {
+			System.out.println("Reach Deletion");
             int code = dataContainer.deletePlanRecords(plan.getPlanID());
             if (code == 0) {
             	if (isImport) {

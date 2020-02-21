@@ -96,7 +96,7 @@ public class VesselView extends SplitViewFrame {
         searchBar.setSuffixComponent(closeIcon);
         
         Select<String> searchFilter = new Select<>();
-        searchFilter.setItems("VesselID", "Capacity", "DepartureDate", 
+        searchFilter.setItems("None", "VesselID", "Capacity", "DepartureDate", 
         		"ArrivalDate", "Destination_Country", "DepartedFrom_Country");
         searchFilter.setLabel("Search Filter");
         searchFilter.addValueChangeListener(e -> filter = e.getValue());
@@ -220,7 +220,7 @@ public class VesselView extends SplitViewFrame {
 			try {
 				if (e.getValue().length() == 8) {
 					newVessel.setVesselID(Integer.valueOf(e.getValue()));
-				} else if (e.getValue().isEmpty()) {
+				} else if (e.getValue().isEmpty() || e.getValue().isBlank()) {
 					return;
 				}
 			} catch (NumberFormatException ex) {
@@ -468,12 +468,12 @@ public class VesselView extends SplitViewFrame {
         
 		Select<String> updateDestinationState = new Select<>();
         updateDestinationState.setWidth("30%");
-        updateDestinationState.setItems(TextUtil.stateMap.get(destinationCountryPicker.getValue()));
+        updateDestinationState.setItems(TextUtil.stateMap.get(destinationCountryPicker.getValue().trim()));
         updateDestinationState.setValue(vessel.getDestinationState());      
 		
         Select<String> updateDestinationCity = new Select<>();
 		updateDestinationCity.setWidth("30%");
-		updateDestinationCity.setItems(TextUtil.portMap.get(updateDestinationState.getValue()));
+		updateDestinationCity.setItems(TextUtil.portMap.get(updateDestinationState.getValue().trim()));
 		updateDestinationCity.setValue(vessel.getDestinationCity());
 		updateDestinationCity.addValueChangeListener(e -> {
 			tempVessel.setDestinationCity(e.getValue());
@@ -481,13 +481,13 @@ public class VesselView extends SplitViewFrame {
 		
 		destinationCountryPicker.addValueChangeListener(e -> { 
 			tempVessel.setDestinationCountry(e.getValue());
-			updateDestinationState.setItems(TextUtil.stateMap.get(destinationCountryPicker.getValue()));
+			updateDestinationState.setItems(TextUtil.stateMap.get(destinationCountryPicker.getValue().trim()));
 		});
 		
 		updateDestinationState.addValueChangeListener(e -> {
 			if (e.getValue() != null) {
 				tempVessel.setDestinationState(e.getValue());
-				updateDestinationCity.setItems(TextUtil.portMap.get(updateDestinationState.getValue()));
+				updateDestinationCity.setItems(TextUtil.portMap.get(updateDestinationState.getValue().trim()));
 			}
 		});
 		

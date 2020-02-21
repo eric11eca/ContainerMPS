@@ -179,7 +179,20 @@ public class CustomerView extends SplitViewFrame {
 		updateID.setWidth("50%");
 		updateID.setLabel("Customer ID");
 		updateID.addValueChangeListener(e-> {
-			newCustomer.setCustomerID(Integer.valueOf(e.getValue()));
+			if (e.getValue().length() == 8) {
+				try {
+					newCustomer.setCustomerID(Integer.valueOf(e.getValue()));
+				} catch (Exception ex) {
+					Notification.show("Invalid customer ID format!", 
+	        				4000, Notification.Position.BOTTOM_CENTER);
+				}
+			} else if (e.getValue().isBlank() || e.getValue().isEmpty()) {
+				return;
+			} else {
+				Notification.show("Invalid Customer ID format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+			}
+			
 		});
 		
 		TextField updateName = new TextField();
