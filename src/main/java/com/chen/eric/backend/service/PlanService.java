@@ -125,6 +125,7 @@ public class PlanService implements EntityService<TransPlan> {
 				stmtImport.setInt(6, importPlan.getContainerID());
 				stmtImport.setInt(7, importPlan.getUnloadFrom());
 				stmtImport.execute();				
+				System.out.println(stmtImport.getInt(1));
 				return stmtImport.getInt(1);
 			} else if (plan.type.equals("Export")) {
 				String queryExport = "{? = CALL dbo.Insert_ExportPlan(?,?,?,?,?,?,?)}";
@@ -448,9 +449,26 @@ public class PlanService implements EntityService<TransPlan> {
 			return -1;
 		}
 	}
-
+	public int updateStatus(String input, int PlanID,String Status) {
+		try {
+			dbService.connect();
+			String query = "{? = call dbo.Check_Signature(?,?,?)}";
+			
+			CallableStatement stmt =  dbService.getConnection().prepareCall(query);	
+			stmt.registerOutParameter(1, Types.INTEGER);
+			stmt.setString(2, input);
+			stmt.setInt(3, PlanID);
+			stmt.setString(4, Status);
+			stmt.execute();
+			return stmt.getInt(1);
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+			return -1;
+		}
+	}
 	@Override
 	public int updateTwoKeyRecords(TransPlan plan, int primary, int secondary) {
+		
 		return 0;
 	}
 
