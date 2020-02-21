@@ -486,13 +486,13 @@ public class DashboardView extends ViewFrame {
 		       			currentImportPlan.getContainerID()); 
 		       	if (e.getValue()) {
 	        		Notification.show("Cuatomer Check Completed",
-	    					4000, Notification.Position.BOTTOM_CENTER);
+	    					1000, Notification.Position.BOTTOM_CENTER);
 	        	}
         	} else {
         		if (e.getValue()) {
 	        		Notification.show("Cannot do customer check becuase\n "
 	        				+ "preivious checkpoint are incomplete",
-	    					4000, Notification.Position.BOTTOM_CENTER);
+	    					1000, Notification.Position.BOTTOM_CENTER);
 	        		checkComplet.setValue(false);
         		}
         	}
@@ -511,13 +511,13 @@ public class DashboardView extends ViewFrame {
 	    			currentImportPlan.getContainerID());
 	    		if (e.getValue()) {
 	        		Notification.show("Distribute Container Completed",
-	    					4000, Notification.Position.BOTTOM_CENTER);
+	    					1000, Notification.Position.BOTTOM_CENTER);
 	        	}
         	} else {
         		if (e.getValue()) {
 	        		Notification.show("Cannot distribute container because\n "
 	        				+ "preivious checkpoints are incomplete",
-	    					4000, Notification.Position.BOTTOM_CENTER);
+	    					1000, Notification.Position.BOTTOM_CENTER);
 	        		distirbuteComplet.setValue(false);
         		}
         	}
@@ -542,10 +542,10 @@ public class DashboardView extends ViewFrame {
     			e.getValue(), currentExportPlan.planID, 
     			currentExportPlan.getContainerID());
     	   Notification.show("Container Retrived",
-					4000, Notification.Position.BOTTOM_CENTER);
+					1000, Notification.Position.BOTTOM_CENTER);
     	   if (e.getValue()) {
       			Notification.show("Container Retrived",
-      					4000, Notification.Position.BOTTOM_CENTER);
+      					1000, Notification.Position.BOTTOM_CENTER);
 	       }
       });
        
@@ -562,13 +562,13 @@ public class DashboardView extends ViewFrame {
 	    			   currentExportPlan.getContainerID());
 	    	   if (e.getValue()) {
 	       			Notification.show("Container Service Billed",
-	       					4000, Notification.Position.BOTTOM_CENTER);
+	       					1000, Notification.Position.BOTTOM_CENTER);
 		       }
     	   } else {
     		   if (e.getValue()) {
 		       		Notification.show("Cannot bill container because\n "
 		       					+ "preivious checkpoint is incomplete",
-		       					4000, Notification.Position.BOTTOM_CENTER);
+		       					1000, Notification.Position.BOTTOM_CENTER);
 		       		billingComplet.setValue(false);
     		   }
     	   }
@@ -587,13 +587,13 @@ public class DashboardView extends ViewFrame {
 	    			   currentExportPlan.getContainerID());
 	    	   if (e.getValue()) {
 	       			Notification.show("Container Loading Completed",
-	       					4000, Notification.Position.BOTTOM_CENTER);
+	       					1000, Notification.Position.BOTTOM_CENTER);
 		       }
     	   } else {
     		   if (e.getValue()) {
 		       		Notification.show("Cannot load container because\n "
 	       						+ "preivious checkpoint is incomplete",
-	       						4000, Notification.Position.BOTTOM_CENTER);
+	       						1000, Notification.Position.BOTTOM_CENTER);
 		       		loadComplet.setValue(false);
     		   }
     	   }
@@ -614,27 +614,50 @@ public class DashboardView extends ViewFrame {
       
        Button complete = UIUtils.createPrimaryButton("Plan Complete");
        complete.addClickListener(e -> {
-    	   boolean validCompletion =
-    			   (currentImportPlan.isContainerDistributed()) &&
-    			   (currentImportPlan.isCustomPassed()) &&
-    			   (currentImportPlan.isUnLoadCompleted());
-    	   if (validCompletion) {
-    		   if ((manager.getValue().equals(currentImportPlan.manager))) {
-	    		   dataContainer.uodatePlanStatus(currentImportPlan.planID, "Complete");
-	    		   dataContainer.deletePlanRecords(currentImportPlan.planID);
-	    		   
-	    		   if (isImport) {
+    	   if (isImport) {
+	    	   boolean validCompletion =
+	    			   (currentImportPlan.isContainerDistributed()) &&
+	    			   (currentImportPlan.isCustomPassed()) &&
+	    			   (currentImportPlan.isUnLoadCompleted());
+	    	   if (validCompletion) {
+	    		   int code = dataContainer.uodatePlanStatus(manager.getValue(), currentImportPlan.planID, "Complete");
+	    		   if (code == 0) {
+	    			   dataContainer.deletePlanRecords(currentImportPlan.planID);
 	    			   importDataProvider.getItems().remove(currentImportPlan);
+	    			   Notification.show("This plan is completed",
+		   						2000, Notification.Position.BOTTOM_CENTER);
+	    			   importPlanGrid.setDataProvider(importDataProvider);
+	    			   importPlanDetailWrapper = initNoPlan();
 	    		   } else {
-	    			   exportDataProvider.getItems().remove(currentExportPlan);
+	    			   Notification.show("Cannot complete this plan becuase you are not its manager",
+	   						2000, Notification.Position.BOTTOM_CENTER);
 	    		   }
-    		   } else {
-   	       		Notification.show("Cannot complete this plan becuase you are not its manager",
-   						4000, Notification.Position.BOTTOM_CENTER);
-    		   }
+	    	   } else {
+	    		   Notification.show("Cannot complete this plan becuase not all the checkpoints are complete",
+	  						2000, Notification.Position.BOTTOM_CENTER);
+	    	   }
     	   } else {
-    		   Notification.show("Cannot complete this plan becuase not all the checkpoints are complete",
-  						4000, Notification.Position.BOTTOM_CENTER);
+    		   boolean validCompletion =
+	    			   (currentExportPlan.isContainerRetrived()) &&
+	    			   (currentExportPlan.isServicePayed()) &&
+	    			   (currentExportPlan.isLoadComplete());
+	    	   if (validCompletion) {
+	    		   int code = dataContainer.uodatePlanStatus(manager.getValue(), currentExportPlan.planID, "Complete");
+	    		   if (code == 0) {
+	    			   dataContainer.deletePlanRecords(currentExportPlan.planID);
+	    			   exportDataProvider.getItems().remove(currentExportPlan);
+	    			   Notification.show("This plan is completed",
+		   						2000, Notification.Position.BOTTOM_CENTER);
+	    			   exportPlanGrid.setDataProvider(exportDataProvider);
+	    			   exportPlanDetailWrapper = initNoPlan();
+	    		   } else {
+	    			   Notification.show("Cannot complete this plan becuase you are not its manager",
+	   						2000, Notification.Position.BOTTOM_CENTER);
+	    		   }
+	    	   } else {
+	    		   Notification.show("Cannot complete this plan becuase not all the checkpoints are complete",
+	  						2000, Notification.Position.BOTTOM_CENTER);
+	    	   }
     	   }
        });
        
@@ -767,11 +790,11 @@ public class DashboardView extends ViewFrame {
 						dataContainer.exportPlanRecords.values());
 				exportPlanGrid.setDataProvider(exportDataProvider);
 				Notification.show(String.format("Succesfully Created %s plans",count), 
-						4000, Notification.Position.BOTTOM_CENTER);
+						2000, Notification.Position.BOTTOM_CENTER);
 			} else {
 				Notification.show("Some plans are not created." 
 						+ String.format("Succesfully Created %s plans",count),
-						4000, Notification.Position.BOTTOM_CENTER);
+						2000, Notification.Position.BOTTOM_CENTER);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -1,5 +1,6 @@
 package com.chen.eric.ui.views;
 
+import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -79,7 +80,9 @@ public class VesselView extends SplitViewFrame {
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
 		try {
-			dataContainer.configDataSource(dataSource.getConnection().getMetaData().getURL());
+			Connection connection = dataSource.getConnection();
+			dataContainer.configDataSource(connection.getMetaData().getURL());
+			connection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -324,17 +327,17 @@ public class VesselView extends SplitViewFrame {
         updateDepartCity.setLabel("Depart City");
 		updateDepartCity.setWidth("30%");
 		updateDepartCity.addValueChangeListener(e-> {
-			tempVessel.setDepartedFromCity(e.getValue());
+			newVessel.setDepartedFromCity(e.getValue());
 		});
 		
 		departCountryPicker.addValueChangeListener(e -> {
-			tempVessel.setDepartedFromCountry(e.getValue());
+			newVessel.setDepartedFromCountry(e.getValue());
 			updateDepartState.setItems(TextUtil.stateMap.get(e.getValue()));
 		});
 		
 		updateDepartState.addValueChangeListener(e-> {
 			if (e.getValue() != null) {
-				tempVessel.setDepartedFromState(e.getValue());
+				newVessel.setDepartedFromState(e.getValue());
 				updateDepartCity.setItems(TextUtil.portMap.get(e.getValue()));
 			}
 		});

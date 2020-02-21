@@ -45,7 +45,12 @@ public class DataContainer {
 	
 	public int countVessel() {
 		VesselService vesselService = new VesselService(dbService);
-		return vesselService.getVesselCount();
+		try {
+			int count = vesselService.getVesselCount();
+			return count;
+		} catch(Exception e) {
+			return 0;
+		}
 	}
 	
 	public void getVesselRecordsByParams(String filter, String value) {
@@ -320,8 +325,8 @@ public class DataContainer {
 		return code;
 	}
 	
-	public int uodatePlanStatus(int planID, String status) {
-		int code = planService.updateStatus(status, planID);
+	public int uodatePlanStatus(String signature, int planID, String status) {
+		int code = planService.updateStatus(signature, status, planID);
 		dbService.closeConnection();
 		return code;
 	}
@@ -335,7 +340,7 @@ public class DataContainer {
         	double fee = area.getStoragePrice();
         	double totalCost = fee * numDays;
         	return totalCost;
-    	} catch(NullPointerException e) {
+    	} catch (Exception e) {
     		return 0;
     	}
     	

@@ -261,14 +261,15 @@ public class PlanService implements EntityService<TransPlan> {
 		return 0;
 	}
 	
-	public int updateStatus(String status, int key) {
+	public int updateStatus(String signature, String status, int key) {
 		try {
 			dbService.connect();
-			String query = "{? = CALL dbo.Update_TransPlan_Status(?,?)}";
+			String query = "{? = CALL dbo.Check_Signature(?,?,?)}";
 			CallableStatement stmt = dbService.getConnection().prepareCall(query);
 			stmt.registerOutParameter(1, Types.INTEGER);
-			stmt.setInt(2, key);
-			stmt.setString(3, status);
+			stmt.setString(2, signature);
+			stmt.setInt(3, key);
+			stmt.setString(4, status);
 			stmt.execute();
 			int returnCode = stmt.getInt(1);
 			return returnCode;

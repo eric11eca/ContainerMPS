@@ -249,7 +249,7 @@ public class MainLayout extends FlexBoxLayout
 		NaviItem active = getActiveItem(e);
 		if (active == null) {
 			if (tabBar.getTabCount() == 0) {
-				tabBar.addClosableTab("", DashboardView.class);
+				tabBar.addClosableTab("", VesselView.class);
 			}
 		} else {
 			if (tabBar.getTabCount() > 0) {
