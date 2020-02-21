@@ -11,6 +11,7 @@ import org.vaadin.klaudeta.PaginatedGrid;
 
 import com.chen.eric.backend.Bay;
 import com.chen.eric.backend.Block;
+import com.chen.eric.backend.Container;
 import com.chen.eric.backend.Location;
 import com.chen.eric.backend.StorageArea;
 import com.chen.eric.backend.service.DataContainer;
@@ -302,28 +303,38 @@ public class ContainerLocationView extends SplitViewFrame{
 		
 		Button insert = UIUtils.createPrimaryButton("Insert");
 		insert.addClickListener(e->{	
-			int code = dataContainer.insertLocationRecords(newLocation);
-			if (code == 0) {
-				Notification.show("Successfully Placed the Container!", 4000, Notification.Position.BOTTOM_CENTER);
-				dataContainer.getLocationRecords();
-				
-		        dataProvider = DataProvider.ofCollection(dataContainer.locationRecords.values());
-		        containerLocationGrid.setDataProvider(dataProvider);
-		        createStorageDetail();
-		        board.remove(storageAreaDetail);
-				board.addComponentAtIndex(0, storageAreaDetail);
-		        dialog.close();
-			} else if (code == 1) {
-				Notification.show("The given containerID already exits!", 
-						4000, Notification.Position.BOTTOM_CENTER);
-			} else if (code == 2) {
-				Notification.show("The given containerID dose not exist!", 
-						4000, Notification.Position.BOTTOM_CENTER);
-			} else if (code == 4) {
-				Notification.show("The End Date cannot be eariler than the Start Date!", 
-						4000, Notification.Position.BOTTOM_CENTER);
+			dataContainer.getContainerRecordsByParams("ContainerID", String.valueOf(newLocation.getContainerID()));
+			Container con = dataContainer.containerRecords.get(String.valueOf(newLocation.getContainerID()));
+			System.out.println("Container Type: " + con.getType());
+			String areaType = areaMap.get(newLocation.getStorageID())[0];
+			System.out.println("Area Type: " + areaType);
+			if (areaType.contains(con.getType())) {
+				int code = dataContainer.insertLocationRecords(newLocation);
+				if (code == 0) {
+					Notification.show("Successfully Placed the Container!", 4000, Notification.Position.BOTTOM_CENTER);
+					dataContainer.getLocationRecords();
+					
+			        dataProvider = DataProvider.ofCollection(dataContainer.locationRecords.values());
+			        containerLocationGrid.setDataProvider(dataProvider);
+			        createStorageDetail();
+			        board.remove(storageAreaDetail);
+					board.addComponentAtIndex(0, storageAreaDetail);
+			        dialog.close();
+				} else if (code == 1) {
+					Notification.show("The given containerID already exits!", 
+							4000, Notification.Position.BOTTOM_CENTER);
+				} else if (code == 2) {
+					Notification.show("The given containerID dose not exist!", 
+							4000, Notification.Position.BOTTOM_CENTER);
+				} else if (code == 4) {
+					Notification.show("The End Date cannot be eariler than the Start Date!", 
+							4000, Notification.Position.BOTTOM_CENTER);
+				} else {
+					Notification.show("Fail to place the container, please try again", 
+							4000, Notification.Position.BOTTOM_CENTER);
+				}
 			} else {
-				Notification.show("Fail to place the container, please try again", 
+				Notification.show("Container Type and storage area type does not match", 
 						4000, Notification.Position.BOTTOM_CENTER);
 			}
 		});
@@ -433,9 +444,6 @@ public class ContainerLocationView extends SplitViewFrame{
         return button;
     }
 
-	
-	
-	
 	
 	private void createStorageContent() {
 		Button addStorageArea = UIUtils.createPrimaryButton("Add StorageArea");
@@ -558,7 +566,12 @@ public class ContainerLocationView extends SplitViewFrame{
 		updateCapacity.setWidth("100%");
 		updateCapacity.setLabel("Capacity");
 		updateCapacity.addValueChangeListener(e-> {
-			newStorageArea.setCapacity(e.getValue().intValue());
+			try {
+				newStorageArea.setCapacity(e.getValue().intValue());
+			} catch (Exception ex) {
+				Notification.show("Invalid number format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+			}
 		});
 		
 		Select<String> typePicker = new Select<>();
@@ -569,14 +582,19 @@ public class ContainerLocationView extends SplitViewFrame{
        		e -> newStorageArea.setType(e.getValue()));
        
 		NumberField updatePrice = new NumberField();
-       updatePrice.setWidth("100%");
-       updatePrice.setLabel("Storage Price");
-       updatePrice.addValueChangeListener(e-> {
-       	newStorageArea.setStoragePrice(e.getValue());
+		updatePrice.setWidth("100%");
+		updatePrice.setLabel("Storage Price");
+		updatePrice.addValueChangeListener(e-> {
+			try {
+				newStorageArea.setStoragePrice(e.getValue());
+			} catch (Exception ex) {
+				Notification.show("Invalid number format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+			}
 		});
 		
 		DetailsDrawerFooter detailsDrawerFooter = new DetailsDrawerFooter();
-		detailsDrawerFooter.addSaveListener(e->{
+		detailsDrawerFooter.addSaveListener(e -> {
 			if (newStorageArea.getStorageID() == null) {
 				Notification.show("Container ID cannot be empty!", 
 						4000, Notification.Position.BOTTOM_CENTER);
@@ -620,17 +638,21 @@ public class ContainerLocationView extends SplitViewFrame{
 		updateID.setEnabled(false);
 		updateID.setWidth("100%");
 		updateID.setLabel("StorageArea ID");
-		updateID.setPlaceholder(String.valueOf(storageArea.getStorageID()));
-		updateID.addValueChangeListener(e-> {
-			tempStorageArea.setStorageID(Integer.valueOf(e.getValue()));
-		});
+		updateID.setValue(String.valueOf(storageArea.getStorageID()));
+		updateID.setReadOnly(true);
+		
 		
 		NumberField updateCapacity = new NumberField();
 		updateCapacity.setWidth("100%");
 		updateCapacity.setLabel("Capacity");
 		updateCapacity.setPlaceholder(String.valueOf(storageArea.getCapacity()));
 		updateCapacity.addValueChangeListener(e-> {
-			tempStorageArea.setCapacity(e.getValue().intValue());
+			try {
+				tempStorageArea.setCapacity(e.getValue().intValue());
+			} catch (Exception ex) {
+				Notification.show("Invalid number format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+			}
 		});
 		
 		Select<String> typePicker = new Select<>();
@@ -646,7 +668,12 @@ public class ContainerLocationView extends SplitViewFrame{
        updatePrice.setLabel("Storage Price");
        updatePrice.setPlaceholder(String.valueOf(storageArea.getStoragePrice()));
        updatePrice.addValueChangeListener(e-> {
-    	   tempStorageArea.setStoragePrice(e.getValue());
+    	   try {
+    		   tempStorageArea.setStoragePrice(e.getValue());
+    	   	} catch (Exception ex) {
+				Notification.show("Invalid number format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+			}
 		});
 		
 		ListItem status = new ListItem(

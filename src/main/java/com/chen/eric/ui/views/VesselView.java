@@ -1,16 +1,8 @@
 package com.chen.eric.ui.views;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.List;
-
+import com.chen.eric.backend.BeanUtil;
 import com.chen.eric.backend.Vessel;
 import com.chen.eric.backend.service.DataContainer;
 import com.chen.eric.ui.MainLayout;
@@ -23,10 +15,10 @@ import com.chen.eric.ui.layout.size.Bottom;
 import com.chen.eric.ui.layout.size.Horizontal;
 import com.chen.eric.ui.layout.size.Top;
 import com.chen.eric.ui.util.LumoStyles;
+import com.chen.eric.ui.util.TextUtil;
 import com.chen.eric.ui.util.UIUtils;
 import com.chen.eric.ui.util.css.BoxSizing;
 import com.chen.eric.ui.util.css.WhiteSpace;
-import com.helger.commons.csv.CSVReader;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
@@ -46,9 +38,8 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.upload.Receiver;
-import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -65,7 +56,6 @@ public class VesselView extends SplitViewFrame {
 	private Grid<Vessel> grid;
 	private ListDataProvider<Vessel> dataProvider;
 	private DetailsDrawer detailsDrawer;
-	private File tempFile;
 	private String filter = "";
 	private Vessel tempVessel;
 	private Integer vesselID;
@@ -74,6 +64,7 @@ public class VesselView extends SplitViewFrame {
 	private DetailsDrawerFooter detailsDrawerFooter;
 		
 	private DataContainer dataContainer = DataContainer.getInstance();
+	private Vessel currentVessel;
 
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
@@ -226,75 +217,112 @@ public class VesselView extends SplitViewFrame {
 		updateID.setLabel("Vessel ID");
 		updateID.setWidth("50%");
 		updateID.addValueChangeListener(e-> {
-			newVessel.setVesselID(Integer.valueOf(e.getValue()));
+			try {
+				if (e.getValue().length() == 8) {
+					newVessel.setVesselID(Integer.valueOf(e.getValue()));
+				} else if (e.getValue().isEmpty()) {
+					return;
+				}
+			} catch (NumberFormatException ex) {
+				Notification.show("Invalid Vessel ID format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+			}
 		});
 		
 		
-		TextField updateCapacity = new TextField();
-		updateCapacity.setWidth("50%");
+		NumberField updateCapacity = new NumberField();
 		updateCapacity.setLabel("Capacity");
+		updateCapacity.setWidth("50%");
 		updateCapacity.addValueChangeListener(e-> {
-			newVessel.setCapacity(Integer.valueOf(e.getValue()));
+			try {
+				newVessel.setCapacity(Integer.valueOf(e.getValue().intValue()));
+			} catch (Exception ex) {
+				Notification.show("Invalid number format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+			}
 		});
 		
 		DatePicker departureDatePicker = new DatePicker();
 		departureDatePicker.setLabel("Departure Date");
 		departureDatePicker.setClearButtonVisible(true);
-		departureDatePicker.addValueChangeListener(e->{
-			LocalDate date = departureDatePicker.getValue();
-			newVessel.setDepartDate(Date.valueOf(date));
+		departureDatePicker.addValueChangeListener(e -> {
+			try { 
+				LocalDate date = departureDatePicker.getValue();
+				newVessel.setDepartDate(Date.valueOf(date));
+			} catch (NullPointerException ex) {
+				Notification.show("Invalid date format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+			}	
 		});
 		
 		DatePicker arrivalDatePicker = new DatePicker();
-		arrivalDatePicker.setLabel("Aarrival Date");
+		arrivalDatePicker.setLabel("Arrival Date");
 		arrivalDatePicker.setClearButtonVisible(true);
 		arrivalDatePicker.addValueChangeListener(e->{
-			LocalDate date = arrivalDatePicker.getValue();
-			newVessel.setArivalDate(Date.valueOf(date));
+			try { 
+				LocalDate date = arrivalDatePicker.getValue();
+				newVessel.setArivalDate(Date.valueOf(date));
+			} catch (NullPointerException ex) {
+				Notification.show("Invalid date format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+			}					
 		});
 		
 		Select<String> destinationCountryPicker = new Select<>();
-		destinationCountryPicker.setItems("U.S.", "China", "Russia", "Japan", "Australia", 
-        		"Canada", "South Korea", "Tiland", "Indonesia", "Chili");
 		destinationCountryPicker.setLabel("Destination Country");
-		destinationCountryPicker.setWidth("50%");
-		destinationCountryPicker.addValueChangeListener(
-        		e -> newVessel.setDestinationCountry(e.getValue()));
+		destinationCountryPicker.setItems(TextUtil.countries);
+		destinationCountryPicker.setWidth("30%");
         
-        TextField updateDestinationState = new TextField();
-        updateDestinationState.setWidth("50%");
+		Select<String> updateDestinationState = new Select<>();
+        updateDestinationState.setWidth("30%"); 
         updateDestinationState.setLabel("Destination State");
-        updateDestinationState.addValueChangeListener(e-> {
-			newVessel.setDestinationState(e.getValue());
-		});
 		
-		TextField updateDestinationCity = new TextField();
+        Select<String> updateDestinationCity = new Select<>();
 		updateDestinationCity.setWidth("30%");
 		updateDestinationCity.setLabel("Destination City");
-		updateDestinationCity.addValueChangeListener(e-> {
+		updateDestinationCity.addValueChangeListener(e -> {
 			newVessel.setDestinationCity(e.getValue());
 		});
-        
-        Select<String> departCountryPicker = new Select<>();
-        departCountryPicker.setItems("U.S.", "China", "Russia", "Japan", "Australia", 
-        		"Canada", "South Korea", "Tiland", "Indonesia", "Chili");
-        departCountryPicker.setLabel("Departure Country");
-        departCountryPicker.setWidth("30%");
-        departCountryPicker.addValueChangeListener(
-        		e -> newVessel.setDepartedFromCountry(e.getValue()));
-        
-        TextField updateDepartState = new TextField();
-        updateDepartState.setWidth("30%");
-        updateDepartState.setLabel("Departure State");
-        updateDepartState.addValueChangeListener(e-> {
-			newVessel.setDepartedFromState(e.getValue());
+		
+		destinationCountryPicker.addValueChangeListener(e -> { 
+			newVessel.setDestinationCountry(e.getValue());
+			updateDestinationState.setItems(TextUtil.stateMap.get(destinationCountryPicker.getValue()));
 		});
 		
-		TextField updateDepartCity = new TextField();
+		updateDestinationState.addValueChangeListener(e -> {
+			if (e.getValue() != null) {
+				newVessel.setDestinationState(e.getValue());
+				updateDestinationCity.setItems(TextUtil.portMap.get(updateDestinationState.getValue()));
+			}
+		});
+		
+        
+        Select<String> departCountryPicker = new Select<>();
+        departCountryPicker.setLabel("Depart Country");
+        departCountryPicker.setItems(TextUtil.countries);
+        departCountryPicker.setWidth("30%");
+        
+        Select<String> updateDepartState = new Select<>();
+        updateDepartState.setLabel("Depart State");
+        updateDepartState.setWidth("30%");
+		
+        Select<String> updateDepartCity = new Select<>();
+        updateDepartCity.setLabel("Depart City");
 		updateDepartCity.setWidth("30%");
-		updateDepartCity.setLabel("Departure City");
 		updateDepartCity.addValueChangeListener(e-> {
-			newVessel.setDepartedFromCity(e.getValue());
+			tempVessel.setDepartedFromCity(e.getValue());
+		});
+		
+		departCountryPicker.addValueChangeListener(e -> {
+			tempVessel.setDepartedFromCountry(e.getValue());
+			updateDepartState.setItems(TextUtil.stateMap.get(e.getValue()));
+		});
+		
+		updateDepartState.addValueChangeListener(e-> {
+			if (e.getValue() != null) {
+				tempVessel.setDepartedFromState(e.getValue());
+				updateDepartCity.setItems(TextUtil.portMap.get(e.getValue()));
+			}
 		});
 		
 		HorizontalLayout idLayer = new HorizontalLayout(
@@ -351,20 +379,29 @@ public class VesselView extends SplitViewFrame {
 		detailsDrawerFooter = new DetailsDrawerFooter();
 		detailsDrawerFooter.addSaveListener(e -> {
 			if (tempVessel != null && vesselID != null) {
-				int code = dataContainer.updateVesselRecords(tempVessel, vesselID);
-				if (code == 0) {
-					dataContainer.getVesselRecords();
-					dataProvider = DataProvider.ofCollection(dataContainer.vesselRecords.values());
-					grid.setDataProvider(dataProvider);
-					Notification.show("Succesfully Updated the Data!", 4000, Notification.Position.BOTTOM_CENTER);
-				} else if (code == 1) {
-					Notification.show("This Vessel Does Not Exist", 4000, Notification.Position.BOTTOM_CENTER);
-				} else {
-					Notification.show("ERROR: UPDATE FAILED!", 4000, Notification.Position.BOTTOM_CENTER);
+				boolean similar = false;
+				try {
+					similar = BeanUtil.haveSamePropertyValues(Vessel.class, currentVessel, tempVessel);
+					if (!similar) {
+						int code = dataContainer.updateVesselRecords(tempVessel, vesselID);
+						if (code == 0) {
+							dataContainer.getVesselRecords();
+							dataProvider = DataProvider.ofCollection(dataContainer.vesselRecords.values());
+							grid.setDataProvider(dataProvider);
+							Notification.show("Succesfully Updated the Data!", 4000, Notification.Position.BOTTOM_CENTER);
+						} else if (code == 1) {
+							Notification.show("This Vessel Does Not Exist", 4000, Notification.Position.BOTTOM_CENTER);
+						} else {
+							Notification.show("ERROR: UPDATE FAILED!", 4000, Notification.Position.BOTTOM_CENTER);
+						}
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
 				}
 			}
 		});
 			
+		detailsDrawerFooter.addCancelListener(e-> detailsDrawer.hide());
 		detailsDrawer.setHeader(detailsDrawerHeader);
 		detailsDrawer.setFooter(detailsDrawerFooter);
 
@@ -373,6 +410,7 @@ public class VesselView extends SplitViewFrame {
 
 	private void showDetails(Vessel vessel) {
 		tempVessel = new Vessel();
+		currentVessel = vessel;
 		vesselID = vessel.getVesselID();
 		detailsDrawer.setContent(createDetails(vessel));
 		detailsDrawer.show();
@@ -382,76 +420,106 @@ public class VesselView extends SplitViewFrame {
 		TextField updateID = new TextField();
 		updateID.setValue(String.valueOf(vessel.getVesselID()));
 		updateID.setWidth("50%");
-		updateID.addValueChangeListener(e-> {
-			tempVessel.setVesselID(Integer.valueOf(e.getValue()));
-		});
+		updateID.setReadOnly(true);
 		
 		
-		TextField updateCapacity = new TextField();
+		NumberField updateCapacity = new NumberField();
 		updateCapacity.setWidth("50%");
-		updateCapacity.setValue(String.valueOf(vessel.getCapacity()));
+		updateCapacity.setValue(vessel.getCapacity().doubleValue());
 		updateCapacity.addValueChangeListener(e-> {
-			tempVessel.setCapacity(Integer.valueOf(e.getValue()));
+			try {
+				tempVessel.setCapacity(Integer.valueOf(e.getValue().intValue()));
+			} catch (Exception ex) {
+				Notification.show("Invalid number format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+			}
 		});
 		
 		DatePicker departureDatePicker = new DatePicker();
 		departureDatePicker.setValue(vessel.getDepartDate().toLocalDate());
 		departureDatePicker.setClearButtonVisible(true);
-		departureDatePicker.addValueChangeListener(e->{
-			LocalDate date = departureDatePicker.getValue();
-			tempVessel.setDepartDate(Date.valueOf(date));
+		departureDatePicker.addValueChangeListener(e -> {
+			try { 
+				LocalDate date = departureDatePicker.getValue();
+				tempVessel.setDepartDate(Date.valueOf(date));
+			} catch (NullPointerException ex) {
+				Notification.show("Invalid date format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+			}	
 		});
 		
 		DatePicker arrivalDatePicker = new DatePicker();
 		arrivalDatePicker.setValue(vessel.getArivalDate().toLocalDate());
 		arrivalDatePicker.setClearButtonVisible(true);
 		arrivalDatePicker.addValueChangeListener(e->{
-			LocalDate date = arrivalDatePicker.getValue();
-			tempVessel.setArivalDate(Date.valueOf(date));
+			try { 
+				LocalDate date = arrivalDatePicker.getValue();
+				tempVessel.setArivalDate(Date.valueOf(date));
+			} catch (NullPointerException ex) {
+				Notification.show("Invalid date format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+			}					
 		});
 		
 		Select<String> destinationCountryPicker = new Select<>();
-		destinationCountryPicker.setItems("U.S.", "China", "Russia", "Japan", "Australia", 
-        		"Canada", "South Korea", "Tiland", "Indonesia", "Chili");
+		destinationCountryPicker.setItems(TextUtil.countries);
 		destinationCountryPicker.setValue(vessel.getDestinationCountry());
 		destinationCountryPicker.setWidth("30%");
-		destinationCountryPicker.addValueChangeListener(
-        		e -> tempVessel.setDestinationCountry(e.getValue()));
         
-        TextField updateDestinationState = new TextField();
+		Select<String> updateDestinationState = new Select<>();
         updateDestinationState.setWidth("30%");
-        updateDestinationState.setValue(vessel.getDestinationState());
-        updateDestinationState.addValueChangeListener(e-> {
-			tempVessel.setDestinationState(e.getValue());
-		});
+        updateDestinationState.setItems(TextUtil.stateMap.get(destinationCountryPicker.getValue()));
+        updateDestinationState.setValue(vessel.getDestinationState());      
 		
-		TextField updateDestinationCity = new TextField();
+        Select<String> updateDestinationCity = new Select<>();
 		updateDestinationCity.setWidth("30%");
+		updateDestinationCity.setItems(TextUtil.portMap.get(updateDestinationState.getValue()));
 		updateDestinationCity.setValue(vessel.getDestinationCity());
-		updateDestinationCity.addValueChangeListener(e-> {
+		updateDestinationCity.addValueChangeListener(e -> {
 			tempVessel.setDestinationCity(e.getValue());
 		});
-        
-        Select<String> departCountryPicker = new Select<>();
-        departCountryPicker.setItems("U.S.", "China", "Russia", "Japan", "Australia", 
-        		"Canada", "South Korea", "Tiland", "Indonesia", "Chili");
-        departCountryPicker.setValue(vessel.getDepartedFromCountry());
-        departCountryPicker.setWidth("30%");
-        departCountryPicker.addValueChangeListener(
-        		e -> tempVessel.setDepartedFromCountry(e.getValue()));
-        
-        TextField updateDepartState = new TextField();
-        updateDepartState.setWidth("30%");
-        updateDepartState.setValue(vessel.getDepartedFromState());
-        updateDepartState.addValueChangeListener(e-> {
-			tempVessel.setDepartedFromState(e.getValue());
+		
+		destinationCountryPicker.addValueChangeListener(e -> { 
+			tempVessel.setDestinationCountry(e.getValue());
+			updateDestinationState.setItems(TextUtil.stateMap.get(destinationCountryPicker.getValue()));
 		});
 		
-		TextField updateDepartCity = new TextField();
+		updateDestinationState.addValueChangeListener(e -> {
+			if (e.getValue() != null) {
+				tempVessel.setDestinationState(e.getValue());
+				updateDestinationCity.setItems(TextUtil.portMap.get(updateDestinationState.getValue()));
+			}
+		});
+		
+        
+        Select<String> departCountryPicker = new Select<>();
+        departCountryPicker.setItems(TextUtil.countries);
+        departCountryPicker.setValue(vessel.getDepartedFromCountry());
+        departCountryPicker.setWidth("30%");
+        
+        Select<String> updateDepartState = new Select<>();
+        updateDepartState.setWidth("30%");
+        updateDepartState.setItems(TextUtil.stateMap.get(departCountryPicker.getValue()));
+        updateDepartState.setValue(vessel.getDepartedFromState());
+		
+        Select<String> updateDepartCity = new Select<>();
 		updateDepartCity.setWidth("30%");
+		updateDepartCity.setItems(TextUtil.portMap.get(updateDepartState.getValue()));
 		updateDepartCity.setValue(vessel.getDepartedFromCity());
 		updateDepartCity.addValueChangeListener(e-> {
 			tempVessel.setDepartedFromCity(e.getValue());
+		});
+		
+		departCountryPicker.addValueChangeListener(e -> {
+			tempVessel.setDepartedFromCountry(e.getValue());
+			updateDepartState.setItems(TextUtil.stateMap.get(e.getValue()));
+		});
+		
+		updateDepartState.addValueChangeListener(e-> {
+			if (e.getValue() != null) {
+				tempVessel.setDepartedFromState(e.getValue());
+				updateDepartCity.setItems(TextUtil.portMap.get(e.getValue()));
+			}
 		});
 		
 		HorizontalLayout departLocation = new HorizontalLayout(
@@ -495,7 +563,7 @@ public class VesselView extends SplitViewFrame {
 		return details;
 	}	
 	
-	public Component uploadProducts() {
+	/*public Component uploadProducts() {
     	Upload upload = new Upload(new Receiver() {
 			@Override
     	      public OutputStream receiveUpload(String filename, String mimeType) {
@@ -547,5 +615,5 @@ public class VesselView extends SplitViewFrame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}	
-    }
+    }*/
 }

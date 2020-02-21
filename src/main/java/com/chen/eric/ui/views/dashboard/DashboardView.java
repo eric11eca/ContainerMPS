@@ -35,15 +35,6 @@ import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.board.Board;
 import com.vaadin.flow.component.board.Row;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.charts.Chart;
-import com.vaadin.flow.component.charts.model.Configuration;
-import com.vaadin.flow.component.charts.model.HorizontalAlign;
-import com.vaadin.flow.component.charts.model.LayoutDirection;
-import com.vaadin.flow.component.charts.model.Legend;
-import com.vaadin.flow.component.charts.model.ListSeries;
-import com.vaadin.flow.component.charts.model.VerticalAlign;
-import com.vaadin.flow.component.charts.model.XAxis;
-import com.vaadin.flow.component.charts.model.YAxis;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
@@ -113,8 +104,8 @@ public class DashboardView extends ViewFrame {
 
 	private String filter = "";
 
-	private Chart planProgress;
-	private  WrapperCard planProgressWrapper;
+	//private Chart planProgress;
+	//private  WrapperCard planProgressWrapper;
 
     public DashboardView() {    	
     	board = new Board();
@@ -125,11 +116,10 @@ public class DashboardView extends ViewFrame {
                 vesselCountBadge("Vessel Count", vesselCount, "error-text", "Number of vessels docked", "badge error")
         );
     
-        //createUploadBadge("Conversion", "error-text", "User conversion rate", "badge error")
-        drawPlanCountChart();
+        /*drawPlanCountChart();
         planProgressWrapper = new WrapperCard("wrapper",
                 new Component[] { planProgress }, "card");
-        board.add(planProgressWrapper);
+        board.add(planProgressWrapper);*/
         
         createImportPlanGrid();
         updateImportPlanRow();
@@ -205,7 +195,7 @@ public class DashboardView extends ViewFrame {
          		titleSpan, h2, descriptionSpan}, "card", "space-m");
     }
     
-    private void drawPlanCountChart() {
+    /*private void drawPlanCountChart() {
     	planProgress = new Chart();
     	Configuration configuration = planProgress.getConfiguration();
 
@@ -226,7 +216,7 @@ public class DashboardView extends ViewFrame {
         configuration.addSeries(new ListSeries("Planned Number of Completed Import/Export Plan", 0, 20, 40, 60, 80, 100, 120, 140, 160));
         configuration.addSeries(new ListSeries("Actual Number of Completed ImportPlan", 0, 30, 50, 60, 70, 90));
         configuration.addSeries(new ListSeries("Actual Number of Completed ExportPlan", 0, 10, 20, 40, 70, 100));
-    }
+    }*/
     
     private HorizontalLayout createPlanCard(TransPlan plan) {
     	Label planID = UIUtils.createH3PlanTitle(String.valueOf(plan.planID));
@@ -750,7 +740,7 @@ public class DashboardView extends ViewFrame {
 						code = dataContainer.insertPlanRecords(exportPlan);
 					}
 				}
-				count += (code==1)? 1 : 0;
+				count += (code==0)? 1 : 0;
 			}
 			
 			if (code == 0) {

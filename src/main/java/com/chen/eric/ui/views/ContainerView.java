@@ -1,17 +1,7 @@
 package com.chen.eric.ui.views;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.sql.Date;
-import java.util.List;
-
+import com.chen.eric.backend.BeanUtil;
 import com.chen.eric.backend.Container;
-import com.chen.eric.backend.Vessel;
 import com.chen.eric.backend.service.DataContainer;
 import com.chen.eric.ui.MainLayout;
 import com.chen.eric.ui.components.FlexBoxLayout;
@@ -26,7 +16,6 @@ import com.chen.eric.ui.util.LumoStyles;
 import com.chen.eric.ui.util.UIUtils;
 import com.chen.eric.ui.util.css.BoxSizing;
 import com.chen.eric.ui.util.css.WhiteSpace;
-import com.helger.commons.csv.CSVReader;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
@@ -47,8 +36,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.upload.Receiver;
-import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -64,13 +51,13 @@ public class ContainerView extends SplitViewFrame {
 	private Grid<Container> grid;
 	private DetailsDrawer detailsDrawer;
 	private ListDataProvider<Container> dataProvider;
-	
-	private File tempFile;
+
 	private String filter = "";
 	private Container tempContainer;
 	private Integer containerID;
 	
 	private DataContainer dataContainer = DataContainer.getInstance();
+	private Container currentContainer;
 
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
@@ -199,14 +186,17 @@ public class ContainerView extends SplitViewFrame {
 		NumberField updateLength = new NumberField();
         updateLength.setWidth("20%");
         updateLength.setValue(container.getLength());
+        updateLength.setReadOnly(true);
 
         NumberField updateWidth = new NumberField();
         updateWidth.setWidth("20%");
         updateWidth.setValue(container.getWidth());
+        updateWidth.setReadOnly(true);
 
         NumberField updateHeight = new NumberField();
         updateHeight.setWidth("20%");
         updateHeight.setValue(container.getHeight());
+        updateHeight.setReadOnly(true);
 
         NumberField showVolume = new NumberField();
         showVolume.setWidth("20%");
@@ -214,6 +204,7 @@ public class ContainerView extends SplitViewFrame {
         		container.getLength() * 
         		container.getWidth() * 
         		container.getHeight());
+        showVolume.setReadOnly(true);
 
 		HorizontalLayout sizeLayer = new HorizontalLayout(
 				updateLength, updateWidth, updateHeight, showVolume);
@@ -246,7 +237,12 @@ public class ContainerView extends SplitViewFrame {
 		updateID.setWidth("50%");
 		updateID.setLabel("Container ID");
 		updateID.addValueChangeListener(e-> {
-			newContainer.setContainerID(Integer.valueOf(e.getValue()));
+			try {
+				newContainer.setContainerID(Integer.valueOf(e.getValue()));
+			} catch (NumberFormatException ex) {
+				Notification.show("Invalid container ID format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+			}
 		});
 		
 		TextField updateOwner = new TextField();
@@ -267,35 +263,60 @@ public class ContainerView extends SplitViewFrame {
         updateWeight.setWidth("50%");
         updateWeight.setLabel("Weight");
         updateWeight.addValueChangeListener(e-> {
-        	newContainer.setWeight(e.getValue());
+        	try {
+        		newContainer.setWeight(e.getValue());
+        	} catch (NullPointerException ex) {
+        		Notification.show("Invalid number format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+        	}
 		});
 		
 		NumberField updateFee = new NumberField();
 		updateFee.setWidth("30%");
 		updateFee.setLabel("Fee");
 		updateFee.addValueChangeListener(e-> {
-			newContainer.setFee(e.getValue());
+			try{
+				newContainer.setFee(e.getValue());
+			}  catch (NullPointerException ex) {
+        		Notification.show("Invalid number format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+        	}
 		});
         
         NumberField updateLength = new NumberField();
         updateLength.setWidth("20%");
         updateLength.setLabel("Length");
         updateLength.addValueChangeListener(e-> {
-        	newContainer.setLength(e.getValue());
+        	try {
+        		newContainer.setLength(e.getValue());
+        	}  catch (NullPointerException ex) {
+        		Notification.show("Invalid number format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+        	}
 		});
         
         NumberField updateWidth = new NumberField();
         updateWidth.setWidth("20%");
         updateWidth.setLabel("Width");
         updateWidth.addValueChangeListener(e-> {
-        	newContainer.setWidth(e.getValue());
+        	try {
+        		newContainer.setWidth(e.getValue());
+        	}  catch (NullPointerException ex) {
+        		Notification.show("Invalid number format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+        	}
 		});
         
         NumberField updateHeight = new NumberField();
         updateHeight.setWidth("20%");
         updateHeight.setLabel("Height");
         updateHeight.addValueChangeListener(e-> {
-        	newContainer.setHeight(e.getValue());
+        	try {
+        		newContainer.setHeight(e.getValue());
+        	}  catch (NullPointerException ex) {
+        		Notification.show("Invalid number format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+        	}
 		});
         
         HorizontalLayout idLayer = new HorizontalLayout(updateID, typePicker);
@@ -350,20 +371,31 @@ public class ContainerView extends SplitViewFrame {
 		DetailsDrawerFooter detailsDrawerFooter = new DetailsDrawerFooter();
 		detailsDrawerFooter.addSaveListener(e -> {
 			if (tempContainer != null && containerID != null) {
-				int code = dataContainer.updateContainerRecords(tempContainer, containerID);
-				if (code == 0) {
-					dataContainer.getContainerRecords();
-					dataProvider = DataProvider.ofCollection(dataContainer.containerRecords.values());
-					grid.setDataProvider(dataProvider);
-					Notification.show("Succesfully Updated the Data! WITH CODE: " + code, 4000, Notification.Position.BOTTOM_CENTER);
-				} else if (code == 1) {
-					Notification.show("This Container Does Not Exist");
-				} else {
-					Notification.show("ERROR: UPDATE FAILED!");
+				boolean similar = false;
+				try {
+					similar = BeanUtil.haveSamePropertyValues(Container.class, tempContainer, currentContainer);
+					if (similar) {
+						int code = dataContainer.updateContainerRecords(tempContainer, containerID);
+						if (code == 0) {
+							dataContainer.getContainerRecords();
+							dataProvider = DataProvider.ofCollection(dataContainer.containerRecords.values());
+							grid.setDataProvider(dataProvider);
+							Notification.show("Succesfully Updated the Data!", 4000, Notification.Position.BOTTOM_CENTER);
+						} else if (code == 1) {
+							Notification.show("This Container Does Not Exist");
+						} else {
+							Notification.show("ERROR: UPDATE FAILED!");
+						}
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+					return;
 				}
 			}
 		});
-			
+		
+		detailsDrawerFooter.addCancelListener(e-> detailsDrawer.hide());
+		
 		detailsDrawer.setHeader(detailsDrawerHeader);
 		detailsDrawer.setFooter(detailsDrawerFooter);
 		return detailsDrawer;
@@ -371,6 +403,7 @@ public class ContainerView extends SplitViewFrame {
 
 	private void showDetails(Container container) {
 		tempContainer = new Container();
+		currentContainer = container;
 		containerID = container.getContainerID();
 		detailsDrawer.setContent(createDetails(container));
 		detailsDrawer.show();
@@ -380,9 +413,7 @@ public class ContainerView extends SplitViewFrame {
 		TextField updateID = new TextField();
 		updateID.setValue(String.valueOf(container.getContainerID()));
 		updateID.setWidth("50%");
-		updateID.addValueChangeListener(e-> {
-			tempContainer.setContainerID(Integer.valueOf(e.getValue()));
-		});
+		updateID.setReadOnly(true);
 		
 		TextField updateOwner = new TextField();
 		updateOwner.setWidth("100%");
@@ -402,14 +433,26 @@ public class ContainerView extends SplitViewFrame {
         updateWeight.setWidth("50%");
         updateWeight.setValue(container.getWeight());
         updateWeight.addValueChangeListener(e-> {
-        	tempContainer.setWeight(e.getValue());
+        	try {
+        		tempContainer.setWeight(e.getValue());
+        	} catch (NullPointerException ex) {
+        		Notification.show("Invalid number format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+        		updateWeight.setValue(container.getWeight());
+        	}
 		});
 		
 		NumberField updateFee = new NumberField();
 		updateFee.setWidth("30%");
 		updateFee.setValue(container.getFee());
 		updateFee.addValueChangeListener(e-> {
-			tempContainer.setFee(e.getValue());
+			try {
+				tempContainer.setFee(e.getValue());
+			} catch (NullPointerException ex) {
+        		Notification.show("Invalid number format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+        		updateFee.setValue(container.getFee());
+        	} 
 		});
         
         Select<String> payedPicker = new Select<>();
@@ -431,19 +474,37 @@ public class ContainerView extends SplitViewFrame {
         updateLength.setWidth("20%");
         updateLength.setValue(container.getLength());
         updateLength.addValueChangeListener(e-> {
-        	tempContainer.setLength(e.getValue());
+        	try {
+        		tempContainer.setLength(e.getValue());
+        	} catch (NullPointerException ex) {
+        		Notification.show("Invalid number format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+        		updateLength.setValue(container.getLength());
+        	}
 		});
         NumberField updateWidth = new NumberField();
         updateWidth.setWidth("20%");
         updateWidth.setValue(container.getWidth());
         updateWidth.addValueChangeListener(e-> {
-        	tempContainer.setWidth(e.getValue());
+        	try {
+        		tempContainer.setWidth(e.getValue());
+        	} catch (NullPointerException ex) {
+        		Notification.show("Invalid number format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+        		updateWidth.setValue(container.getWidth());
+        	}
 		});
         NumberField updateHeight = new NumberField();
         updateHeight.setWidth("20%");
         updateHeight.setValue(container.getHeight());
         updateHeight.addValueChangeListener(e-> {
-        	tempContainer.setHeight(e.getValue());
+        	try {
+        		tempContainer.setHeight(e.getValue());
+        	} catch (NullPointerException ex) {
+        		Notification.show("Invalid number format!", 
+        				4000, Notification.Position.BOTTOM_CENTER);
+        		updateHeight.setValue(container.getHeight());
+        	}
 		});
         NumberField showVolume = new NumberField();
         showVolume.setWidth("20%");
@@ -451,6 +512,7 @@ public class ContainerView extends SplitViewFrame {
         		container.getLength() * 
         		container.getWidth() * 
         		container.getHeight());
+        showVolume.setReadOnly(true);
 
 		HorizontalLayout sizeLayer = new HorizontalLayout(
 				updateLength, updateWidth, updateHeight, showVolume);
@@ -481,18 +543,18 @@ public class ContainerView extends SplitViewFrame {
 				UIUtils.createTertiaryIcon(VaadinIcon.SCALE),
 				updateWeight, "Weight");
 
-		for (ListItem item : new ListItem[]{
+		for (ListItem item : new ListItem[] {
 				status, from, to, amount, dateArival, dateDeparture}) {
 			item.setReverse(true);
 			item.setWhiteSpace(WhiteSpace.PRE_LINE);
 		}
-
+		
 		Div details = new Div(status, from, to, amount, dateArival, dateDeparture);
 		details.addClassName(LumoStyles.Padding.Vertical.S);
 		return details;
 	}	
 	
-	public Component uploadProducts() {
+	/*public Component uploadProducts() {
     	Upload upload = new Upload(new Receiver() {
 			@Override
     	      public OutputStream receiveUpload(String filename, String mimeType) {
@@ -544,5 +606,5 @@ public class ContainerView extends SplitViewFrame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}	
-    }
+    }*/
 }

@@ -5,6 +5,7 @@ import com.chen.eric.backend.service.DataContainer;
 import com.chen.eric.ui.MainLayout;
 import com.chen.eric.ui.components.FlexBoxLayout;
 import com.chen.eric.ui.components.ListItem;
+import com.chen.eric.ui.components.ValidTextField;
 import com.chen.eric.ui.components.detailsdrawer.DetailsDrawer;
 import com.chen.eric.ui.components.detailsdrawer.DetailsDrawerFooter;
 import com.chen.eric.ui.components.detailsdrawer.DetailsDrawerHeader;
@@ -263,15 +264,16 @@ public class CustomerView extends SplitViewFrame {
 					dataContainer.getCustomerRecords();
 					dataProvider = DataProvider.ofCollection(dataContainer.customerRecords.values());
 					grid.setDataProvider(dataProvider);
-					Notification.show("Succesfully Updated the Data! WITH CODE: " + code, 4000, Notification.Position.BOTTOM_CENTER);
+					Notification.show("Succesfully Updated the Data!", 4000, Notification.Position.BOTTOM_CENTER);
 				} else if (code == 1) {
-					Notification.show("This Vessel Does Not Exist");
+					Notification.show("This Customer Does Not Exist");
 				} else {
 					Notification.show("ERROR: UPDATE FAILED!");
 				}
 			}
 		});
-			
+		
+		detailsDrawerFooter.addCancelListener(e-> detailsDrawer.hide());
 		detailsDrawer.setHeader(detailsDrawerHeader);
 		detailsDrawer.setFooter(detailsDrawerFooter);
 		return detailsDrawer;
@@ -288,11 +290,9 @@ public class CustomerView extends SplitViewFrame {
 		TextField updateID = new TextField();
 		updateID.setValue(String.valueOf(customer.getCustomerID()));
 		updateID.setWidth("50%");
-		updateID.addValueChangeListener(e-> {
-			tempCustomer.setCustomerID(Integer.valueOf(e.getValue()));
-		});
+		updateID.setReadOnly(true);
 		
-		TextField updateName = new TextField();
+		ValidTextField updateName = new ValidTextField();
 		updateName.setWidth("50%");
 		updateName.setValue(String.valueOf(customer.getCompanyName()));
 		updateName.addValueChangeListener(e-> {
@@ -320,9 +320,6 @@ public class CustomerView extends SplitViewFrame {
         updateState.addValueChangeListener(e-> {
         	tempCustomer.setState(e.getValue());
 		});
-        
-        HorizontalLayout idLayer = new HorizontalLayout(updateID, updateName, updateEmail);
-        idLayer.setAlignItems(Alignment.BASELINE);
 
 		HorizontalLayout addrLayer = new HorizontalLayout(updateCountry, updateState);
 		addrLayer.setAlignItems(Alignment.BASELINE);
