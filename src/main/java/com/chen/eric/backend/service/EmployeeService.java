@@ -7,6 +7,7 @@ import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.chen.eric.backend.Customer;
 import com.chen.eric.backend.Employee;
 
 public class EmployeeService implements EntityService<Employee>{
@@ -71,7 +72,60 @@ public class EmployeeService implements EntityService<Employee>{
 
 	@Override
 	public Map<String, Employee> retriveRecordsByParameters(String filter, String value) {
-		return null;
+		if (filter.isEmpty()) {
+			return new HashMap<>();
+		}
+		
+		try {
+			dbService.connect();
+			String query = "{? = CALL dbo.Search_Employee(?,?,?)}";
+			
+			CallableStatement stmt =  dbService.getConnection().prepareCall(query);
+			
+			stmt.registerOutParameter(1, Types.INTEGER);
+			
+			if (filter.equals("SSN")) {
+				stmt.setString(2, value);
+				System.out.println(value);
+			} else {
+				stmt.setString(2, null);
+			}
+			
+			if (filter.equals("Role")) {
+				stmt.setString(3, value);
+			} else {
+				stmt.setString(3, null);
+			}
+			
+			if (filter.equals("Name")) {
+				stmt.setString(4, value);
+			} else {
+				stmt.setString(4, null);
+			}
+			
+
+			boolean hasRs = stmt.execute();
+			
+			Map<String, Employee> employeeTable = new HashMap<>();
+	        if (hasRs) {
+	           try (ResultSet rs = stmt.getResultSet()) {     	
+	        	   while (rs.next()) {
+	        		   employeeTable.put(rs.getString("SSN"), new Employee(
+	        				   rs.getInt("SSN"), rs.getString("Name"),
+	    					   rs.getString("Role"),rs.getString("Username"), 
+	    					   rs.getBoolean("Enable")));
+	    			}
+	            }
+	         }
+			
+		//	System.out.println("Return Value: " + stmt.getInt(1));
+
+			return employeeTable;
+		}
+		catch (SQLException ex) {
+			ex.printStackTrace();
+			return new HashMap<>();
+		}
 	}
 
 	@Override

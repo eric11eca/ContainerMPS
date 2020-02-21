@@ -91,9 +91,9 @@ public class EmployeeView extends SplitViewFrame {
             closeIcon.setVisible(!searchBar.getValue().isEmpty());  
             
             if (filter.isEmpty() || searchBar.getValue().isEmpty()) {
-            	dataContainer.getVesselRecords();
+            	dataContainer.getEmployeeRecords();
             } else {
-            	dataContainer.getVesselRecordsByParams(filter, searchBar.getValue());
+            	dataContainer.getEmployeeRecordsByParams(filter, searchBar.getValue());
             }
             
 	        dataProvider = DataProvider.ofCollection(dataContainer.employeeRecords.values());

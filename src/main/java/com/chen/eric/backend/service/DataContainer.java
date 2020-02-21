@@ -76,6 +76,11 @@ public class DataContainer {
 		dbService.closeConnection();
 	}
 	
+	public void getEmployeeRecordsByParams(String filter, String value) {
+		employeeRecords = employeeService.retriveRecordsByParameters(filter, value);
+		dbService.closeConnection();
+	}
+	
 	public int updateEmployeeRecords (Employee employee, int key) {
 		int code = employeeService.updateRecords(employee, key);
 		dbService.closeConnection();
