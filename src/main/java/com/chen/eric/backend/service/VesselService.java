@@ -8,6 +8,7 @@ import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.chen.eric.backend.Employee;
 import com.chen.eric.backend.Vessel;
 
 public class VesselService implements EntityService<Vessel>{
@@ -21,12 +22,18 @@ public class VesselService implements EntityService<Vessel>{
 	public Map<String, Vessel> retriveRecords() {
 		try {
 			dbService.connect();
-			String query = "SELECT Top(10) * FROM Vessel";
+			String query = "{? = call dbo.View_Vessel()}";
+			CallableStatement stmt =  dbService.getConnection().prepareCall(query);
+			stmt.registerOutParameter(1, Types.INTEGER);
+			boolean hasRs = stmt.execute();
 			
-			PreparedStatement stmt =  dbService.getConnection().prepareStatement(query);			
-			ResultSet rs = stmt.executeQuery();
-			
-			return parseResults(rs);
+			Map<String, Vessel> vessels = new HashMap<>();
+			if (hasRs) {
+				try (ResultSet rs = stmt.getResultSet()) {     	
+					vessels = parseResults(rs);
+				}
+			}
+			return vessels;
 		}
 		catch (SQLException ex) {
 			ex.printStackTrace();
