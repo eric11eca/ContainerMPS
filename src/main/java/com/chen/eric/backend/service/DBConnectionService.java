@@ -20,15 +20,10 @@ public class DBConnectionService {
 	  private String jdbcUrl;
 	  
 	  public DBConnectionService() {
-		       
-	  }
-	  
-	  public void configurate(String url) {
 		  ds.setUser("gaoq");
 	      ds.setPassword("668899aA");
-	      //ds.setServerName("golem.csse.rose-hulman.edu");
-	      //ds.setDatabaseName("ContainerTestDB");	
-	      ds.setURL(url);
+	      ds.setServerName("golem.csse.rose-hulman.edu");
+	      ds.setDatabaseName("ContainerTestDB");
 	  }
 	  
 	  public boolean connect() {

@@ -256,6 +256,7 @@ public class LoginView extends HorizontalLayout {
     		          DataInputStream in = new DataInputStream(new FileInputStream(tempFile));
     		          fetchDataFromCSV(in);
     		          tempFile.delete();
+    		          in.close();
     		        } catch (IOException e1) {
     		          e1.printStackTrace();
     		        }

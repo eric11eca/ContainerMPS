@@ -60,9 +60,6 @@ import com.vaadin.flow.router.Route;
 public class VesselView extends SplitViewFrame {
 	private static final long serialVersionUID = -4976914550708460184L;
 	
-	@Autowired
-	private DataSource dataSource;
-
 	private Grid<Vessel> grid;
 	private ListDataProvider<Vessel> dataProvider;
 	private DetailsDrawer detailsDrawer;
@@ -79,13 +76,6 @@ public class VesselView extends SplitViewFrame {
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
-		try {
-			Connection connection = dataSource.getConnection();
-			dataContainer.configDataSource(connection.getMetaData().getURL());
-			connection.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 		setViewContent(createContent());
 		setViewDetails(createDetailsDrawer());
 	}

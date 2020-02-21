@@ -31,10 +31,6 @@ public class DataContainer {
 	
 	private DataContainer() {}
 	
-	public void configDataSource(String url) {
-		dbService.configurate(url);
-	}
-	
 	private EntityService<Vessel> vesselService = new VesselService(dbService);
 	public Map<String, Vessel> vesselRecords = new HashMap<>();
 	
