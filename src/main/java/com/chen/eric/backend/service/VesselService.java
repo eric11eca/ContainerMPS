@@ -238,12 +238,13 @@ public class VesselService implements EntityService<Vessel>{
 			stmt.setInt(3, vessel.getCapacity());
 			stmt.setDate(4, vessel.getDepartDate());
 			stmt.setDate(5, vessel.getArivalDate());
-			stmt.setString(6, vessel.getDestinationCountry());
-			stmt.setString(7, vessel.getDestinationState());
-			stmt.setString(8, vessel.getDestinationCity());
-			stmt.setString(9, vessel.getDepartedFromCountry());
-			stmt.setString(10, vessel.getDepartedFromState());
-			stmt.setString(11, vessel.getDepartedFromCity());
+			stmt.setString(6, vessel.getDepartedFromCountry());
+			stmt.setString(7, vessel.getDepartedFromState());
+			stmt.setString(8, vessel.getDepartedFromCity());
+			stmt.setString(9, vessel.getDestinationCountry());
+			stmt.setString(10, vessel.getDestinationState());
+			stmt.setString(11, vessel.getDestinationCity());
+			System.out.println(vessel.getDepartedFromCity());
 			stmt.execute();
 			return stmt.getInt(1);
 		}

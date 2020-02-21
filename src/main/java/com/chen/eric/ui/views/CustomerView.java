@@ -238,7 +238,7 @@ public class CustomerView extends SplitViewFrame {
 				int code = dataContainer.insertCustomerRecords(newCustomer);
 				
 				if (code == 0) {
-					Notification.show("Succesfully Inserted the Container!", 4000, Notification.Position.BOTTOM_CENTER);
+					Notification.show("Succesfully Inserted the Customer!", 4000, Notification.Position.BOTTOM_CENTER);
 					dataContainer.getCustomerRecords();
 			        dataProvider = DataProvider.ofCollection(dataContainer.customerRecords.values());
 			        grid.setDataProvider(dataProvider);

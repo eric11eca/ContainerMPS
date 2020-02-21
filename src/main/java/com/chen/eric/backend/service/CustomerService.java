@@ -8,6 +8,7 @@ import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.chen.eric.backend.Container;
 import com.chen.eric.backend.Customer;
 
 public class CustomerService implements EntityService<Customer>{
@@ -21,12 +22,19 @@ public class CustomerService implements EntityService<Customer>{
 	public Map<String, Customer> retriveRecords() {
 		try {
 			dbService.connect();
-			String query = "SELECT Top(10) * FROM Customer";
+			String query = "{? = CALL dbo.View_Customer()}";
 			
-			PreparedStatement stmt =  dbService.getConnection().prepareStatement(query);			
-			ResultSet rs = stmt.executeQuery();
+			CallableStatement stmt =  dbService.getConnection().prepareCall(query);
+			stmt.registerOutParameter(1, Types.INTEGER);
+			boolean hasRs = stmt.execute();
 			
-			return parseResults(rs);
+			Map<String, Customer> customerTable = new HashMap<>();
+	        if (hasRs) {
+	           try (ResultSet rs = stmt.getResultSet()) {     	
+	        	   customerTable =  parseResults(rs);
+	           }
+	        }	
+	        return customerTable;
 		}
 		catch (SQLException ex) {
 			ex.printStackTrace();
