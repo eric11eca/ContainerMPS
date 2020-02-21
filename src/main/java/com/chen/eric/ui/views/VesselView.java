@@ -1,15 +1,12 @@
 package com.chen.eric.ui.views;
 
-import java.sql.Connection;
 import java.sql.Date;
-import java.sql.SQLException;
 import java.time.LocalDate;
 
-import javax.sql.DataSource;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 
 import com.chen.eric.backend.BeanUtil;
+import com.chen.eric.backend.Role;
 import com.chen.eric.backend.Vessel;
 import com.chen.eric.backend.service.DataContainer;
 import com.chen.eric.ui.MainLayout;
@@ -55,6 +52,8 @@ import com.vaadin.flow.dom.DebouncePhase;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+@Secured({Role.SystemAdmin, Role.SuperManager, 
+	Role.ImportPlanManager, Role.ExportPlanManager})
 @PageTitle("Vessel")
 @Route(value = "", layout = MainLayout.class)
 public class VesselView extends SplitViewFrame {

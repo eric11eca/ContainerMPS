@@ -1,14 +1,12 @@
 package com.chen.eric.backend.service;
 
 import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.chen.eric.backend.Container;
 import com.chen.eric.backend.Customer;
 
 public class CustomerService implements EntityService<Customer>{

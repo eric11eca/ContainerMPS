@@ -125,14 +125,29 @@ public class MainLayout extends FlexBoxLayout
 
 	private void initNaviItems() {
 		NaviMenu menu = naviDrawer.getMenu();
-		menu.addNaviItem(VaadinIcon.CHART, "Dashboard", DashboardView.class);
-		menu.addNaviItem(VaadinIcon.BOAT, "Vessel", VesselView.class);
-		menu.addNaviItem(VaadinIcon.CUBES, "Container Location", ContainerLocationView.class);
-		menu.addNaviItem(VaadinIcon.PACKAGE, "Container", ContainerView.class);
-		menu.addNaviItem(VaadinIcon.COMMENTS, "Customer", CustomerView.class);
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Set<String> roles = authentication.getAuthorities().stream()
 			     .map(r -> r.getAuthority()).collect(Collectors.toSet());
+		
+		if (roles.contains("System Admin") || roles.contains("ImportPlan Manager") ||
+				roles.contains("ExportPlan Manager")|| roles.contains("Super Manager")) {
+			menu.addNaviItem(VaadinIcon.CHART, "Dashboard", DashboardView.class);
+			menu.addNaviItem(VaadinIcon.BOAT, "Vessel", VesselView.class);
+			menu.addNaviItem(VaadinIcon.PACKAGE, "Container", ContainerView.class);
+		}
+		
+		if (roles.contains("System Admin") || roles.contains("Container Distributor") || 
+				roles.contains("ImportPlan Manager") ||
+				roles.contains("ExportPlan Manager")||
+				roles.contains("Storage Area Maintainer") || roles.contains("Super Manager")) {
+			menu.addNaviItem(VaadinIcon.CUBES, "Container Location", ContainerLocationView.class);
+		}
+		
+		if (roles.contains("System Admin") || roles.contains("Customer Communicator") ||
+				roles.contains("Super Manager")) {
+			menu.addNaviItem(VaadinIcon.COMMENTS, "Customer", CustomerView.class);
+		}
+		
 		if (roles.contains("System Admin") || roles.contains("Human Resources") ||
 				roles.contains("Super Manager")) {
 			menu.addNaviItem(VaadinIcon.USERS, "Employee", EmployeeView.class);

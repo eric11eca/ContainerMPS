@@ -1,6 +1,9 @@
 package com.chen.eric.ui.views;
 
+import org.springframework.security.access.annotation.Secured;
+
 import com.chen.eric.backend.Customer;
+import com.chen.eric.backend.Role;
 import com.chen.eric.backend.service.DataContainer;
 import com.chen.eric.ui.MainLayout;
 import com.chen.eric.ui.components.FlexBoxLayout;
@@ -44,7 +47,7 @@ import com.vaadin.flow.dom.DebouncePhase;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-
+@Secured({Role.SystemAdmin, Role.SuperManager, Role.CustomerCommunicator})
 @SuppressWarnings("serial")
 @PageTitle("Customer")
 @Route(value = "customer", layout = MainLayout.class)

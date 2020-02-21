@@ -14,9 +14,11 @@ import java.util.List;
 
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.access.annotation.Secured;
 
 import com.chen.eric.backend.ExportPlan;
 import com.chen.eric.backend.ImportPlan;
+import com.chen.eric.backend.Role;
 import com.chen.eric.backend.TransPlan;
 import com.chen.eric.backend.service.DataContainer;
 import com.chen.eric.ui.MainLayout;
@@ -70,10 +72,12 @@ import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.SourceStringReader;
 
+@Secured({Role.SystemAdmin, Role.SuperManager, 
+	Role.ImportPlanManager, Role.ExportPlanManager})
 @SuppressWarnings("serial")
 @Route(value = "dashboard", layout = MainLayout.class)
 @PageTitle("Dashboard")
-@CssImport(value = "styles/views/dashboard/dashboard-view.css", include = "lumo-badge")
+@CssImport(value = "./styles/views/dashboard/dashboard-view.css", include = "lumo-badge")
 @JsModule("@vaadin/vaadin-lumo-styles/badge.js")
 public class DashboardView extends ViewFrame {
     private final H2  vesselCount = new H2();
@@ -286,14 +290,6 @@ public class DashboardView extends ViewFrame {
             	exportDataProvider.clearFilters();
             }
             
-            /*if (filter.isEmpty() || searchBar.getValue().isEmpty()) {
-            	dataContainer.getPlanRecords();
-            } else {
-            	dataContainer.getPlanRecordsByParams(filter, searchBar.getValue());
-            }
-            
-	        dataProvider = DataProvider.ofCollection(dataContainer.transPlanRecords.values());
-	        planGrid.setDataProvider(dataProvider);*/
             if (filter.equals("PlanID")) {
             	if (isImport) {
             		importDataProvider.addFilter(
@@ -609,8 +605,8 @@ public class DashboardView extends ViewFrame {
    private VerticalLayout createPlanEditor(boolean isImport) {
        VerticalLayout planEditor = new VerticalLayout();
        TextField manager = new TextField();
-       manager.setLabel("Plan Manager");
-       manager.setPlaceholder("Completion Signature(User Name)");
+       manager.setLabel("Completion Signature");
+       manager.setPlaceholder("Enter Username");
       
        Button complete = UIUtils.createPrimaryButton("Plan Complete");
        complete.addClickListener(e -> {
@@ -624,10 +620,15 @@ public class DashboardView extends ViewFrame {
 	    		   if (code == 0) {
 	    			   dataContainer.deletePlanRecords(currentImportPlan.planID);
 	    			   importDataProvider.getItems().remove(currentImportPlan);
+	    			   importPlanGrid.setDataProvider(importDataProvider);
+	    			   currentImportPlan = null;
+	    			   board.remove(editImportPlanRow);
+	    			   updateImportPlanRow();
+	    			   createImportPlanRow();
+	    			   
 	    			   Notification.show("This plan is completed",
 		   						2000, Notification.Position.BOTTOM_CENTER);
-	    			   importPlanGrid.setDataProvider(importDataProvider);
-	    			   importPlanDetailWrapper = initNoPlan();
+	    			   
 	    		   } else {
 	    			   Notification.show("Cannot complete this plan becuase you are not its manager",
 	   						2000, Notification.Position.BOTTOM_CENTER);
@@ -646,10 +647,14 @@ public class DashboardView extends ViewFrame {
 	    		   if (code == 0) {
 	    			   dataContainer.deletePlanRecords(currentExportPlan.planID);
 	    			   exportDataProvider.getItems().remove(currentExportPlan);
+	    			   exportPlanGrid.setDataProvider(exportDataProvider);
+	    			   currentExportPlan = null;
+	    			   board.remove(editExportPlanRow);
+	    			   updateExportPlanRow();
+	    			   createExportPlanRow();
+
 	    			   Notification.show("This plan is completed",
 		   						2000, Notification.Position.BOTTOM_CENTER);
-	    			   exportPlanGrid.setDataProvider(exportDataProvider);
-	    			   exportPlanDetailWrapper = initNoPlan();
 	    		   } else {
 	    			   Notification.show("Cannot complete this plan becuase you are not its manager",
 	   						2000, Notification.Position.BOTTOM_CENTER);

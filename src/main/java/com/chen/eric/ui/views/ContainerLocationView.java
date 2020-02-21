@@ -7,12 +7,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.access.annotation.Secured;
 import org.vaadin.klaudeta.PaginatedGrid;
 
 import com.chen.eric.backend.Bay;
 import com.chen.eric.backend.Block;
 import com.chen.eric.backend.Container;
 import com.chen.eric.backend.Location;
+import com.chen.eric.backend.Role;
 import com.chen.eric.backend.StorageArea;
 import com.chen.eric.backend.service.DataContainer;
 import com.chen.eric.ui.MainLayout;
@@ -69,6 +71,9 @@ import com.vaadin.flow.dom.DebouncePhase;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+@Secured({Role.SystemAdmin, Role.SuperManager, 
+	Role.StorageAreaMaintainer, Role.ContainerDistributor,
+	Role.ImportPlanManager, Role.ExportPlanManager})
 @PageTitle("Container Location")
 @Route(value = "stored-at", layout = MainLayout.class)
 @SuppressWarnings("serial")
