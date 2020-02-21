@@ -123,26 +123,32 @@ public class DashboardView extends ViewFrame {
         
         createImportPlanGrid();
         updateImportPlanRow();
-        
-        importPlanGridWrapper = new WrapperCard("wrapper", 
-        		new Component[] {createToolBar(true), importPlanGrid}, "card");
-        editImportPlanRow = new Row();
-        editImportPlanRow.add(importPlanGridWrapper, importPlanDetailWrapper);
-        board.add(editImportPlanRow);
+        createImportPlanRow();
         
         createExportPlanGrid();
         updateExportPlanRow();
-        
-        exportPlanGridWrapper = new WrapperCard("wrapper", 
-        		new Component[] {createToolBar(false), exportPlanGrid}, "card");
-        editExportPlanRow = new Row();
-        editExportPlanRow.add(exportPlanGridWrapper, exportPlanDetailWrapper);
-        board.add(editExportPlanRow);
-        
+        createExportPlanRow();
+
         FlexBoxLayout content = new FlexBoxLayout(board);
 		content.setAlignItems(FlexComponent.Alignment.CENTER);
 		content.setFlexDirection(FlexDirection.COLUMN);
 		setViewContent(content);
+    }
+    
+    private void createImportPlanRow() {
+    	 importPlanGridWrapper = new WrapperCard("wrapper", 
+         		new Component[] {createToolBar(true), importPlanGrid}, "card");
+         editImportPlanRow = new Row();
+         editImportPlanRow.add(importPlanGridWrapper, importPlanDetailWrapper);
+         board.addComponentAtIndex(1, editImportPlanRow);
+    }
+    
+    private void createExportPlanRow() {
+    	exportPlanGridWrapper = new WrapperCard("wrapper", 
+        		new Component[] {createToolBar(false), exportPlanGrid}, "card");
+        editExportPlanRow = new Row();
+        editExportPlanRow.add(exportPlanGridWrapper, exportPlanDetailWrapper);
+        board.addComponentAtIndex(2, editExportPlanRow);
     }
 
     
@@ -242,7 +248,7 @@ public class DashboardView extends ViewFrame {
     	editImportPlanRow.removeAll();
     	editImportPlanRow.add(importPlanGridWrapper, importPlanDetailWrapper);
     	board.remove(editImportPlanRow);
-    	board.addComponentAtIndex(2, editImportPlanRow);
+    	board.addComponentAtIndex(1, editImportPlanRow);
     }
     
     private void showExportPlanDetail(TransPlan plan) {
@@ -251,7 +257,7 @@ public class DashboardView extends ViewFrame {
     	editExportPlanRow.removeAll();
     	editExportPlanRow.add(exportPlanGridWrapper, exportPlanDetailWrapper);
     	board.remove(editExportPlanRow);
-    	board.addComponentAtIndex(3, editExportPlanRow);
+    	board.addComponentAtIndex(2, editExportPlanRow);
     }
     
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -382,8 +388,16 @@ public class DashboardView extends ViewFrame {
             if (code == 0) {
             	if (isImport) {
             		importDataProvider.getItems().remove(plan);
+            		importPlanGrid.setDataProvider(importDataProvider);
+            		board.remove(editImportPlanRow);
+            		updateImportPlanRow();
+            	    createImportPlanRow();
             	} else {
             		exportDataProvider.getItems().remove(plan);
+            		exportPlanGrid.setDataProvider(exportDataProvider);
+            		board.remove(editExportPlanRow);
+            		updateExportPlanRow();
+        	        createExportPlanRow();
             	}
         		Notification.show("Succefully Deleted the plan!", 4000, Notification.Position.BOTTOM_CENTER);
             } else {
@@ -754,7 +768,8 @@ public class DashboardView extends ViewFrame {
 				Notification.show(String.format("Succesfully Created %s plans",count), 
 						4000, Notification.Position.BOTTOM_CENTER);
 			} else {
-				Notification.show("ERROR: Some plans are not created",
+				Notification.show("Some plans are not created." 
+						+ String.format("Succesfully Created %s plans",count),
 						4000, Notification.Position.BOTTOM_CENTER);
 			}
 		} catch (IOException e) {
