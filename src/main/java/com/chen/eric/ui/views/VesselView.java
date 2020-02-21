@@ -1,7 +1,13 @@
 package com.chen.eric.ui.views;
 
 import java.sql.Date;
+import java.sql.SQLException;
 import java.time.LocalDate;
+
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.chen.eric.backend.BeanUtil;
 import com.chen.eric.backend.Vessel;
 import com.chen.eric.backend.service.DataContainer;
@@ -48,10 +54,13 @@ import com.vaadin.flow.dom.DebouncePhase;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@SuppressWarnings("serial")
 @PageTitle("Vessel")
 @Route(value = "", layout = MainLayout.class)
 public class VesselView extends SplitViewFrame {
+	private static final long serialVersionUID = -4976914550708460184L;
+	
+	@Autowired
+	private DataSource dataSource;
 
 	private Grid<Vessel> grid;
 	private ListDataProvider<Vessel> dataProvider;
@@ -69,6 +78,11 @@ public class VesselView extends SplitViewFrame {
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
+		try {
+			dataContainer.configDataSource(dataSource.getConnection().getMetaData().getURL());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		setViewContent(createContent());
 		setViewDetails(createDetailsDrawer());
 	}

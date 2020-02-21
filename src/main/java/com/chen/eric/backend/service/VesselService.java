@@ -10,9 +10,9 @@ import java.util.Map;
 import com.chen.eric.backend.Vessel;
 
 public class VesselService implements EntityService<Vessel>{
-	private DBConnectionService dbService;
+	private DBConnectionService dbService; 
 	
-	public  VesselService (DBConnectionService dbService) {
+	public  VesselService (DBConnectionService dbService ) {
 		this.dbService = dbService;
 	}
 	

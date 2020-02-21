@@ -21,7 +21,7 @@ public class DataContainer {
 	private static DataContainer dbContainer; 
 	Authentication authentication;
 	
-	private DBConnectionService dbService = DBConnectionService.getInstance();
+	private DBConnectionService dbService = new DBConnectionService();
 	  
 	public static DataContainer getInstance() { 
 		if (dbContainer == null)
@@ -29,7 +29,10 @@ public class DataContainer {
 		return dbContainer; 
 	} 
 	
-	private DataContainer() {
+	private DataContainer() {}
+	
+	public void configDataSource(String url) {
+		dbService.configurate(url);
 	}
 	
 	private EntityService<Vessel> vesselService = new VesselService(dbService);

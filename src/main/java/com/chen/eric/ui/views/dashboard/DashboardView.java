@@ -383,11 +383,8 @@ public class DashboardView extends ViewFrame {
 	}
 
 	private Button createRemoveButton(TransPlan plan, boolean isImport) {
-		
-		System.out.println(plan.planID);
 		Button button = new Button(new Icon(VaadinIcon.TRASH));
 		button.addClickListener(e-> {
-			System.out.println("Reach Deletion");
             int code = dataContainer.deletePlanRecords(plan.getPlanID());
             if (code == 0) {
             	if (isImport) {
