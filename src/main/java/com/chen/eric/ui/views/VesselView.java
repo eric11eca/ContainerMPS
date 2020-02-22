@@ -229,7 +229,7 @@ public class VesselView extends SplitViewFrame {
 				} else if (e.getValue().isEmpty() || e.getValue().isBlank()) {
 					return;
 				}
-			} catch (NumberFormatException ex) {
+			} catch (Exception ex) {
 				Notification.show("Invalid Vessel ID format!", 
         				4000, Notification.Position.BOTTOM_CENTER);
 			}
@@ -241,7 +241,7 @@ public class VesselView extends SplitViewFrame {
 		updateCapacity.setWidth("50%");
 		updateCapacity.addValueChangeListener(e-> {
 			try {
-				newVessel.setCapacity(Integer.valueOf(e.getValue().intValue()));
+				newVessel.setCapacity(e.getValue().intValue());
 			} catch (Exception ex) {
 				Notification.show("Invalid number format!", 
         				4000, Notification.Position.BOTTOM_CENTER);

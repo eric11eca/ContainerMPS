@@ -23,7 +23,7 @@ public class DBConnectionService {
 		  ds.setUser("gaoq");
 	      ds.setPassword("668899aA");
 	      ds.setServerName("golem.csse.rose-hulman.edu");
-	      ds.setDatabaseName("ContainerTestDB");
+	      ds.setDatabaseName("ContainerTestDB4");
 	  }
 	  
 	  public boolean connect() {
